@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#FFF8E7"/>
+  <circle cx="256" cy="210" r="100" fill="#FFD93D"/>
+  <circle cx="222" cy="190" r="14" fill="#2D3436"/>
+  <circle cx="290" cy="190" r="14" fill="#2D3436"/>
+  <circle cx="222" cy="186" r="5" fill="white"/>
+  <circle cx="290" cy="186" r="5" fill="white"/>
+  <path d="M232 238 Q256 262 280 238" stroke="#2D3436" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <circle cx="196" cy="158" r="36" fill="#FFD93D"/>
+  <circle cx="316" cy="158" r="36" fill="#FFD93D"/>
+  <text x="256" y="390" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="56" fill="#4A90D9">키즈에듀</text>
+  <text x="256" y="440" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#636E72">유아 학습</text>
+</svg>

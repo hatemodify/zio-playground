@@ -1,0 +1,913 @@
+{
+  "meta": {
+    "version": "2.0.0",
+    "app_name": "KidsEdu",
+    "target_age": "4-5세",
+    "design_direction": "아동 친화 파스텔 톤 — 둥글고 부드러운 UI, 큰 터치 타겟, 밝고 따뜻한 색감",
+    "benchmarks": ["LetterSchool", "Writing Wizard", "Khan Academy Kids", "핑크퐁", "Sago Mini World"],
+    "mascot": {
+      "name": "또리",
+      "type": "곰 캐릭터",
+      "format": "SVG inline",
+      "growth_levels": 10,
+      "idle_animation": "floating 2s ease-in-out infinite"
+    }
+  },
+
+  "design_principles": [
+    { "id": "DP-1", "name": "둥글고 부드럽게", "rule": "모든 모서리 border-radius 16px+, 직각 없음" },
+    { "id": "DP-2", "name": "크고 또렷하게", "rule": "최소 폰트 16px, 주요 글자 80px+, 아이콘 32px+" },
+    { "id": "DP-3", "name": "밝고 따뜻하게", "rule": "크림색 배경, 파스텔 포인트 색상" },
+    { "id": "DP-4", "name": "움직이고 반응하게", "rule": "모든 터치에 바운스/반짝임 피드백" },
+    { "id": "DP-5", "name": "단순하게", "rule": "화면당 핵심 액션 1개, 선택지 최대 4-6개" },
+    { "id": "DP-6", "name": "긍정적 강화", "rule": "실패 없는 설계 — 틀려도 격려, 재시도 유도" }
+  ],
+
+  "colors": {
+    "css_variable_prefix": "--color-",
+    "backgrounds": {
+      "bg-cream":       { "value": "#FFF8E7", "usage": "메인 배경 — 앱 전체 기본 배경색" },
+      "bg-warm":        { "value": "#FFF3D6", "usage": "카드 배경 — 학습 카드, 게임 카드 배경" },
+      "bg-soft":        { "value": "#F0F4FF", "usage": "게임 영역 배경 — 미니 게임, 캔버스 영역" },
+      "bg-overlay":     { "value": "rgba(0,0,0,0.3)", "usage": "모달/다이얼로그 오버레이 배경" }
+    },
+    "primary": {
+      "primary-blue":       { "value": "#4A90D9", "usage": "주 액션 버튼, 네비게이션 활성 탭, 링크" },
+      "primary-blue-light": { "value": "#7CB3E8", "usage": "호버/활성 상태, 진행도 링 배경" },
+      "primary-blue-dark":  { "value": "#3A72B0", "usage": "눌림 상태 (pressed)" }
+    },
+    "accent": {
+      "accent-yellow":  { "value": "#FFD93D", "usage": "별, 보상, 하이라이트, 스트리크 배너" },
+      "accent-orange":  { "value": "#FF9F43", "usage": "CTA 버튼, 주의 끌기, 점 잇기 포인트" },
+      "success-green":  { "value": "#2ED573", "usage": "성공/완료 상태, 올바른 정렬 위치" },
+      "reward-pink":    { "value": "#FF6B81", "usage": "특별 보상, 트로피, 레벨업" },
+      "error-coral":    { "value": "#FF6348", "usage": "부드러운 에러 피드백 (빨간색 대신 코랄)" }
+    },
+    "category": {
+      "numbers-purple": { "value": "#A29BFE", "usage": "숫자 학습 카테고리 테마 색상" },
+      "hangul-green":   { "value": "#55E6C1", "usage": "한글 학습 카테고리 테마 색상" },
+      "english-orange": { "value": "#FECA57", "usage": "영어 학습 카테고리 테마 색상" },
+      "games-pink":     { "value": "#FF9FF3", "usage": "게임 카테고리 테마 색상" }
+    },
+    "text": {
+      "text-dark":   { "value": "#2D3436", "usage": "본문 텍스트, 주요 라벨" },
+      "text-medium": { "value": "#636E72", "usage": "보조 텍스트, 설명" },
+      "text-light":  { "value": "#B2BEC3", "usage": "비활성 텍스트, 플레이스홀더" },
+      "text-white":  { "value": "#FFFFFF", "usage": "어두운 배경 위 텍스트, 버튼 라벨" }
+    },
+    "canvas": {
+      "guide-color":  { "value": "rgba(74, 144, 217, 0.2)", "usage": "따라쓰기 가이드 글자 (1단계)" },
+      "guide-faint":  { "value": "rgba(74, 144, 217, 0.1)", "usage": "자유쓰기 배경 글자 (3단계)" },
+      "guide-medium": { "value": "rgba(74, 144, 217, 0.3)", "usage": "점잇기 배경 글자 (2단계)" },
+      "stroke-color": { "value": "#4A90D9", "usage": "사용자 필기선 색상" },
+      "dot-color":    { "value": "#FF9F43", "usage": "점 잇기 포인트 색상" },
+      "dot-active":   { "value": "#FFD93D", "usage": "현재 활성 점 (빛나는 상태)" },
+      "success-rainbow": { "value": "linear-gradient(90deg, #FF6B6B, #FFA500, #FFD93D, #2ED573, #4A90D9, #A29BFE, #FF6B81)", "usage": "자유쓰기 완료 시 무지개색 전환" }
+    },
+    "game_specific": {
+      "coloring-palette": ["#FF6B6B", "#FFA500", "#FFD93D", "#2ED573", "#4A90D9", "#A29BFE"],
+      "balloon-colors": ["#FF6B81", "#4A90D9", "#2ED573", "#FFD93D", "#A29BFE", "#FF9FF3"],
+      "bubble-colors": ["#7CB3E8", "#A29BFE", "#55E6C1", "#FECA57", "#FF9FF3", "#FF6B81"]
+    }
+  },
+
+  "typography": {
+    "font_families": {
+      "korean": {
+        "family": "Pretendard Variable, Pretendard, -apple-system, system-ui, sans-serif",
+        "source": "CDN (cdn.jsdelivr.net)",
+        "weights": [400, 500, 600, 700],
+        "usage": "한글 텍스트, UI 라벨, 본문"
+      },
+      "latin_numeric": {
+        "family": "'Nunito', sans-serif",
+        "source": "Google Fonts",
+        "weights": [400, 600, 700, 800],
+        "usage": "영문/숫자 학습 글자, 카드 타이틀, 점수 표시",
+        "note": "둥근 형태로 아동 친화적"
+      }
+    },
+    "scale": {
+      "learning-char-xl": { "size": "120px", "weight": 800, "font": "Nunito", "usage": "숫자 학습 상세 — 메인 숫자" },
+      "learning-char-lg": { "size": "100px", "weight": 700, "font": "Nunito/Pretendard", "usage": "한글/영문 학습 상세 — 메인 글자" },
+      "learning-char-md": { "size": "80px",  "weight": 700, "font": "Nunito/Pretendard", "usage": "카드 그리드 내 학습 글자" },
+      "heading-xl":       { "size": "32px",  "weight": 700, "font": "Pretendard", "usage": "화면 제목 (홈 인사말)" },
+      "heading-lg":       { "size": "24px",  "weight": 700, "font": "Nunito", "usage": "카드 타이틀, 게임 이름" },
+      "heading-md":       { "size": "20px",  "weight": 600, "font": "Pretendard", "usage": "섹션 헤딩, 탭 타이틀" },
+      "body-lg":          { "size": "18px",  "weight": 400, "font": "Pretendard", "usage": "대표 단어, 설명 텍스트" },
+      "body-md":          { "size": "16px",  "weight": 400, "font": "Pretendard", "usage": "본문, 안내 텍스트" },
+      "label-lg":         { "size": "16px",  "weight": 500, "font": "Pretendard", "usage": "네비게이션 라벨, 버튼 텍스트" },
+      "label-md":         { "size": "14px",  "weight": 500, "font": "Pretendard", "usage": "보조 라벨, 배지 텍스트" },
+      "label-sm":         { "size": "12px",  "weight": 500, "font": "Pretendard", "usage": "캡션, 힌트 텍스트" }
+    },
+    "line_heights": {
+      "tight": 1.2,
+      "normal": 1.5,
+      "relaxed": 1.75
+    }
+  },
+
+  "spacing": {
+    "unit": "4px (0.25rem)",
+    "scale": {
+      "xs":   "4px",
+      "sm":   "8px",
+      "md":   "12px",
+      "lg":   "16px",
+      "xl":   "20px",
+      "2xl":  "24px",
+      "3xl":  "32px",
+      "4xl":  "40px",
+      "5xl":  "48px",
+      "6xl":  "64px"
+    },
+    "page_padding": "16px (모바일) / 24px (태블릿)",
+    "card_padding": "16px 내부 / 12px 카드 간 갭",
+    "section_gap": "24px",
+    "safe_area": "env(safe-area-inset-top/bottom/left/right)"
+  },
+
+  "borders": {
+    "radius": {
+      "sm":   "8px",
+      "md":   "12px",
+      "lg":   "16px",
+      "xl":   "20px",
+      "2xl":  "24px",
+      "full": "9999px",
+      "card": "20px",
+      "button": "16px",
+      "avatar": "9999px",
+      "canvas": "24px"
+    },
+    "width": {
+      "thin":   "1px",
+      "medium": "2px",
+      "thick":  "3px"
+    }
+  },
+
+  "shadows": {
+    "card":    "0 4px 12px rgba(0,0,0,0.08)",
+    "card-hover": "0 8px 24px rgba(0,0,0,0.12)",
+    "button":  "0 2px 8px rgba(74,144,217,0.25)",
+    "button-pressed": "0 1px 4px rgba(74,144,217,0.15)",
+    "nav":     "0 -2px 12px rgba(0,0,0,0.06)",
+    "modal":   "0 16px 48px rgba(0,0,0,0.2)",
+    "reward":  "0 0 20px rgba(255,217,61,0.5)",
+    "glow":    "0 0 16px rgba(74,144,217,0.4)"
+  },
+
+  "breakpoints": {
+    "mobile":  { "min": "360px", "max": "767px" },
+    "tablet":  { "min": "768px", "max": "1024px", "note": "주 타겟 디바이스" },
+    "desktop": { "min": "1025px", "max_content": "1024px", "note": "중앙 정렬, max-width 제한" }
+  },
+
+  "touch": {
+    "min_target_size": "56px",
+    "recommended_target_size": "64px",
+    "card_min_height": "80px",
+    "nav_item_height": "64px",
+    "learning_card_size": {
+      "mobile": "min(calc(50vw - 24px), 160px)",
+      "tablet": "min(calc(33vw - 24px), 180px)"
+    }
+  },
+
+  "animations": {
+    "library": "Motion 12 (구 Framer Motion)",
+    "durations": {
+      "instant":  "100ms",
+      "fast":     "200ms",
+      "normal":   "300ms",
+      "slow":     "500ms",
+      "reward":   "1000ms",
+      "confetti": "3000ms",
+      "idle":     "2000ms"
+    },
+    "easings": {
+      "default":     "ease-out",
+      "spring":      { "type": "spring", "stiffness": 300, "damping": 20 },
+      "bounce":      { "type": "spring", "stiffness": 400, "damping": 10 },
+      "gentle":      { "type": "spring", "stiffness": 200, "damping": 25 }
+    },
+    "presets": {
+      "page_transition": {
+        "initial":  { "opacity": 0, "x": 50 },
+        "animate":  { "opacity": 1, "x": 0 },
+        "exit":     { "opacity": 0, "x": -50 },
+        "transition": { "duration": 0.3, "ease": "easeOut" }
+      },
+      "card_entrance": {
+        "initial":  { "opacity": 0, "y": 20 },
+        "animate":  { "opacity": 1, "y": 0 },
+        "transition": { "staggerChildren": 0.05 }
+      },
+      "button_tap": {
+        "whileTap": { "scale": 0.95 },
+        "transition": { "type": "spring", "stiffness": 400, "damping": 17 }
+      },
+      "star_earned": {
+        "description": "별이 회전하며 날아와 헤더에 흡수",
+        "initial":  { "scale": 0, "rotate": 0, "opacity": 0 },
+        "animate":  { "scale": [0, 1.5, 1], "rotate": [0, 360], "opacity": 1 },
+        "transition": { "duration": 0.8, "ease": "easeOut" }
+      },
+      "level_up": {
+        "description": "화면 전체 축하 파티클 3초",
+        "particles": true,
+        "duration": 3000
+      },
+      "tracing_complete": {
+        "description": "글자가 무지개색으로 변환",
+        "duration": 1000
+      },
+      "mascot_idle": {
+        "description": "부유 애니메이션",
+        "animate": { "y": [0, -8, 0] },
+        "transition": { "duration": 2, "repeat": "Infinity", "ease": "easeInOut" }
+      },
+      "balloon_float": {
+        "description": "풍선 떠오르기",
+        "initial": { "y": "100vh", "scale": 0.8 },
+        "animate": { "y": "-10vh", "scale": 1, "rotate": [-5, 5, -5] },
+        "transition": { "duration": 6, "ease": "linear" }
+      },
+      "confetti_burst": {
+        "description": "컨페티 폭발 효과",
+        "particles": 50,
+        "spread": 360,
+        "duration": 3000,
+        "colors": ["#FFD93D", "#FF6B81", "#4A90D9", "#2ED573", "#A29BFE", "#FF9FF3"]
+      },
+      "card_flip": {
+        "description": "카드 뒤집기 (메모리 매치)",
+        "duration": 400,
+        "transition": { "rotateY": [0, 180] }
+      },
+      "shake_wrong": {
+        "description": "오답 시 흔들림",
+        "animate": { "x": [-4, 4, -4, 4, 0] },
+        "transition": { "duration": 0.4 }
+      }
+    }
+  },
+
+  "sounds": {
+    "engine": "Web Audio API",
+    "source": "Freesound.org CC0",
+    "effects": {
+      "button_click":     { "description": "짧은 뽁 효과음",            "duration": "100ms" },
+      "correct":          { "description": "밝은 띵! 차임",             "duration": "300ms" },
+      "wrong":            { "description": "부드러운 부웅",             "duration": "400ms", "note": "부정적이지 않은 톤" },
+      "star_earned":      { "description": "반짝반짝 효과음",           "duration": "500ms" },
+      "level_up":         { "description": "팡파레",                   "duration": "1500ms" },
+      "stroke_draw":      { "description": "크레용 질감 사운드",         "duration": "continuous" },
+      "stroke_complete":  { "description": "짧은 딩 + 반짝임",          "duration": "200ms" },
+      "confetti":         { "description": "파팟 효과음",               "duration": "500ms" },
+      "balloon_pop":      { "description": "풍선 터지는 소리",           "duration": "200ms" },
+      "card_flip":        { "description": "카드 뒤집는 소리",           "duration": "150ms" },
+      "match_success":    { "description": "매칭 성공 차임",            "duration": "400ms" },
+      "drag_pickup":      { "description": "들어올리기 톡",             "duration": "100ms" },
+      "drag_drop":        { "description": "놓기 착",                  "duration": "150ms" },
+      "encouragement":    { "description": "마스코트 격려 (다시 해볼까?)", "type": "TTS" }
+    },
+    "settings": {
+      "master_volume": 0.7,
+      "sfx_volume": 0.8,
+      "tts_volume": 1.0,
+      "mute_toggle": true
+    }
+  },
+
+  "canvas_spec": {
+    "technology": "HTML5 Canvas API (라이브러리 미사용)",
+    "layers": [
+      { "order": 0, "name": "background-text", "description": "실제 글자 (가이드 텍스트) — opacity 단계별 변화" },
+      { "order": 1, "name": "guide-dots",      "description": "현재 획 점선 경로 / 번호 매긴 점 (1-2단계)" },
+      { "order": 2, "name": "user-input",      "description": "사용자 활성 드로잉 레이어" }
+    ],
+    "dimensions": {
+      "min_size": "280px × 280px",
+      "max_size": "400px × 400px",
+      "responsive": true,
+      "dpi_scaling": "window.devicePixelRatio"
+    },
+    "input": {
+      "event_type": "PointerEvent (터치/마우스/펜 통합)",
+      "touch_action": "none (스크롤 방지)",
+      "line_width": "12px",
+      "line_cap": "round",
+      "line_join": "round",
+      "smoothing": "quadraticCurveTo"
+    },
+    "tracing_stages": {
+      "stage_1_guided": {
+        "name": "따라가기",
+        "guide_opacity": 0.3,
+        "show_dotted_path": true,
+        "show_start_indicator": true,
+        "start_indicator": "빛나는 원형 (pulse 애니메이션)",
+        "path_tolerance": "20px",
+        "off_path_behavior": "부드럽게 재안내 (격려 메시지)"
+      },
+      "stage_2_dots": {
+        "name": "점 잇기",
+        "guide_opacity": 0.3,
+        "show_numbered_dots": true,
+        "dot_size": "16px",
+        "dot_reach_effect": "팡 + 다음 점 활성화",
+        "dot_active_glow": true
+      },
+      "stage_3_free": {
+        "name": "자유 쓰기",
+        "guide_opacity": 0.1,
+        "no_guides": true,
+        "success_threshold": "글자 영역 60% 이상 커버",
+        "success_effect": "무지개색 전환 + 축하 애니메이션"
+      }
+    },
+    "feedback": {
+      "in_progress": "펜 경로에 반짝이는 파티클 트레일",
+      "stroke_complete": "짧은 딩 효과음 + 반짝임",
+      "stage_complete": "마스코트 격려 + 별 1개",
+      "all_complete": "축하 컨페티 + 별 3개 + 레벨업 체크"
+    },
+    "controls": {
+      "buttons": ["지우기 (↺)", "다시쓰기", "다음 단계 (→)"],
+      "button_position": "캔버스 하단",
+      "button_min_size": "56px"
+    }
+  },
+
+  "components": {
+    "layout": {
+      "AppLayout": {
+        "description": "전체 앱 레이아웃 래퍼",
+        "file": "src/components/ui/AppLayout.tsx",
+        "props": ["children"],
+        "structure": "TopBar + main content (flex-1 overflow-y-auto) + BottomNav",
+        "styles": {
+          "background": "bg-cream",
+          "min_height": "100dvh",
+          "max_width": "1024px (데스크톱 중앙 정렬)",
+          "safe_area": "padding: env(safe-area-inset)"
+        }
+      },
+      "TopBar": {
+        "description": "상단 바 — 마스코트 + 인사말 + 레벨 뱃지 + 별 카운터",
+        "file": "src/components/ui/TopBar.tsx",
+        "props": ["level", "stars", "streak"],
+        "height": "64px",
+        "elements": [
+          { "name": "mascot-avatar", "size": "40px", "shape": "circle" },
+          { "name": "greeting-text", "style": "heading-xl", "dynamic": "시간대별 인사" },
+          { "name": "level-badge", "shape": "pill", "bg": "accent-yellow" },
+          { "name": "star-counter", "icon": "star SVG", "font": "Nunito Bold" }
+        ]
+      },
+      "BottomNav": {
+        "description": "하단 탭 네비게이션 — 5개 탭",
+        "file": "src/components/ui/BottomNav.tsx",
+        "props": ["activeTab"],
+        "height": "64px + safe-area-inset-bottom",
+        "shadow": "0 -2px 12px rgba(0,0,0,0.06)",
+        "background": "#FFFFFF",
+        "border_radius_top": "20px",
+        "tabs": [
+          { "id": "home",    "label": "홈",  "icon": "HomeIcon SVG",    "color_active": "primary-blue" },
+          { "id": "numbers", "label": "숫자", "icon": "NumbersIcon SVG", "color_active": "numbers-purple" },
+          { "id": "hangul",  "label": "한글", "icon": "HangulIcon SVG",  "color_active": "hangul-green" },
+          { "id": "english", "label": "영어", "icon": "EnglishIcon SVG", "color_active": "english-orange" },
+          { "id": "games",   "label": "게임", "icon": "GamesIcon SVG",   "color_active": "games-pink" }
+        ],
+        "tab_spec": {
+          "icon_size": "32px",
+          "label_font": "label-md",
+          "min_touch_target": "56px",
+          "active_indicator": "filled icon + color label",
+          "inactive_color": "text-light"
+        }
+      }
+    },
+
+    "ui_primitives": {
+      "Button": {
+        "description": "공통 버튼 — 다양한 variant 지원",
+        "file": "src/components/ui/Button.tsx",
+        "props": ["variant", "size", "disabled", "loading", "icon", "children", "onClick"],
+        "variants": {
+          "primary":   { "bg": "primary-blue", "text": "white", "shadow": "button", "hover_bg": "primary-blue-light" },
+          "secondary": { "bg": "bg-warm", "text": "text-dark", "border": "2px solid primary-blue-light" },
+          "accent":    { "bg": "accent-orange", "text": "white", "shadow": "button" },
+          "success":   { "bg": "success-green", "text": "white" },
+          "ghost":     { "bg": "transparent", "text": "primary-blue" },
+          "category": {
+            "numbers": { "bg": "numbers-purple", "text": "white" },
+            "hangul":  { "bg": "hangul-green", "text": "white" },
+            "english": { "bg": "english-orange", "text": "text-dark" },
+            "games":   { "bg": "games-pink", "text": "white" }
+          }
+        },
+        "sizes": {
+          "sm": { "height": "40px", "padding": "0 16px", "font": "label-md", "radius": "12px" },
+          "md": { "height": "48px", "padding": "0 24px", "font": "label-lg", "radius": "16px" },
+          "lg": { "height": "56px", "padding": "0 32px", "font": "body-lg",  "radius": "16px" },
+          "xl": { "height": "64px", "padding": "0 40px", "font": "heading-md", "radius": "20px" }
+        },
+        "interactions": {
+          "tap": "scale(0.95) → scale(1.0), 100ms spring",
+          "disabled": "opacity 0.5, pointer-events none"
+        }
+      },
+      "Card": {
+        "description": "공통 카드 컴포넌트 — 학습/게임 카드 기반",
+        "file": "src/components/ui/Card.tsx",
+        "props": ["variant", "completed", "locked", "children", "onClick"],
+        "base_styles": {
+          "background": "bg-warm",
+          "border_radius": "20px",
+          "padding": "16px",
+          "shadow": "card",
+          "transition": "transform 200ms, box-shadow 200ms"
+        },
+        "variants": {
+          "learning": { "aspect_ratio": "1/1", "text_align": "center" },
+          "game":     { "min_height": "120px", "flex_direction": "row" },
+          "category": { "min_height": "140px", "position": "relative" },
+          "sticker":  { "aspect_ratio": "1/1", "padding": "8px" }
+        },
+        "states": {
+          "completed": { "border": "2px solid success-green", "badge": "gold star" },
+          "locked":    { "opacity": 0.6, "filter": "grayscale(0.3)", "lock_icon": true },
+          "active":    { "shadow": "card-hover", "transform": "translateY(-2px)" }
+        }
+      },
+      "ProgressRing": {
+        "description": "원형 진행도 표시 — 카테고리 카드 내부",
+        "file": "src/components/ui/ProgressRing.tsx",
+        "props": ["progress", "size", "color", "strokeWidth"],
+        "sizes": {
+          "sm": { "diameter": "40px", "stroke": "4px" },
+          "md": { "diameter": "56px", "stroke": "5px" },
+          "lg": { "diameter": "72px", "stroke": "6px" }
+        },
+        "implementation": "SVG circle, stroke-dasharray/stroke-dashoffset",
+        "track_color": "rgba(0,0,0,0.08)",
+        "animation": "진행도 변화 시 1초 ease-out 트랜지션"
+      },
+      "Badge": {
+        "description": "뱃지/태그 컴포넌트",
+        "file": "src/components/ui/Badge.tsx",
+        "props": ["variant", "children"],
+        "variants": {
+          "star":    { "bg": "accent-yellow", "icon": "star", "shape": "pill" },
+          "level":   { "bg": "reward-pink", "text": "white", "shape": "pill" },
+          "streak":  { "bg": "accent-orange", "icon": "flame", "shape": "pill" },
+          "new":     { "bg": "success-green", "text": "white", "shape": "pill" },
+          "locked":  { "bg": "text-light", "icon": "lock", "shape": "circle" }
+        }
+      },
+      "Modal": {
+        "description": "모달/다이얼로그",
+        "file": "src/components/ui/Modal.tsx",
+        "props": ["open", "onClose", "title", "children"],
+        "overlay": "bg-overlay with backdrop-blur(4px)",
+        "container": {
+          "background": "white",
+          "border_radius": "24px",
+          "padding": "24px",
+          "max_width": "400px",
+          "shadow": "modal"
+        },
+        "animation": {
+          "overlay": "fadeIn 200ms",
+          "content": "slideUp + fadeIn 300ms spring"
+        }
+      },
+      "ErrorFallback": {
+        "description": "에러 바운더리 폴백 UI",
+        "file": "src/components/ui/ErrorFallback.tsx",
+        "props": ["error", "resetErrorBoundary"],
+        "style": "슬픈 또리 일러스트 + 재시도 버튼"
+      }
+    },
+
+    "features": {
+      "CategoryCard": {
+        "description": "홈 화면 학습 카테고리 대형 카드",
+        "file": "src/components/features/CategoryCard.tsx",
+        "props": ["category", "title", "icon", "progress", "color"],
+        "size": "카드 높이 140px+",
+        "elements": [
+          { "name": "category-icon", "size": "64px", "type": "custom SVG" },
+          { "name": "category-name", "style": "heading-lg" },
+          { "name": "progress-ring", "component": "ProgressRing md" },
+          { "name": "progress-text", "style": "label-md", "format": "N/M" }
+        ],
+        "background": "카테고리별 연한 그라데이션"
+      },
+      "LearningCard": {
+        "description": "학습 목록 그리드 내 개별 글자/숫자 카드",
+        "file": "src/components/features/LearningCard.tsx",
+        "props": ["character", "label", "image", "completed", "onClick"],
+        "layout": {
+          "numbers": "2열 그리드",
+          "hangul":  "3열 그리드",
+          "english": "4열 그리드"
+        },
+        "elements": [
+          { "name": "character", "style": "learning-char-md" },
+          { "name": "label-text", "style": "label-md" },
+          { "name": "illustration", "type": "inline SVG", "size": "48px" },
+          { "name": "completion-badge", "type": "gold star", "position": "top-right" }
+        ]
+      },
+      "LearningScreen": {
+        "description": "학습 상세 화면 통합 레이아웃 (숫자/한글/영어 공용)",
+        "file": "src/components/features/LearningScreen.tsx",
+        "props": ["category", "character", "data"],
+        "sections": [
+          {
+            "name": "header",
+            "content": "큰 글자 + TTS 자동 재생 + 대표 단어/이미지",
+            "char_size": "100-120px"
+          },
+          {
+            "name": "canvas",
+            "content": "OverlayCanvas 컴포넌트 (3단계 트레이싱)",
+            "size": "반응형 280-400px"
+          },
+          {
+            "name": "info",
+            "content": "카운팅(숫자) / 대표단어(한글/영어) / 관련 이미지",
+            "interactive": true
+          },
+          {
+            "name": "navigation",
+            "content": "이전/다음 화살표 또는 스와이프",
+            "button_size": "56px"
+          }
+        ]
+      },
+      "OverlayCanvas": {
+        "description": "3단계 오버레이 따라쓰기 캔버스",
+        "file": "src/components/features/OverlayCanvas.tsx",
+        "props": ["character", "category", "stage", "strokePaths", "onStageComplete", "onAllComplete"],
+        "ref": "canvas_spec (상단 참조)",
+        "ui_elements": [
+          { "name": "stage-indicator", "type": "3개 원 (현재 단계 활성)", "position": "캔버스 상단" },
+          { "name": "canvas-area", "border_radius": "24px", "bg": "white" },
+          { "name": "control-buttons", "position": "캔버스 하단", "buttons": ["지우기", "다시쓰기", "다음"] }
+        ]
+      },
+      "CharacterDdori": {
+        "description": "마스코트 또리 캐릭터 컴포넌트",
+        "file": "src/components/features/CharacterDdori.tsx",
+        "props": ["expression", "outfit", "message", "animated"],
+        "expressions": ["happy", "excited", "encouraging", "thinking", "celebrating", "sleeping"],
+        "outfits": ["default", "학사모", "왕관", "슈퍼히어로", "탐험가"],
+        "size": { "sm": "48px", "md": "80px", "lg": "120px" },
+        "speech_bubble": {
+          "background": "white",
+          "border_radius": "16px",
+          "padding": "12px 16px",
+          "tail": "bottom-left triangle",
+          "font": "body-md",
+          "max_width": "200px"
+        }
+      },
+      "GameCard": {
+        "description": "게임 목록 내 개별 게임 카드",
+        "file": "src/components/features/GameCard.tsx",
+        "props": ["game", "locked", "bestScore", "onClick"],
+        "elements": [
+          { "name": "game-illustration", "size": "80px", "type": "custom SVG" },
+          { "name": "game-name", "style": "heading-lg" },
+          { "name": "difficulty-stars", "count": "1-3", "icon": "star" },
+          { "name": "lock-overlay", "condition": "locked === true" },
+          { "name": "best-score", "style": "label-md", "color": "text-medium" }
+        ]
+      },
+      "RewardCelebration": {
+        "description": "보상/축하 오버레이 (별 획득, 레벨업, 단계 완료)",
+        "file": "src/components/features/RewardCelebration.tsx",
+        "props": ["type", "stars", "sticker", "level", "onDismiss"],
+        "types": {
+          "stage_complete": "별 1개 + 마스코트 격려",
+          "tracing_complete": "별 3개 + 스티커 + 컨페티",
+          "game_complete": "별 1-3개 + 점수 표시",
+          "level_up": "전체 화면 파티클 + 새 레벨 뱃지 + 마스코트 축하"
+        },
+        "auto_dismiss": "3초 후 또는 탭"
+      },
+      "StreakBanner": {
+        "description": "연속 학습일 배너",
+        "file": "src/components/features/StreakBanner.tsx",
+        "props": ["streak", "lastLoginDate"],
+        "layout": "가로 배너, 불꽃 아이콘 + 연속 N일 텍스트",
+        "background": "accent-orange → accent-yellow 그라데이션",
+        "border_radius": "16px",
+        "height": "48px"
+      },
+      "StickerBook": {
+        "description": "스티커 컬렉션 화면",
+        "file": "src/components/features/StickerBook.tsx",
+        "props": ["stickers", "filter"],
+        "grid": "4열 그리드",
+        "collected": "컬러 SVG + 반짝이 효과",
+        "uncollected": "회색 실루엣 + 물음표 오버레이"
+      },
+      "ParentGate": {
+        "description": "부모 게이트 — 간단한 수학 문제",
+        "file": "src/components/features/ParentGate.tsx",
+        "props": ["onSuccess", "onCancel"],
+        "question_format": "a + b = ? (1자리 숫자 덧셈)",
+        "input": "숫자 키패드 UI",
+        "max_attempts": 3
+      },
+      "DailyRecommendation": {
+        "description": "오늘의 추천 학습 카드",
+        "file": "src/components/features/DailyRecommendation.tsx",
+        "props": ["items"],
+        "layout": "수평 스크롤 카드 리스트",
+        "card_style": "미니 카드 + 카테고리 색상 좌측 바",
+        "selection": "미완료 항목 중 랜덤 추천"
+      }
+    },
+
+    "game_components": {
+      "MemoryMatchGame": {
+        "description": "글자-이미지 매칭 카드 뒤집기 게임",
+        "file": "src/components/games/MemoryMatchGame.tsx",
+        "props": ["category", "difficulty"],
+        "grid": { "easy": "2×4 (4쌍)", "normal": "3×4 (6쌍)", "hard": "4×4 (8쌍)" },
+        "card_size": "80px × 80px",
+        "card_back": "물음표 + 카테고리 색상",
+        "flip_animation": "rotateY 400ms",
+        "match_effect": "카드 사라짐 + 스파클 파티클"
+      },
+      "SoundQuizGame": {
+        "description": "소리 듣고 맞추기 퀴즈",
+        "file": "src/components/games/SoundQuizGame.tsx",
+        "props": ["category"],
+        "layout": "상단: 스피커 아이콘(재생 버튼) / 하단: 3개 선택지 카드",
+        "option_card_size": "120px × 80px",
+        "correct_effect": "마스코트 축하 + 별 + 정답 반짝임",
+        "wrong_effect": "마스코트 격려 + 재시도 무제한",
+        "questions_per_set": 10
+      },
+      "SortingGame": {
+        "description": "순서 맞추기 드래그앤드롭",
+        "file": "src/components/games/SortingGame.tsx",
+        "props": ["category", "count"],
+        "item_count": "3-5개",
+        "item_size": "64px × 64px",
+        "drag_implementation": "PointerEvent 기반 커스텀 (라이브러리 미사용)",
+        "correct_drop": "착! 효과 + 초록 하이라이트",
+        "wrong_drop": "부드럽게 원래 자리 복귀 (300ms ease)"
+      },
+      "BalloonPopGame": {
+        "description": "풍선 터뜨리기 — 올바른 글자/숫자 풍선 찾기",
+        "file": "src/components/games/BalloonPopGame.tsx",
+        "props": ["category"],
+        "balloon_size": "80px × 100px",
+        "balloon_count": "5-8개 동시 표시",
+        "float_animation": "하단→상단 6초, 좌우 흔들림",
+        "pop_effect": "풍선 터짐 SVG + 컨페티 파티클",
+        "wrong_effect": "풍선 흔들림 + 아니야~ 효과음",
+        "questions": 10
+      },
+      "ColoringGame": {
+        "description": "색칠하기 게임",
+        "file": "src/components/games/ColoringGame.tsx",
+        "props": ["character"],
+        "palette": "6색 (빨/주/노/초/파/보)",
+        "palette_position": "하단 고정",
+        "color_swatch_size": "48px circle",
+        "tools": ["붓", "크레용", "스프레이"],
+        "canvas_implementation": "Canvas fill (flood fill algorithm)",
+        "save_to": "LocalStorage 갤러리"
+      },
+      "BubbleMatchGame": {
+        "description": "같은 글자 버블 매칭",
+        "file": "src/components/games/BubbleMatchGame.tsx",
+        "props": ["category"],
+        "bubble_size": "64px circle",
+        "layout": "무작위 배치 (겹침 방지)",
+        "match_effect": "버블 합쳐짐 + 팝 사운드",
+        "hint_button": "같은 쌍 하이라이트 (glow effect)"
+      },
+      "ShadowMatchGame": {
+        "description": "그림자 맞추기 드래그앤드롭",
+        "file": "src/components/games/ShadowMatchGame.tsx",
+        "props": ["category"],
+        "layout": "상단: 컬러 오브젝트 / 하단: 3-4개 실루엣",
+        "silhouette_style": "filter: brightness(0) opacity(0.4)",
+        "correct_drop": "실루엣이 컬러로 변환 + 글자 표시"
+      },
+      "WordBuilderGame": {
+        "description": "단어 만들기 — 글자 블록 조합",
+        "file": "src/components/games/WordBuilderGame.tsx",
+        "props": ["words"],
+        "layout": "상단: 이미지 + 빈칸 / 하단: 글자 블록 (정답+오답)",
+        "block_size": "56px × 56px",
+        "block_style": "둥근 사각형, 카테고리 색상 배경",
+        "correct_placement": "블록이 빈칸에 착 + 초록 테두리",
+        "completion": "단어 TTS 재생 + 축하 애니메이션"
+      }
+    }
+  },
+
+  "screens": [
+    {
+      "id": "S01", "name": "홈 대시보드", "route": "/", "priority": "P0",
+      "layout": "TopBar + CategoryCards(2×2 grid) + StreakBanner + DailyRecommendation + BottomNav",
+      "components": ["AppLayout", "TopBar", "BottomNav", "CategoryCard", "StreakBanner", "DailyRecommendation", "CharacterDdori"]
+    },
+    {
+      "id": "S02", "name": "숫자 목록", "route": "/numbers", "priority": "P0",
+      "layout": "TopBar(back+title) + LearningCard grid(2열) + BottomNav",
+      "components": ["AppLayout", "TopBar", "BottomNav", "LearningCard", "Badge"],
+      "theme_color": "numbers-purple"
+    },
+    {
+      "id": "S03", "name": "숫자 학습 상세", "route": "/numbers/:id", "priority": "P0",
+      "layout": "큰 숫자 + OverlayCanvas + 카운팅 인터랙션 + 이전/다음 네비게이션",
+      "components": ["LearningScreen", "OverlayCanvas", "CharacterDdori", "RewardCelebration", "Button"],
+      "theme_color": "numbers-purple"
+    },
+    {
+      "id": "S04", "name": "한글 목록", "route": "/hangul", "priority": "P0",
+      "layout": "TopBar(back+title) + 자음/모음 탭 + LearningCard grid(3열) + BottomNav",
+      "components": ["AppLayout", "TopBar", "BottomNav", "LearningCard", "Badge"],
+      "theme_color": "hangul-green"
+    },
+    {
+      "id": "S05", "name": "한글 학습 상세", "route": "/hangul/:id", "priority": "P0",
+      "layout": "큰 글자 + 대표단어 이미지 + OverlayCanvas(획순 가이드) + 대표단어 카드",
+      "components": ["LearningScreen", "OverlayCanvas", "CharacterDdori", "RewardCelebration", "Button"],
+      "theme_color": "hangul-green"
+    },
+    {
+      "id": "S06", "name": "영문 목록", "route": "/english", "priority": "P0",
+      "layout": "TopBar(back+title) + LearningCard grid(4열) + BottomNav",
+      "components": ["AppLayout", "TopBar", "BottomNav", "LearningCard", "Badge"],
+      "theme_color": "english-orange"
+    },
+    {
+      "id": "S07", "name": "영문 학습 상세", "route": "/english/:id", "priority": "P0",
+      "layout": "대문자/소문자 + OverlayCanvas(대→소 순서) + 대표단어 카드 + TTS",
+      "components": ["LearningScreen", "OverlayCanvas", "CharacterDdori", "RewardCelebration", "Button"],
+      "theme_color": "english-orange"
+    },
+    {
+      "id": "S08", "name": "게임 목록", "route": "/games", "priority": "P0",
+      "layout": "TopBar + GameCard grid(2열) + BottomNav",
+      "components": ["AppLayout", "TopBar", "BottomNav", "GameCard", "Badge"],
+      "theme_color": "games-pink"
+    },
+    {
+      "id": "S09", "name": "글자-이미지 매칭", "route": "/games/matching", "priority": "P0",
+      "components": ["MemoryMatchGame", "RewardCelebration"],
+      "theme_color": "games-pink"
+    },
+    {
+      "id": "S10", "name": "소리 퀴즈", "route": "/games/quiz", "priority": "P0",
+      "components": ["SoundQuizGame", "CharacterDdori", "RewardCelebration"],
+      "theme_color": "games-pink"
+    },
+    {
+      "id": "S11", "name": "순서 맞추기", "route": "/games/sorting", "priority": "P0",
+      "components": ["SortingGame", "RewardCelebration"],
+      "theme_color": "games-pink"
+    },
+    {
+      "id": "S12", "name": "풍선 터뜨리기", "route": "/games/balloon", "priority": "P0",
+      "components": ["BalloonPopGame", "RewardCelebration"],
+      "theme_color": "games-pink"
+    },
+    {
+      "id": "S13", "name": "색칠하기", "route": "/games/coloring", "priority": "P1",
+      "components": ["ColoringGame", "RewardCelebration"],
+      "theme_color": "games-pink"
+    },
+    {
+      "id": "S14", "name": "버블 매칭", "route": "/games/bubble", "priority": "P1",
+      "components": ["BubbleMatchGame", "RewardCelebration"],
+      "theme_color": "games-pink"
+    },
+    {
+      "id": "S15", "name": "그림자 맞추기", "route": "/games/shadow", "priority": "P1",
+      "components": ["ShadowMatchGame", "RewardCelebration"],
+      "theme_color": "games-pink"
+    },
+    {
+      "id": "S16", "name": "단어 만들기", "route": "/games/word-builder", "priority": "P1",
+      "components": ["WordBuilderGame", "RewardCelebration"],
+      "theme_color": "games-pink"
+    },
+    {
+      "id": "S17", "name": "스티커북", "route": "/stickers", "priority": "P1",
+      "components": ["StickerBook", "Badge"],
+      "theme_color": "accent-yellow"
+    },
+    {
+      "id": "S18", "name": "부모 설정", "route": "/settings", "priority": "P1",
+      "components": ["ParentGate", "Modal", "Button"],
+      "theme_color": "primary-blue",
+      "sections": ["학습 통계", "타이머 설정", "사운드 설정", "데이터 초기화"]
+    }
+  ],
+
+  "icons_and_illustrations": {
+    "format": "인라인 SVG React 컴포넌트 (이모지 사용 금지)",
+    "style": {
+      "stroke_width": "2-3px",
+      "line_cap": "round",
+      "line_join": "round",
+      "colors": "밝은 파스텔 색상, 1-2색 조합",
+      "fill": "soft gradient 또는 flat 파스텔"
+    },
+    "ui_icons": {
+      "library": "Lucide React (UI 요소에만 사용)",
+      "size": "24px (기본) / 32px (네비게이션)",
+      "stroke_width": "2px",
+      "items": ["Home", "ArrowLeft", "ArrowRight", "Star", "Lock", "Settings", "Volume2", "VolumeX", "RotateCcw", "Trash2", "Flame", "Trophy", "Palette"]
+    },
+    "learning_illustrations": {
+      "format": "커스텀 SVG inline (학습 콘텐츠 전용)",
+      "size": "48-80px",
+      "categories": {
+        "numbers": ["사과", "체리", "별", "꽃", "나비", "물고기", "무지개", "구름", "달", "하트"],
+        "hangul": ["기린", "나비", "다람쥐", "라면", "마이크", "바나나", "사과", "아이스크림", "자전거", "차", "카메라", "타조", "파인애플", "하트"],
+        "english": ["Apple", "Bear", "Cat", "Dog", "Elephant", "Fox", "Giraffe", "Hat", "Ice cream", "Jellyfish", "Kite", "Lion", "Moon", "Nest", "Octopus", "Penguin", "Queen", "Rainbow", "Sun", "Tree", "Umbrella", "Violin", "Whale", "Xylophone", "Yacht", "Zebra"]
+      }
+    },
+    "mascot_ddori": {
+      "base": "곰 캐릭터, 둥근 형태, 큰 눈",
+      "expressions": {
+        "happy": "웃는 얼굴, 반짝이는 눈",
+        "excited": "입 벌린 웃음, 볼 홍조, 별 이펙트",
+        "encouraging": "한쪽 팔 들어올림, 윙크",
+        "thinking": "한 손 턱에, 물음표 말풍선",
+        "celebrating": "양팔 들어올림, 컨페티",
+        "sleeping": "눈 감음, ZZZ 말풍선"
+      },
+      "outfits": [
+        { "id": "default", "unlock_level": 0 },
+        { "id": "학사모", "unlock_level": 3 },
+        { "id": "왕관", "unlock_level": 5 },
+        { "id": "슈퍼히어로", "unlock_level": 7 },
+        { "id": "탐험가", "unlock_level": 10 }
+      ]
+    }
+  },
+
+  "tailwind_theme": {
+    "note": "Tailwind CSS 4 — CSS-first config, @theme directive in src/index.css",
+    "css_custom_properties": {
+      "--color-bg-cream": "#FFF8E7",
+      "--color-bg-warm": "#FFF3D6",
+      "--color-bg-soft": "#F0F4FF",
+      "--color-primary": "#4A90D9",
+      "--color-primary-light": "#7CB3E8",
+      "--color-primary-dark": "#3A72B0",
+      "--color-accent-yellow": "#FFD93D",
+      "--color-accent-orange": "#FF9F43",
+      "--color-success": "#2ED573",
+      "--color-reward": "#FF6B81",
+      "--color-error": "#FF6348",
+      "--color-numbers": "#A29BFE",
+      "--color-hangul": "#55E6C1",
+      "--color-english": "#FECA57",
+      "--color-games": "#FF9FF3",
+      "--color-text-dark": "#2D3436",
+      "--color-text-medium": "#636E72",
+      "--color-text-light": "#B2BEC3",
+      "--radius-sm": "8px",
+      "--radius-md": "12px",
+      "--radius-lg": "16px",
+      "--radius-xl": "20px",
+      "--radius-2xl": "24px",
+      "--radius-card": "20px",
+      "--radius-button": "16px",
+      "--shadow-card": "0 4px 12px rgba(0,0,0,0.08)",
+      "--shadow-button": "0 2px 8px rgba(74,144,217,0.25)",
+      "--shadow-nav": "0 -2px 12px rgba(0,0,0,0.06)"
+    }
+  },
+
+  "accessibility": {
+    "touch_target": "최소 56px × 56px (W3C 기준 44px 이상 + 아동 고려)",
+    "contrast_ratio": "최소 4.5:1 (WCAG AA)",
+    "focus_visible": "2px solid primary-blue, offset 2px",
+    "semantic_html": true,
+    "aria_labels": "모든 인터랙티브 요소",
+    "keyboard_navigation": "부모 설정 화면에서 지원",
+    "reduced_motion": "@media (prefers-reduced-motion: reduce) — 애니메이션 비활성화",
+    "high_contrast": "지원 (강화된 텍스트 대비, 두꺼운 테두리)",
+    "screen_reader": "학습 글자/단어에 aria-label (TTS와 연동)"
+  }
+}

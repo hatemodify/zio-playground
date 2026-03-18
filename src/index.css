@@ -1,0 +1,148 @@
+/* Pretendard Variable Font */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+
+@import "tailwindcss";
+
+/* Tablet landscape custom variant */
+@custom-variant landscape-tablet (@media (orientation: landscape) and (min-width: 768px));
+
+@theme {
+  /* Background Colors */
+  --color-bg-cream: #FFF8E7;
+  --color-bg-warm: #FFF3D6;
+  --color-bg-soft: #F0F4FF;
+  --color-bg-overlay: rgba(0, 0, 0, 0.3);
+
+  /* Primary Colors */
+  --color-primary: #4A90D9;
+  --color-primary-light: #7CB3E8;
+  --color-primary-dark: #3A72B0;
+
+  /* Accent Colors */
+  --color-accent-yellow: #FFD93D;
+  --color-accent-orange: #FF9F43;
+  --color-success: #2ED573;
+  --color-reward: #FF6B81;
+  --color-error: #FF6348;
+
+  /* Category Colors */
+  --color-numbers: #A29BFE;
+  --color-hangul: #55E6C1;
+  --color-english: #FECA57;
+  --color-games: #FF9FF3;
+
+  /* Text Colors */
+  --color-text-dark: #2D3436;
+  --color-text-medium: #636E72;
+  --color-text-light: #B2BEC3;
+
+  /* Canvas Colors */
+  --color-guide: rgba(74, 144, 217, 0.2);
+  --color-guide-faint: rgba(74, 144, 217, 0.1);
+  --color-guide-medium: rgba(74, 144, 217, 0.3);
+  --color-stroke: #4A90D9;
+  --color-dot: #FF9F43;
+  --color-dot-active: #FFD93D;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-card: 20px;
+  --radius-button: 16px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-button: 0 2px 8px rgba(74, 144, 217, 0.25);
+  --shadow-button-pressed: 0 1px 4px rgba(74, 144, 217, 0.15);
+  --shadow-nav: 0 -2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.2);
+  --shadow-reward: 0 0 20px rgba(255, 217, 61, 0.5);
+  --shadow-glow: 0 0 16px rgba(74, 144, 217, 0.4);
+
+  /* Font Families */
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  --font-display: "Nunito", var(--font-sans);
+
+  /* Animations */
+  --animate-float: float 2s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(74, 144, 217, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(74, 144, 217, 0.6); }
+}
+
+/* Global Styles */
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-cream);
+  color: var(--color-text-dark);
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+/* Safe area */
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  --nav-width: 0px;
+}
+
+/* Tablet landscape layout helpers */
+@media (orientation: landscape) and (min-width: 768px) {
+  :root {
+    --nav-width: 80px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-primary-light);
+  color: white;
+}

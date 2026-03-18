@@ -1,0 +1,589 @@
+{
+  "tech_stack": {
+    "frontend": "React 19 + Vite 8 (Rolldown) + TypeScript 5.7 strict + Tailwind CSS 4",
+    "router": "React Router v7 (createBrowserRouter, lazy routes)",
+    "state": "Zustand 5 + persist middleware (localStorage + IndexedDB)",
+    "canvas": "HTML5 Canvas API (3단계 오버레이 트레이싱 — LetterSchool/Writing Wizard 벤치마크)",
+    "tts": "Web Speech API (SpeechSynthesis)",
+    "audio": "Web Audio API (효과음 14종)",
+    "animation": "Motion 12 (구 Framer Motion)",
+    "pwa": "vite-plugin-pwa 1.2 (Workbox)",
+    "infra": "Vercel (free tier) + GitHub Actions CI/CD",
+    "key_libs": ["react@19", "react-dom@19", "react-router-dom@7", "zustand@5", "motion@12", "vite-plugin-pwa@1.2", "zod@3.24", "clsx", "tailwind-merge"]
+  },
+  "total_tasks": 32,
+  "estimated_hours": 52,
+  "phases": [
+    {
+      "phase": 1,
+      "name": "프로젝트 초기화 + 인프라",
+      "description": "개발 환경, CI/CD, 디자인 토큰, PWA 기본 세팅",
+      "estimated_hours": 4,
+      "validation": "pnpm dev로 로컬 서버 실행 확인, Tailwind 4 테마 적용 확인, CI 파이프라인 YAML 유효",
+      "tasks": [
+        {
+          "id": "t001",
+          "title": "Vite 8 + React 19 프로젝트 세팅",
+          "type": "setup",
+          "agent": "developer",
+          "estimated_minutes": 45,
+          "files_to_create": [
+            "package.json",
+            "tsconfig.json",
+            "tsconfig.app.json",
+            "tsconfig.node.json",
+            "vite.config.ts",
+            "postcss.config.js",
+            "eslint.config.js",
+            ".env.example",
+            ".gitignore",
+            "index.html",
+            "src/main.tsx",
+            "src/App.tsx",
+            "src/index.css",
+            "src/lib/cn.ts",
+            "src/vite-env.d.ts"
+          ],
+          "depends_on": [],
+          "prompt": "목표: pnpm dev로 로컬 서버가 실행되고 Tailwind CSS 4 스타일이 적용된 빈 앱이 동작하는 상태.\n\n생성/수정 파일: package.json, tsconfig.json, tsconfig.app.json, tsconfig.node.json, vite.config.ts, postcss.config.js, eslint.config.js, .env.example, .gitignore, index.html, src/main.tsx, src/App.tsx, src/index.css, src/lib/cn.ts, src/vite-env.d.ts\n\n구현 상세:\n- 패키지 매니저: pnpm. 의존성: react@^19, react-dom@^19, react-router-dom@^7, zustand@^5.0, motion@^12.36, zod@^3.24, clsx, tailwind-merge, vite-plugin-pwa@^1.2\n- Dev 의존성: vite@^8, @vitejs/plugin-react@^6, typescript@^5.7, @types/react, @types/react-dom, tailwindcss@^4, @tailwindcss/postcss, eslint, @typescript-eslint/eslint-plugin, @typescript-eslint/parser\n- tsconfig.json: strict: true, paths: { '@/*': ['./src/*'] }\n- vite.config.ts: react 플러그인 + resolve.alias '@' → './src' + vite-plugin-pwa 기본 설정 (display: standalone, orientation: portrait)\n- src/index.css: Tailwind CSS 4 @theme directive로 PRD 5.2 디자인 토큰 정의 — bg-cream(#FFF8E7), primary-blue(#4A90D9), accent-yellow(#FFD93D), numbers-purple(#A29BFE), hangul-green(#55E6C1), english-orange(#FECA57), games-pink(#FF9FF3) 등 30개 토큰. Pretendard Variable + Nunito 폰트 import. 스크롤바 숨김, touch-action 기본값.\n- src/lib/cn.ts: clsx + tailwind-merge 조합 유틸리티 함수 cn() export\n- .env.example: VITE_APP_NAME=KidsEdu\n\n검증: pnpm dev 실행 → localhost에서 앱 확인, tsc --noEmit 에러 0개, eslint 통과"
+        },
+        {
+          "id": "t002",
+          "title": "GitHub Actions CI/CD 파이프라인",
+          "type": "setup",
+          "agent": "developer",
+          "estimated_minutes": 30,
+          "files_to_create": [
+            ".github/workflows/ci.yml"
+          ],
+          "depends_on": ["t001"],
+          "prompt": "목표: PR/push 시 자동으로 lint, typecheck, build, Lighthouse 검증이 실행되는 상태.\n\n생성/수정 파일: .github/workflows/ci.yml, package.json (scripts 추가)\n\n구현 상세:\n- trigger: push(main), PR(main)\n- Job 1 (lint-and-typecheck): Node.js 22 LTS, pnpm@9, pnpm install --frozen-lockfile, eslint --max-warnings 0, tsc --noEmit\n- Job 2 (build, needs: lint-and-typecheck): vite build, upload dist/ artifact\n- Job 3 (lighthouse, needs: build): treosh/lighthouse-ci-action@v12, PWA >= 90, Performance >= 80, Accessibility >= 90\n- package.json scripts: \"dev\": \"vite\", \"build\": \"tsc && vite build\", \"preview\": \"vite preview\", \"lint\": \"eslint src/ --max-warnings 0\", \"typecheck\": \"tsc --noEmit\"\n\n검증: YAML 문법 유효, pnpm lint && pnpm typecheck 로컬 통과"
+        },
+        {
+          "id": "t003",
+          "title": "PWA 기본 설정 + manifest + Service Worker",
+          "type": "setup",
+          "agent": "developer",
+          "estimated_minutes": 30,
+          "files_to_create": [
+            "public/icons/icon-192x192.svg",
+            "public/icons/icon-512x512.svg"
+          ],
+          "depends_on": ["t001"],
+          "prompt": "목표: PWA 설치 프롬프트가 표시되고, Service Worker가 등록되어 기본 오프라인 캐싱이 동작하는 상태.\n\n생성/수정 파일: vite.config.ts (PWA manifest 완성), public/icons/icon-192x192.svg, public/icons/icon-512x512.svg\n\n구현 상세:\n- vite.config.ts VitePWA 설정: manifest { name: '키즈에듀 - 유아 학습', short_name: '키즈에듀', display: 'standalone', orientation: 'portrait', theme_color: '#4A90D9', background_color: '#FFF8E7', icons: [192x192, 512x512] }\n- workbox runtimeCaching: CacheFirst(이미지/폰트), StaleWhileRevalidate(JS/CSS)\n- PWA 아이콘: 또리 캐릭터 실루엣 SVG placeholder (192x192, 512x512)\n- index.html: viewport, apple-mobile-web-app-capable, theme-color meta, lang='ko'\n\n검증: Lighthouse PWA 점수 80+, 브라우저에서 설치 프롬프트 표시"
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "핵심 인프라 — 라우팅, 스토어, TTS, 사운드",
+      "description": "라우팅(18개 화면), Zustand 스토어 3종, TTS, 효과음 시스템 (병렬 4트랙)",
+      "estimated_hours": 6,
+      "validation": "모든 18개 라우트 접근 가능, 스토어 persist 동작, TTS 재생, 효과음 재생",
+      "tasks": [
+        {
+          "id": "t004",
+          "title": "라우팅 + 공통 레이아웃 + ErrorBoundary",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 90,
+          "files_to_create": [
+            "src/router.tsx",
+            "src/components/ui/TopBar.tsx",
+            "src/components/ui/BottomNav.tsx",
+            "src/components/ui/AppLayout.tsx",
+            "src/components/ui/ErrorFallback.tsx",
+            "src/components/ui/Button.tsx",
+            "src/components/ui/Card.tsx",
+            "src/components/ui/ProgressRing.tsx",
+            "src/components/ui/Modal.tsx",
+            "src/components/ui/Badge.tsx",
+            "src/pages/HomePage.tsx",
+            "src/pages/NumbersListPage.tsx",
+            "src/pages/NumberLearnPage.tsx",
+            "src/pages/HangulListPage.tsx",
+            "src/pages/HangulLearnPage.tsx",
+            "src/pages/EnglishListPage.tsx",
+            "src/pages/EnglishLearnPage.tsx",
+            "src/pages/GamesListPage.tsx",
+            "src/pages/MatchingGamePage.tsx",
+            "src/pages/QuizGamePage.tsx",
+            "src/pages/SortingGamePage.tsx",
+            "src/pages/BalloonGamePage.tsx",
+            "src/pages/ColoringGamePage.tsx",
+            "src/pages/BubbleGamePage.tsx",
+            "src/pages/ShadowGamePage.tsx",
+            "src/pages/WordBuilderGamePage.tsx",
+            "src/pages/StickersPage.tsx",
+            "src/pages/SettingsPage.tsx"
+          ],
+          "depends_on": ["t001"],
+          "prompt": "목표: PRD 6절 화면 목록의 18개 라우트가 모두 lazy loading으로 접근 가능하고, 공통 레이아웃(TopBar+BottomNav)이 적용된 상태.\n\n생성 파일: src/router.tsx + UI 컴포넌트 10개 + 페이지 컴포넌트 18개 (위 목록 참조)\n\n구현 상세:\n- router.tsx: createBrowserRouter로 PRD 6절 라우트 정의 — /(홈), /numbers(숫자목록), /numbers/:id(숫자학습), /hangul(한글목록), /hangul/:id(한글학습), /english(영문목록), /english/:id(영문학습), /games(게임목록), /games/matching, /games/quiz, /games/sorting, /games/balloon, /games/coloring, /games/bubble, /games/shadow, /games/word-builder, /stickers, /settings\n- TopBar.tsx: 마스코트 아바타(40px) + 시간대별 인사 + 레벨 뱃지(pill shape) + 별 카운터(Nunito Bold). 높이 64px, bg-white/80 backdrop-blur, rounded-b-2xl.\n- BottomNav.tsx (PRD 4.7.2): 5탭(홈/숫자/한글/영어/게임), 각 탭 커스텀 SVG 아이콘(32px) + 텍스트(14px), 56px+ 터치 영역, 활성 탭 카테고리 색상 + scale(1.1). React.memo. 높이 64px + safe-area-inset-bottom.\n- AppLayout.tsx: TopBar + children(flex-1 overflow-y-auto) + BottomNav. bg-cream(#FFF8E7), max-w-[1024px] mx-auto, min-h-dvh.\n- Button.tsx: variant(primary/secondary/accent/success/ghost/category), size(sm 40px/md 48px/lg 56px/xl 64px), rounded-2xl, active:scale-95. cn() 유틸 사용.\n- Card.tsx: variant(learning/game/category/sticker), completed/locked 상태, rounded-[20px], shadow-card.\n- ProgressRing.tsx: SVG circle stroke-dasharray 기반, size(sm 40/md 56/lg 72px), 색상 prop.\n- Modal.tsx: bg-overlay + backdrop-blur(4px), 컨텐트 rounded-3xl shadow-modal, AnimatePresence slideUp.\n- Badge.tsx: variant(star/level/streak/new/locked), pill shape.\n- ErrorFallback.tsx: 슬픈 또리 placeholder + '앗, 문제가 생겼어요!' + 재시도 Button(xl). 아동 친화 톤.\n- 각 페이지 파일: 플레이스홀더 컴포넌트 (페이지명 + 준비 중 텍스트).\n\n참조: src/lib/cn.ts, src/index.css (디자인 토큰)\n검증: 18개 라우트 모두 접근 시 페이지 렌더링, TopBar/BottomNav 표시, ErrorBoundary 동작"
+        },
+        {
+          "id": "t005",
+          "title": "Zustand 스토어 3종 (progress, gamification, settings)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/types/learning.ts",
+            "src/types/gamification.ts",
+            "src/types/game.ts",
+            "src/stores/progress-store.ts",
+            "src/stores/gamification-store.ts",
+            "src/stores/settings-store.ts"
+          ],
+          "depends_on": ["t001"],
+          "prompt": "목표: PRD 7절 데이터 모델 기반 Zustand 5 스토어 3종이 localStorage에 영속 저장되고 앱 재시작 시 복원되는 상태.\n\n생성 파일: src/types/learning.ts, src/types/gamification.ts, src/types/game.ts, src/stores/progress-store.ts, src/stores/gamification-store.ts, src/stores/settings-store.ts\n\n구현 상세:\nsrc/types/learning.ts:\n- LearningCategory = 'numbers' | 'hangul' | 'english'\n- ProgressItem: { id, category, character, tracingStage(0|1|2|3), completed, attempts, bestScore, lastPracticedAt } — PRD 7.1\n- CATEGORY_TOTALS = { numbers: 10, hangul: 24, english: 26 }\n\nsrc/types/gamification.ts:\n- RewardState: { totalStars, level, streak, lastLoginDate, stickers[], unlockedGames[], characterOutfits[] } — PRD 7.2\n- LevelInfo: { level, name, requiredStars, badge }\n- LEVEL_TABLE: 새싹(0)→씨앗(10)→새잎(30)→꽃봉오리(60)→꽃(100)→나비(150)→무지개(210)→별(280)→달(360)→태양(450) 10단계\n- getLevelForStars(stars: number): LevelInfo\n\nsrc/types/game.ts:\n- GameId = 'matching' | 'quiz' | 'sorting' | 'balloon' | 'coloring' | 'bubble' | 'shadow' | 'word-builder' — PRD 4.5 게임 8종\n- GameRecord: { gameId, category, score, stars(1-3), completedAt, duration } — PRD 7.3\n- GameState = 'ready' | 'playing' | 'success' | 'fail' | 'reward' — PRD 4.5.3\n\nsrc/stores/progress-store.ts:\n- Zustand 5 create + persist (key: 'kidsedu-progress', version: 1)\n- 상태: items(Record<string, ProgressItem>), nickname(string)\n- 액션: completeTracingStage(id, stage), markCompleted(id), setNickname, resetProgress\n- 셀렉터: getCategoryProgress(category), isItemCompleted(id), getCompletionPercentage(category)\n- Zod 검증: hydration 시 스키마 검증, 실패 시 초기값 복원\n\nsrc/stores/gamification-store.ts:\n- persist (key: 'kidsedu-gamification')\n- 상태: totalStars, level, streak, lastLoginDate, stickers[], unlockedGames[], characterOutfits[], gameRecords[]\n- 액션: addStars(count), checkAndClaimDailyBonus(), recordGameScore(record), unlockGame(gameId)\n- 파생: currentLevel(getLevelForStars), isGameUnlocked(gameId)\n\nsrc/stores/settings-store.ts:\n- persist (key: 'kidsedu-settings')\n- 상태: sfxEnabled(true), ttsSpeed(0.8), volume(0.8), onboarded(false), dailyTimeLimit(30)\n- 액션: toggleSfx, setTtsSpeed, setVolume, completeOnboarding, setDailyTimeLimit\n\n검증: 스토어 3종 생성, persist 동작(새로고침 후 데이터 유지), Zod 검증 통과"
+        },
+        {
+          "id": "t006",
+          "title": "TTS 시스템 (Web Speech API)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 45,
+          "files_to_create": [
+            "src/hooks/use-tts.ts",
+            "src/lib/tts-utils.ts"
+          ],
+          "depends_on": ["t001"],
+          "prompt": "목표: 한국어/영어 TTS가 안정적으로 동작하고, 유아 친화적 속도/피치로 재생되는 상태.\n\n생성 파일: src/lib/tts-utils.ts, src/hooks/use-tts.ts\n\n구현 상세:\nsrc/lib/tts-utils.ts:\n- getAvailableVoices(): Promise<SpeechSynthesisVoice[]> — voiceschanged 이벤트 대기, 타임아웃 3초\n- getBestVoice(lang: 'ko-KR' | 'en-US'): SpeechSynthesisVoice | null — Google 한국어/US English 우선, 없으면 lang 매칭\n- createUtterance(text: string, lang: string, options: { rate?: number, pitch?: number, volume?: number }): SpeechSynthesisUtterance\n\nsrc/hooks/use-tts.ts:\n- useTTS(): { speak, stop, isSpeaking, isSupported }\n- speak(text: string, lang: 'ko-KR' | 'en-US'): Promise<void> — 이전 재생 cancel 후 새로 재생\n- 기본 설정: pitch 1.1 (밝은 톤), rate 0.8 (느린 속도) — settings-store.ttsSpeed 연동\n- iOS Safari unlock 처리: 첫 터치 이벤트에 빈 utterance 실행\n- 컴포넌트 언마운트 시 speechSynthesis.cancel() cleanup\n- try/catch 에러 핸들링: TTS 미지원 시 graceful degradation (콘솔 경고만)\n\n참조: src/stores/settings-store.ts (ttsSpeed, volume)\n검증: useTTS().speak('안녕하세요', 'ko-KR') 한국어 재생, speak('Hello', 'en-US') 영어 재생"
+        },
+        {
+          "id": "t007",
+          "title": "효과음 시스템 (Web Audio API)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 45,
+          "files_to_create": [
+            "src/lib/sound-manager.ts",
+            "src/hooks/use-sound.ts",
+            "public/sounds/README.md"
+          ],
+          "depends_on": ["t001"],
+          "prompt": "목표: PRD 5.6 효과음 14종이 Web Audio API로 동작하고, settings-store와 연동되는 상태.\n\n생성 파일: src/lib/sound-manager.ts, src/hooks/use-sound.ts, public/sounds/README.md\n\n구현 상세:\nsrc/lib/sound-manager.ts:\n- SoundManager 싱글톤 클래스: AudioContext 기반\n- SOUNDS 상수: { button_click, correct, wrong, star_earned, level_up, stroke_draw, stroke_complete, confetti, balloon_pop, card_flip, match_success, drag_pickup, drag_drop, encouragement } — PRD 5.6 전체\n- play(soundId: SoundId): void — Web Audio API oscillator + gain으로 합성 톤 생성\n- generateTone(frequency: number, duration: number, type: OscillatorType): void — 각 효과음별 주파수/파형 매핑\n- preload(): void, setVolume(v: number): void, unlock(): void (iOS AudioContext resume)\n- MP3 fallback: public/sounds/ 디렉토리에 파일 있으면 fetch+decode, 없으면 합성 톤\n\nsrc/hooks/use-sound.ts:\n- useSound(): { play, preloadAll }\n- settings-store 구독: sfxEnabled, volume 연동\n- iOS unlock: 첫 터치 이벤트에 soundManager.unlock() 호출\n- play(soundId): sfxEnabled false면 무시\n\npublic/sounds/README.md: 효과음 파일 목록 + Freesound.org CC0 가이드\n\n참조: src/stores/settings-store.ts (sfxEnabled, volume)\n검증: useSound().play('correct') 호출 시 '띵!' 효과음 재생, play('wrong') 시 '부웅' 재생"
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "캔버스 엔진 + 에셋 제작",
+      "description": "3단계 오버레이 따라쓰기 엔진, 또리 캐릭터, 획순 데이터, 일러스트 (병렬 4트랙)",
+      "estimated_hours": 8,
+      "validation": "캔버스에서 텍스트 위에 3단계 따라쓰기 동작, 또리 6종 표정 렌더링, 모든 글자 획순 데이터 존재",
+      "tasks": [
+        {
+          "id": "t008",
+          "title": "3단계 오버레이 캔버스 따라쓰기 엔진",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 120,
+          "files_to_create": [
+            "src/types/canvas.ts",
+            "src/lib/stroke-utils.ts",
+            "src/hooks/use-canvas.ts",
+            "src/hooks/use-stroke-matching.ts",
+            "src/components/features/WritingCanvas.tsx"
+          ],
+          "depends_on": ["t001"],
+          "prompt": "목표: PRD 4.4 오버레이 따라쓰기 시스템 — 실제 글자가 배경에 표시되고, 그 위에 투명 캔버스로 3단계(따라가기→점잇기→자유쓰기) 트레이싱이 동작하는 상태.\n\n생성 파일: src/types/canvas.ts, src/lib/stroke-utils.ts, src/hooks/use-canvas.ts, src/hooks/use-stroke-matching.ts, src/components/features/WritingCanvas.tsx\n\n구현 상세:\nsrc/types/canvas.ts:\n- Point: { x: number, y: number }\n- Stroke: { path: string, points: Point[] } — SVG path + 샘플 포인트\n- StrokeData: { character: string, viewBox: string, strokes: Stroke[] }\n- TracingStage = 1 | 2 | 3 — PRD 4.4.1 (따라가기/점잇기/자유쓰기)\n- CanvasConfig: { width, height, lineWidth(12px), strokeColor, guideColor }\n\nsrc/lib/stroke-utils.ts:\n- svgPathToPoints(pathD: string, sampleCount: number): Point[] — SVG path 'd' 속성을 등간격 Point[]로 변환\n- resamplePath(points: Point[], targetCount: number): Point[] — 등간격 리샘플링\n- calculatePathSimilarity(userPath: Point[], guidePath: Point[]): number — 유사도 0~1. maxDistance = 대각선의 30% (유아 관대 판정)\n- pointDistance(p1: Point, p2: Point): number — 유클리드 거리\n- getPathBoundingBox(points: Point[]): { x, y, width, height } — 커버리지 계산용\n\nsrc/hooks/use-canvas.ts:\n- useCanvas(canvasRef: RefObject<HTMLCanvasElement>, config: CanvasConfig)\n- PointerEvent 기반 터치+마우스+펜 통합 핸들러\n- 멀티터치 방지 (첫 번째 포인터만)\n- requestAnimationFrame 60fps 렌더링 루프\n- 부드러운 선: quadratic bezier 보간 (3포인트 이상)\n- lineWidth 12px (PRD 4.4.2), lineCap/lineJoin round\n- 반환: { startDrawing, stopDrawing, clear, undo, getCurrentStroke, isDrawing, allStrokes }\n\nsrc/hooks/use-stroke-matching.ts:\n- useStrokeMatching(strokeData: StrokeData, stage: TracingStage)\n- stage 1(따라가기): threshold 0.7, 경로 벗어나면 '다시 해볼까?' 격려\n- stage 2(점잇기): 점 도달 판정 radius 25px, 점 도달 시 '팡' 효과\n- stage 3(자유쓰기): 커버리지 60% 이상 시 성공 (PRD 4.4.1)\n- 반환: { currentStrokeIndex, matchResult, isStageComplete, isAllComplete, reset, nextStroke }\n\nsrc/components/features/WritingCanvas.tsx:\n- props: strokeData, stage, onStrokeComplete, onStageComplete, onAllComplete, displayChar, className\n- 핵심 레이아웃 (PRD 4.4.2 캔버스 기술 스펙):\n  1. 배경 레이어: displayChar를 128px Nunito/Pretendard로 렌더링, opacity = stage별(0.3/0.3/0.1)\n  2. 가이드 레이어: stage 1=점선경로+시작점 빛나는 원형, stage 2=번호매긴 점들, stage 3=없음\n  3. 완료 레이어: 성공한 획을 success-green으로 표시\n  4. 입력 레이어: 사용자 실시간 드로잉 (stroke-color #4A90D9)\n- 단계 인디케이터: 상단 3개 원 (현재 단계 활성)\n- 컨트롤 버튼: 하단 [지우기 ↺] [다시쓰기] [다음 →], 56px+ 터치 타겟\n- ResizeObserver + window.devicePixelRatio DPR 대응\n- touch-action: none (스크롤 방지)\n- 캔버스 크기: 반응형 min 280px, max 400px\n\n참조: design_spec.json canvas_spec, PRD 4.4\n검증: WritingCanvas에 '1' strokeData + stage=1 전달 → 가이드 표시 → 따라 그리기 → 성공 판정 → stage 2 → stage 3"
+        },
+        {
+          "id": "t009",
+          "title": "캐릭터 또리 SVG + 컴포넌트 (6종 표정)",
+          "type": "asset",
+          "agent": "developer",
+          "estimated_minutes": 90,
+          "files_to_create": [
+            "src/assets/characters/DdoriDefault.tsx",
+            "src/assets/characters/DdoriHappy.tsx",
+            "src/assets/characters/DdoriPraise.tsx",
+            "src/assets/characters/DdoriEncourage.tsx",
+            "src/assets/characters/DdoriSurprised.tsx",
+            "src/assets/characters/DdoriCelebrate.tsx",
+            "src/components/features/CharacterDdori.tsx"
+          ],
+          "depends_on": ["t001"],
+          "prompt": "목표: PRD 4.6.4 마스코트 또리(곰 캐릭터) 6종 표정이 SVG React 컴포넌트로 렌더링되고, CharacterDdori 래퍼에서 표정 전환+말풍선+idle 애니메이션이 동작하는 상태.\n\n생성 파일: src/assets/characters/Ddori*.tsx 6개, src/components/features/CharacterDdori.tsx\n\n구현 상세:\n또리 디자인 (PRD 5.4): 둥글둥글한 아기 곰, 밝은 갈색(#D4A373) 몸체, 크림(#FFF8E7) 배, 큰 반짝이는 눈(몸체 대비 25%), 작은 코, 볼터치(#FFB380 원형 2개), 학사모.\nviewBox='0 0 200 200', 얼굴 비율 크게(60%), 눈 더 크고 반짝이게 (하이라이트 2개).\n\n6종 표정 SVG:\n- DdoriDefault: 기본 웃음 (반달 눈 + 미소)\n- DdoriHappy: 반달눈 + 큰 입 벌린 웃음 + 하트 이펙트\n- DdoriPraise: 한 팔 엄지척 + 하트 3개 파티클\n- DdoriEncourage: 양 팔 토닥토닥 + '괜찮아!' 느낌\n- DdoriSurprised: 큰 눈(O형) + O입 + 느낌표\n- DdoriCelebrate: 양팔 만세 + 별/폭죽 파티클 + 왕관\n\nCharacterDdori.tsx:\n- props: expression('default'|'happy'|'praise'|'encourage'|'surprised'|'celebrate'), message?: string, size('sm' 48|'md' 80|'lg' 120px)\n- 표정별 SVG 동적 렌더링 (lazy import 또는 switch)\n- Motion 애니메이션: 표정 전환 scale(0.9→1) + fade(200ms), idle 위아래 떠다니기 y=[0,-8,0] 2s infinite easeInOut (PRD 5.5)\n- 말풍선: message prop 있으면 하단에 둥근 bg-white shadow-lg 말풍선, 하단 꼬리 삼각형, fadeIn+slideDown, max-w-[200px]\n- React.memo 적용\n\n참조: design_spec.json icons_and_illustrations.mascot_ddori\n검증: <CharacterDdori expression='praise' message='잘했어!' size='lg' /> 렌더링 확인"
+        },
+        {
+          "id": "t010",
+          "title": "획순 데이터 + 학습 콘텐츠 정의",
+          "type": "data",
+          "agent": "developer",
+          "estimated_minutes": 90,
+          "files_to_create": [
+            "src/types/stroke.ts",
+            "src/data/stroke-data-numbers.ts",
+            "src/data/stroke-data-hangul.ts",
+            "src/data/stroke-data-alphabet.ts",
+            "src/data/learning-content.ts"
+          ],
+          "depends_on": ["t001"],
+          "prompt": "목표: 숫자 1-10, 한글 자음 14자+모음 10자, 영문 대문자 A-Z의 획순 SVG path와 학습 콘텐츠(이름, 발음, 연관 단어, 일러스트)가 정의된 상태.\n\n생성 파일: src/types/stroke.ts, src/data/stroke-data-numbers.ts, src/data/stroke-data-hangul.ts, src/data/stroke-data-alphabet.ts, src/data/learning-content.ts\n\n구현 상세:\nsrc/types/stroke.ts:\n- Stroke: { id: string, path: string } — SVG path 'd' 속성\n- StrokeData: { character: string, viewBox: string, strokes: Stroke[] }\n\nsrc/data/stroke-data-numbers.ts: STROKE_DATA_NUMBERS: Record<string, StrokeData>\n- viewBox '0 0 300 300' 기준, 숫자 1~10 각각의 SVG path\n- 예: '1' = 1획(세로선), '2' = 1획(곡선+가로선), '4' = 2획(세로+꺾은선+가로)\n\nsrc/data/stroke-data-hangul.ts: STROKE_DATA_HANGUL: Record<string, StrokeData>\n- 자음 14자(ㄱ~ㅎ) + 모음 10자(ㅏ~ㅣ), 교육부 표준 획순\n- 예: 'ㄱ' = 2획(가로→세로), 'ㅎ' = 3획\n\nsrc/data/stroke-data-alphabet.ts: STROKE_DATA_ALPHABET: Record<string, StrokeData>\n- 대문자 A~Z 획순, 예: 'A' = 3획(좌사선, 우사선, 가로선)\n\nsrc/data/learning-content.ts:\n- NUMBERS: NumberItem[] — PRD 4.1.3: { id:'1', character:'1', nameKo:'하나', nameEn:'One', object:'사과', illustrationId:'apple' } × 10\n- HANGUL_CONSONANTS: HangulItem[] — PRD 4.2.3: { id:'ㄱ', character:'ㄱ', name:'기역', word:'기린', illustrationId:'giraffe' } × 14\n- HANGUL_VOWELS: HangulItem[] — PRD 4.2.3: { id:'ㅏ', character:'ㅏ', name:'아', word:'아이스크림', illustrationId:'ice-cream' } × 10\n- ALPHABET: AlphabetItem[] — PRD 4.3.3: { id:'A', upper:'A', lower:'a', word:'Apple', wordKo:'사과', illustrationId:'apple' } × 26\n- 모든 데이터: export const ... as const, satisfies readonly\n\n참조: PRD 4.1.3, 4.2.3, 4.3.3\n검증: STROKE_DATA_NUMBERS['3'].strokes.length >= 1, NUMBERS.length === 10, HANGUL_CONSONANTS.length === 14, HANGUL_VOWELS.length === 10, ALPHABET.length === 26"
+        },
+        {
+          "id": "t011",
+          "title": "SVG 일러스트 에셋 (사물/동물/음식)",
+          "type": "asset",
+          "agent": "developer",
+          "estimated_minutes": 90,
+          "files_to_create": [
+            "src/assets/illustrations/objects.tsx",
+            "src/assets/illustrations/animals.tsx",
+            "src/assets/illustrations/foods.tsx",
+            "src/assets/illustrations/index.ts",
+            "src/components/features/Illustration.tsx"
+          ],
+          "depends_on": ["t001"],
+          "prompt": "목표: PRD 5.4 + 학습 콘텐츠(숫자 오브젝트, 한글 연관 단어, 영문 연관 단어)의 일러스트가 파스텔 톤 SVG 컴포넌트로 렌더링되는 상태.\n\n생성 파일: src/assets/illustrations/objects.tsx, animals.tsx, foods.tsx, index.ts, src/components/features/Illustration.tsx\n\n구현 상세:\n스타일 가이드 (PRD 5.4): 선 굵기 2-3px, 둥근 끝(round cap/join), 밝은 파스텔 색상, flat 디자인, viewBox '0 0 100 100'. 아이 친화적: 둥글고 부드러운 형태, 눈/표정 있는 오브젝트.\n\nobjects.tsx: StarIcon, FlowerIcon, RainbowIcon, CloudIcon, MoonIcon, HeartIcon, UmbrellaIcon, TrainIcon, RocketIcon, CarIcon, SunIcon, HouseIcon, KiteIcon, BalloonIcon, MusicNoteIcon, NestIcon, BoatIcon, XylophoneIcon 등 (영문 A~Z 대응 26개 + 숫자 대응 10개)\n\nanimals.tsx: GiraffeIcon, ButterflyIcon, SquirrelIcon, DuckIcon, ElephantIcon, FoxIcon, BearIcon, RabbitIcon, TigerIcon, PenguinIcon, WhaleIcon, ZebraIcon, LionIcon, FishIcon, CatIcon, DogIcon, JellyfishIcon, OctopusIcon 등 (한글/영문 연관 동물)\n\nfoods.tsx: AppleIcon, CherryIcon, GrapeIcon, OrangeIcon, BananaIcon, IceCreamIcon, RamenIcon 등 (학습 연관 음식)\n\nindex.ts: ILLUSTRATION_MAP: Record<string, React.FC<SVGProps>> — 모든 일러스트 id→컴포넌트 매핑 + 전체 re-export\n\nIllustration.tsx:\n- props: name(string), size(number, default 64), count(number, default 1), className\n- ILLUSTRATION_MAP에서 name으로 컴포넌트 조회, 없으면 fallback 물음표 아이콘\n- count > 1이면 Motion stagger(50ms)로 반복 렌더링\n- React.memo 적용\n\n참조: design_spec.json icons_and_illustrations, src/data/learning-content.ts (illustrationId)\n검증: <Illustration name='apple' count={3} size={48} /> → 사과 3개 stagger 등장"
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "홈 + 학습 화면 (숫자/한글/영문)",
+      "description": "홈 화면, 공통 LearningScreen, 숫자/한글/영문 학습 목록+상세 (병렬 가능)",
+      "estimated_hours": 10,
+      "validation": "홈 → 숫자 목록 → 숫자 학습 → 3단계 따라쓰기 성공 → 별 획득 플로우 동작",
+      "tasks": [
+        {
+          "id": "t012",
+          "title": "홈 화면 (카테고리 카드 + 진행률 + 스트리크 + 일일 보너스)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 90,
+          "files_to_create": [
+            "src/pages/HomePage.tsx",
+            "src/components/features/CategoryCard.tsx",
+            "src/components/features/StreakBanner.tsx",
+            "src/components/features/DailyRecommendation.tsx",
+            "src/components/features/StarCounter.tsx",
+            "src/components/features/DailyBonusModal.tsx"
+          ],
+          "depends_on": ["t004", "t005", "t009"],
+          "prompt": "목표: PRD 4.7 홈 화면 — 또리 캐릭터 인사, 4개 카테고리 카드(숫자/한글/영문/게임), 스트리크 배너, 오늘의 추천, 일일 보너스가 동작하는 상태.\n\n생성 파일: src/pages/HomePage.tsx, src/components/features/CategoryCard.tsx, StreakBanner.tsx, DailyRecommendation.tsx, StarCounter.tsx, DailyBonusModal.tsx\n\n구현 상세:\nHomePage.tsx (PRD 4.7.1):\n- 상단: CharacterDdori(md, happy) + 시간대별 인사 ('좋은 아침!'/'신나는 오후!'/'오늘도 잘했어!') + '{닉네임}아, 오늘도 같이 놀자!' 말풍선\n- 메인: 4개 CategoryCard 2×2 그리드 (숫자/한글/영어/게임)\n- StreakBanner: 연속 학습일 + 불꽃 아이콘\n- DailyRecommendation: 미완료 항목 랜덤 추천 수평 스크롤\n- 마운트 시 checkAndClaimDailyBonus() → DailyBonusModal 표시\n- onboarded false → 첫 접속 시 온보딩 안내 (간단한 모달)\n\nCategoryCard.tsx (design_spec.json CategoryCard):\n- props: category, title, icon(ReactNode), progress(number 0-1), color(string), totalCount, completedCount, onClick\n- 높이 140px+, rounded-[20px], 카테고리별 파스텔 그라데이션 배경\n- 큰 아이콘(64px) + 카테고리명(heading-lg) + ProgressRing(md) + 'N/M' 텍스트\n- Motion whileTap scale(0.97) + stagger 입장\n\nStreakBanner.tsx: accent-orange→accent-yellow 그라데이션, 불꽃 SVG + '연속 N일' 텍스트, rounded-2xl, h-12\n\nDailyRecommendation.tsx: 수평 스크롤 미니 카드, 카테고리 색상 좌측 바, 미완료 항목 최대 5개\n\nStarCounter.tsx (React.memo): 별 SVG(28px) + 숫자(Nunito Bold 20px), 별 변경 시 Motion bounce\n\nDailyBonusModal.tsx: Modal 래퍼 + 또리 happy + 별 3개 카운트업 + 연속 출석 N일 표시 + '좋아!' 버튼(xl)\n\n참조: src/stores/progress-store.ts, src/stores/gamification-store.ts, src/components/features/CharacterDdori.tsx\n검증: 홈 화면 4개 카드 표시, 카테고리별 진행률 반영, 일일 보너스 모달 첫 접속 시 표시"
+        },
+        {
+          "id": "t013",
+          "title": "공통 LearningScreen (compound component) + SuccessOverlay",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 90,
+          "files_to_create": [
+            "src/components/features/LearningScreen.tsx",
+            "src/components/features/SuccessOverlay.tsx",
+            "src/components/features/RelatedWord.tsx",
+            "src/components/features/CountingInteraction.tsx",
+            "src/hooks/use-confetti.ts",
+            "src/lib/confetti.ts"
+          ],
+          "depends_on": ["t005", "t006", "t007", "t008", "t009", "t011"],
+          "prompt": "목표: PRD 4.1.2/4.2.2/4.3.2 학습 상세 화면의 공통 레이아웃이 compound component 패턴으로 동작하는 상태. 3단계 오버레이 따라쓰기가 핵심.\n\n생성 파일: src/components/features/LearningScreen.tsx, SuccessOverlay.tsx, RelatedWord.tsx, CountingInteraction.tsx, src/hooks/use-confetti.ts, src/lib/confetti.ts\n\n구현 상세:\nLearningScreen.tsx — compound component 패턴:\n- LearningScreen (최상위 context provider — 학습 상태 관리)\n  - props: category, items[], currentIndex, onComplete, onNext, onPrev\n  - context: currentItem, tracingStage, setTracingStage, isComplete\n- LearningScreen.Display — 글자 표시 영역\n  - character 100-120px (Nunito/Pretendard), 일러스트 48px, 대표 단어\n  - TTS 자동 재생 (진입 시)\n- LearningScreen.Canvas — WritingCanvas 래퍼\n  - strokeData 전달, stage 연동, onStrokeComplete/onStageComplete/onAllComplete 핸들링\n- LearningScreen.Controls — 컨트롤 영역\n  - TTS 재생 버튼(스피커 아이콘), 이전/다음 화살표, 힌트 버튼\n  - 56px+ 터치 타겟\n\n레이아웃:\n- 세로 모드: 상단 Display(40%) + 하단 Canvas(60%)\n- 가로 모드(태블릿): 좌 Display(40%) + 우 Canvas(60%)\n\n획 완료 시: 효과음(stroke_complete) + 또리 praise\n단계 완료 시: 별 1개 + 또리 격려\n전체 완료(3단계 모두): SuccessOverlay\n\nSuccessOverlay.tsx (PRD 4.4.3):\n- confetti 파티클 (3초) + 또리 celebrate + 별 3개 카운트업 애니메이션\n- '다음으로' 버튼 / '다시 쓰기' 버튼\n- progress-store.completeTracingStage + gamification-store.addStars\n\nRelatedWord.tsx: 완료 후 슬라이드업 카드 — 연관 단어 + Illustration + TTS 재생\n\nCountingInteraction.tsx (PRD 4.1.2 숫자 전용): 오브젝트 N개를 하나씩 터치하면 카운트 올라가는 인터랙션\n\nuse-confetti.ts + confetti.ts: Canvas 기반 confetti 파티클 시스템, 50개 파티클, spread 360도, 6색\n\n참조: src/components/features/WritingCanvas.tsx, CharacterDdori.tsx, Illustration.tsx\n검증: LearningScreen으로 숫자 '3' 학습 → 3단계 따라쓰기 → 성공 → SuccessOverlay → 별 획득"
+        },
+        {
+          "id": "t014",
+          "title": "숫자 학습 (목록 + 학습 상세)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/pages/NumbersListPage.tsx",
+            "src/pages/NumberLearnPage.tsx",
+            "src/components/features/LearningCard.tsx"
+          ],
+          "depends_on": ["t010", "t013"],
+          "prompt": "목표: PRD 4.1 숫자 학습 — 숫자 1~10 목록 → 선택 → 학습 상세(따라쓰기+카운팅) → 성공 → 다음 숫자 플로우.\n\n생성 파일: src/pages/NumbersListPage.tsx, src/pages/NumberLearnPage.tsx, src/components/features/LearningCard.tsx\n\n구현 상세:\nLearningCard.tsx (design_spec.json LearningCard, 공통):\n- props: character, label, illustrationId, completed, onClick\n- Card 기반, 중앙 character(learning-char-md 80px), 하단 label(label-md)\n- completed: 우상단 금색 별 뱃지 + success 테두리\n- Motion whileTap scale(0.95), 터치 시 TTS 재생\n\nNumbersListPage.tsx (PRD 4.1.1 — 라우트: /numbers):\n- 1~10 LearningCard 그리드 2열×5행, numbers-purple(#A29BFE) 테마\n- 각 카드: 큰 숫자(32px Nunito Bold) + 해당 개수 오브젝트 미니 아이콘(24px)\n- 상단: '숫자 놀이' 타이틀 + ProgressRing + 'N/10' 텍스트\n- 카드 터치: 숫자 TTS 재생 + /numbers/:id 이동\n- progress-store에서 완료 상태 조회\n\nNumberLearnPage.tsx (PRD 4.1.2 — 라우트: /numbers/:id):\n- useParams → NUMBERS[id] + STROKE_DATA_NUMBERS[character]\n- LearningScreen compound component 렌더링\n  - Display: 큰 숫자(120px Nunito Bold) + TTS 자동 재생('하나') + 오브젝트 Illustration\n  - Canvas: WritingCanvas (strokeData, 3단계)\n  - Controls: TTS 재생, 이전/다음 네비게이션\n- CountingInteraction: 하단에 오브젝트 N개, 하나씩 터치하면 숫자 올라감 + TTS\n- onComplete: progress-store.markCompleted + gamification addStars(3)\n- 이전/다음: /numbers/:prevId, /numbers/:nextId\n\n참조: src/data/learning-content.ts (NUMBERS), src/data/stroke-data-numbers.ts\n검증: /numbers → 숫자 3 터치 → /numbers/3 학습 화면 → 3단계 따라쓰기 → 카운팅 → 별 획득 → /numbers/4"
+        },
+        {
+          "id": "t015",
+          "title": "한글 학습 (자음/모음 탭 + 학습 상세)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/pages/HangulListPage.tsx",
+            "src/pages/HangulLearnPage.tsx"
+          ],
+          "depends_on": ["t010", "t013", "t014"],
+          "prompt": "목표: PRD 4.2 한글 학습 — 자음/모음 탭 전환 → 선택 → 학습 상세(획순 가이드 따라쓰기) → 연관 단어 표시 플로우.\n\n생성 파일: src/pages/HangulListPage.tsx, src/pages/HangulLearnPage.tsx\n\n구현 상세:\nHangulListPage.tsx (PRD 4.2.1 — 라우트: /hangul):\n- 자음(ㄱ-ㅎ 14개) / 모음(ㅏ-ㅣ 10개) 탭 전환 (AnimatePresence slideLeft/Right)\n- 자음: 3열 카드 그리드 (14자), 모음: 5열 그리드 (10자)\n- hangul-green(#55E6C1) 테마\n- 각 LearningCard: 큰 글자(28px Pretendard Bold) + 대표 단어 미니 텍스트(12px) + 연관 이미지(24px)\n- 상단: '한글 놀이' + ProgressRing + 'N/24'\n- 카드 터치: 글자 발음 TTS('기역') + /hangul/:id 이동\n\nHangulLearnPage.tsx (PRD 4.2.2 — 라우트: /hangul/:id):\n- useParams → HANGUL_CONSONANTS/VOWELS에서 조회 + STROKE_DATA_HANGUL[character]\n- LearningScreen compound component\n  - Display: 큰 글자(100px Pretendard Bold) + 대표 단어 + 연관 이미지(Illustration)\n  - Canvas: WritingCanvas (획순 가이드 포함, stage별)\n  - Controls: TTS 재생(글자 발음), 이전/다음\n- 획순 애니메이션: stage 1에서 시작점 인디케이터가 획순대로 이동 안내 (PRD 4.2.2)\n- 완료 시: RelatedWord 카드 슬라이드업 (예: ㄱ → '기린' + 기린 SVG + '기린' TTS)\n- onComplete: progress-store.markCompleted + addStars(3)\n\n참조: src/data/learning-content.ts (HANGUL_CONSONANTS, HANGUL_VOWELS), src/data/stroke-data-hangul.ts, src/components/features/LearningCard.tsx (t014에서 생성)\n검증: /hangul → 자음 탭 → 'ㄱ' 선택 → 학습 → 획순 가이드 → 3단계 완료 → '기린' 연관단어 + TTS"
+        },
+        {
+          "id": "t016",
+          "title": "영문 학습 (A~Z 그리드 + 파닉스 + 학습 상세)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/pages/EnglishListPage.tsx",
+            "src/pages/EnglishLearnPage.tsx"
+          ],
+          "depends_on": ["t010", "t013", "t014"],
+          "prompt": "목표: PRD 4.3 영문 학습 — A~Z 그리드 → 선택 → 학습 상세(대문자+소문자 따라쓰기) → 파닉스 발음 + 연관 단어 표시 플로우.\n\n생성 파일: src/pages/EnglishListPage.tsx, src/pages/EnglishLearnPage.tsx\n\n구현 상세:\nEnglishListPage.tsx (PRD 4.3.1 — 라우트: /english):\n- A~Z LearningCard 그리드 4열×7행 (26자)\n- english-orange(#FECA57) 테마\n- 각 카드: 대문자(24px Nunito Bold) + 소문자(16px) + 대표 단어 이미지(24px)\n- 상단: '영어 놀이' + ProgressRing + 'N/26'\n- 카드 터치: 알파벳 발음 TTS(en-US) + /english/:id 이동\n\nEnglishLearnPage.tsx (PRD 4.3.2 — 라우트: /english/:id):\n- useParams → ALPHABET[id] + STROKE_DATA_ALPHABET[upper]\n- LearningScreen compound component\n  - Display: 대문자/소문자 표시(100px Nunito Bold, '대문자 A / 소문자 a') + 대표 단어 + 이미지\n  - Canvas: WritingCanvas (대문자 → 소문자 순서 따라쓰기)\n  - Controls: TTS 재생(en-US), 이전/다음\n- TTS 시퀀스: 알파벳명('A') → 0.5초 대기 → 파닉스 발음('/æ/') → 대표 단어('Apple')\n- 완료 시: RelatedWord 카드 — 영어 단어 + 한글 뜻 + Illustration + TTS\n- onComplete: progress-store.markCompleted + addStars(3)\n\n참조: src/data/learning-content.ts (ALPHABET), src/data/stroke-data-alphabet.ts, src/components/features/LearningCard.tsx\n검증: /english → 'A' 선택 → 학습 → 따라쓰기 → 완료 시 'Apple' 연관단어 + en-US TTS"
+        }
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "미니 게임 8종 (PRD v2.0 전체)",
+      "description": "PRD 4.5 미니 게임 8종 전체 구현 — 매칭/소리퀴즈/순서맞추기/풍선터뜨리기/색칠하기/버블매칭/그림자맞추기/단어만들기 (병렬 가능)",
+      "estimated_hours": 12,
+      "validation": "8종 게임 모두 동작, 정답/오답 피드백, 별 보상, 난이도 자동 조절, PRD 4.5.3 상태머신 동작",
+      "tasks": [
+        {
+          "id": "t017",
+          "title": "공통 게임 로직 훅 + GameResult 컴포넌트 + 게임 목록 화면",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/hooks/use-game-logic.ts",
+            "src/components/games/GameResult.tsx",
+            "src/pages/GamesListPage.tsx",
+            "src/components/features/GameCard.tsx",
+            "src/data/game-configs.ts"
+          ],
+          "depends_on": ["t005", "t006", "t007", "t009", "t011"],
+          "prompt": "목표: PRD 4.5.3 게임 공통 사양 기반 공통 게임 로직, 결과 화면, 게임 목록이 동작하는 상태.\n\n생성 파일: src/hooks/use-game-logic.ts, src/components/games/GameResult.tsx, src/pages/GamesListPage.tsx, src/components/features/GameCard.tsx, src/data/game-configs.ts\n\n구현 상세:\nsrc/hooks/use-game-logic.ts:\n- useGameLogic<Q>(config: { questions: Q[], roundsPerGame: number, categoryId?: string })\n- 상태 머신: ready → playing → success/fail → reward (PRD 4.5.3)\n- 라운드/점수/streak/난이도 관리\n- 자동 난이도: 3연속 정답 → difficulty UP, 2연속 오답 → difficulty DOWN\n- 별 계산: 정확도 90%+ → 3별, 70%+ → 2별, else 1별\n- 반환: { gameState, currentRound, totalRounds, score, streak, difficulty, currentQuestion, isComplete, submitAnswer(correct: boolean), restart, stars }\n\nGameResult.tsx:\n- 결과 화면: 또리 표정(stars별 — 3별:celebrate, 2별:happy, 1별:encourage)\n- 별 1~3개 stagger 애니메이션 + 점수 카운트업\n- '다시 하기' 버튼 + '게임 목록' 버튼 (xl 사이즈)\n- gamification-store.recordGameScore 호출\n\nGamesListPage.tsx (PRD 4.5.1 — 라우트: /games):\n- 8종 GameCard 2열 그리드, games-pink(#FF9FF3) 테마\n- 잠금 게임: 해당 카테고리 학습 30% 이상 진행 시 해금 (PRD 4.5.3)\n\nGameCard.tsx (React.memo):\n- props: gameId, title, description, illustrationId, difficulty(1-3), bestScore, locked, onClick\n- 큰 일러스트(80px) + 게임 이름(heading-lg) + 난이도 별(1-3) + 최고 기록\n- locked: grayscale(0.3) + 자물쇠 Badge + '학습 30% 이상 필요' 툴팁\n- whileTap scale(0.97)\n\ngame-configs.ts: GAME_LIST — 8종 게임 메타데이터 (id, title, description, route, illustrationId, difficulty, unlockCondition)\n\n참조: src/stores/gamification-store.ts, src/components/features/CharacterDdori.tsx\n검증: /games → 8종 게임 카드 표시, 잠금/해금 상태 반영, GameResult 별 애니메이션"
+        },
+        {
+          "id": "t018",
+          "title": "게임 1: 글자-이미지 매칭 (Memory Match)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/pages/MatchingGamePage.tsx",
+            "src/components/games/MemoryMatchGame.tsx"
+          ],
+          "depends_on": ["t010", "t011", "t017"],
+          "prompt": "목표: PRD 4.5.2 게임 1 — 카드 뒤집기 메모리 게임. 글자 카드와 이미지 카드를 매칭.\n\n생성 파일: src/pages/MatchingGamePage.tsx, src/components/games/MemoryMatchGame.tsx\n\n구현 상세:\nMemoryMatchGame.tsx:\n- 카테고리 선택: 숫자/한글/영어 탭 (PRD 4.5.2)\n- 카드 그리드: 난이도별 4쌍(2×4=8장, 쉬움) / 6쌍(3×4=12장, 보통) / 8쌍(4×4=16장, 어려움)\n- 카드 앞면: 글자 또는 Illustration, 뒷면: 또리 로고 패턴\n- 카드 뒤집기: Motion rotateY 3D 플립 (design_spec card_flip 400ms)\n- 2장 뒤집기 → 매칭 체크:\n  - 매칭 성공: 카드 유지 + match_success 효과음 + scale bounce + TTS 글자 읽기\n  - 불일치: 0.8초 보여준 후 다시 뒤집기 + wrong 효과음\n- 전체 매칭 완료 → 소요 시간 표시 + GameResult\n- 또리 리액션: 매칭 성공 시 praise, 3쌍 이상 오래 걸리면 encourage '힌트: 잘 기억해봐!'\n- 카드 크기: 80×80px, 100px+ 터치 영역, rounded-xl\n\nMatchingGamePage.tsx: MemoryMatchGame 래퍼 + useGameLogic + 카테고리 탭\n\n참조: src/hooks/use-game-logic.ts, src/data/learning-content.ts\n검증: /games/matching → 카드 뒤집기 → 글자+이미지 쌍 찾기 → 전체 클리어 → 소요시간 + 별"
+        },
+        {
+          "id": "t019",
+          "title": "게임 2: 소리 퀴즈 (Sound Quiz)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 45,
+          "files_to_create": [
+            "src/pages/QuizGamePage.tsx",
+            "src/components/games/SoundQuizGame.tsx"
+          ],
+          "depends_on": ["t006", "t010", "t011", "t017"],
+          "prompt": "목표: PRD 4.5.2 게임 2 — TTS로 글자/숫자/단어 읽어주고 3개 보기 중 맞는 것 선택.\n\n생성 파일: src/pages/QuizGamePage.tsx, src/components/games/SoundQuizGame.tsx\n\n구현 상세:\nSoundQuizGame.tsx:\n- 카테고리 선택: 숫자/한글/영어 탭\n- 상단: 큰 스피커 아이콘(80px) + '다시 듣기' 버튼 (재생 시 아이콘 bounce 애니메이션)\n- TTS: 문제 출제 시 글자/숫자/단어 자동 재생\n- 하단: 3개 선택지 카드 (120×80px, 글자+일러스트)\n  - 정답 터치: 카드 초록 빛남 + correct 효과음 + 또리 happy + 별 + 정답 글자 반짝임\n  - 오답 터치: 카드 흔들림(shake_wrong) + wrong 효과음 + 또리 encourage '다시 들어볼까?' + 재생 버튼 활성 + 재시도 무제한\n- 10문제 1세트 (PRD 4.5.2)\n- 문제 생성: learning-content에서 랜덤 추출, 오답 2개는 같은 카테고리에서 랜덤\n- 완료: GameResult\n\nQuizGamePage.tsx: SoundQuizGame 래퍼\n\n참조: src/hooks/use-tts.ts, src/hooks/use-game-logic.ts, src/data/learning-content.ts\n검증: /games/quiz → TTS '기역을 찾아봐!' → 3개 보기 → 정답 터치 → correct + 별 → 10문제 완료 → GameResult"
+        },
+        {
+          "id": "t020",
+          "title": "게임 3: 순서 맞추기 (Sorting)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/hooks/use-drag-drop.ts",
+            "src/pages/SortingGamePage.tsx",
+            "src/components/games/SortingGame.tsx"
+          ],
+          "depends_on": ["t010", "t017"],
+          "prompt": "목표: PRD 4.5.2 게임 3 — 3~5개 숫자/글자를 올바른 순서로 정렬하는 드래그앤드롭 게임.\n\n생성 파일: src/hooks/use-drag-drop.ts, src/pages/SortingGamePage.tsx, src/components/games/SortingGame.tsx\n\n구현 상세:\nsrc/hooks/use-drag-drop.ts:\n- useDragDrop(items, onDrop): PointerEvent 기반 커스텀 드래그앤드롭\n- 터치/포인터 통합, getBoundingClientRect 히트 테스트\n- 드래그 중: 요소 opacity 0.8 + scale 1.1 + shadow 강화\n- 매칭 실패 시: spring 애니메이션으로 원래 자리 스냅백 (300ms ease)\n- 유아 친화: 큰 드래그 영역(64px+), 느린 스냅백, 시각적 드롭존 하이라이트\n- 반환: { dragState, handlePointerDown, handlePointerMove, handlePointerUp, isDragging }\n\nSortingGame.tsx:\n- 카테고리 선택: 숫자(1→10) / 자음(ㄱ→ㅎ) / 알파벳(A→Z)\n- 난이도: 쉬움(3개), 보통(4개), 어려움(5개)\n- 상단: 빈 슬롯 N개 (드롭 타겟, 점선 테두리, 순서 번호)\n- 하단: 셔플된 글자/숫자 카드 (드래그 소스, 64×64px)\n- 올바른 위치에 놓으면: drag_drop '착!' 효과음 + 초록 하이라이트 + TTS 글자 읽기\n- 잘못된 위치: 부드럽게 원래 자리로 복귀 + wrong 효과음\n- 모든 카드 정렬 완료 → confetti + 또리 celebrate + GameResult\n- 5라운드 후 최종 결과\n\nSortingGamePage.tsx: SortingGame 래퍼\n\n참조: src/hooks/use-game-logic.ts, src/data/learning-content.ts\n검증: /games/sorting → 숫자 3개 셔플 → 드래그로 순서 맞추기 → '착!' → 완료 → 별"
+        },
+        {
+          "id": "t021",
+          "title": "게임 4: 풍선 터뜨리기 (Balloon Pop)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/pages/BalloonGamePage.tsx",
+            "src/components/games/BalloonPopGame.tsx"
+          ],
+          "depends_on": ["t010", "t017"],
+          "prompt": "목표: PRD 4.5.2 게임 4 — 화면에 떠다니는 풍선에서 TTS로 안내된 정답 풍선을 터치하여 터뜨리기.\n\n생성 파일: src/pages/BalloonGamePage.tsx, src/components/games/BalloonPopGame.tsx\n\n구현 상세:\nBalloonPopGame.tsx:\n- 풍선 5~8개 (design_spec balloon-colors 6색 파스텔) 화면 하단에서 위로 떠오름\n- 각 풍선: 80×100px SVG (타원+꼬리), 내부에 글자/숫자 (28px Nunito Bold)\n- TTS: '\"삼\"을 찾아서 터뜨려봐!' (문제마다 자동 재생)\n- 풍선 Motion 애니메이션 (design_spec balloon_float):\n  - y: 화면 하단 → 상단 (6초 linear)\n  - x: 좌우 sin wave 흔들림 (amplitude 30px)\n  - 화면 밖으로 나가면 새 풍선 재생성 (다른 글자/위치)\n- 정답 풍선 터치: balloon_pop 효과음 + 터지는 파티클 SVG (6조각 방사) + confetti + 또리 happy + 별\n- 오답 풍선 터치: 풍선 흔들림(shake_wrong) + wrong 효과음 + TTS '아니야, 다시!'\n- 난이도: 쉬움(숫자 1~5, 풍선 4개) / 보통(숫자 1~10, 6개) / 어려움(한글/영문, 8개)\n- 제한시간 없음 (PRD 4.5.2), 연속 10문제\n- 완료: GameResult\n\nBalloonGamePage.tsx: BalloonPopGame 래퍼\n\n참조: src/hooks/use-game-logic.ts, src/data/learning-content.ts\n검증: /games/balloon → 풍선 떠오름 → TTS 안내 → 정답 풍선 터치 → 터짐 + 별 → 10문제 완료"
+        },
+        {
+          "id": "t022",
+          "title": "게임 5: 색칠하기 (Coloring)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/pages/ColoringGamePage.tsx",
+            "src/components/games/ColoringGame.tsx"
+          ],
+          "depends_on": ["t011", "t017"],
+          "prompt": "목표: PRD 4.5.2 게임 5 — 글자/숫자 윤곽선을 파스텔 색상으로 색칠하기.\n\n생성 파일: src/pages/ColoringGamePage.tsx, src/components/games/ColoringGame.tsx\n\n구현 상세:\nColoringGame.tsx:\n- 글자/숫자 윤곽선 SVG가 표시됨 (stroke only, fill transparent)\n- SVG 영역은 path 단위로 분할 (각 영역에 고유 id)\n- 하단 색상 팔레트: 6색 (design_spec coloring-palette: 빨#FF6B6B/주#FFA500/노#FFD93D/초#2ED573/파#4A90D9/보#A29BFE)\n  - 원형 버튼 64px (PRD 4.5.2), 현재 선택 색상: 3px 테두리 + scale(1.15)\n- 색상 선택 후 SVG 영역 터치 → 해당 path fill 속성 변경 + button_click 효과음\n- 자유 색칠 모드: Canvas 기반 붓 도구 (lineWidth 15px, round cap)\n- TTS: '사과를 예쁘게 색칠해봐!' (문제 시작 시)\n- 모든 영역 채우면: correct 효과음 + 또리 celebrate + 완성작 프레임\n- 지우개 버튼: 특정 영역 또는 전체 초기화\n- 완성 작품: 갤러리에 저장 (LocalStorage, base64 PNG)\n- 5개 그림 후 GameResult\n\nColoringGamePage.tsx: ColoringGame 래퍼\n\n참조: src/hooks/use-game-logic.ts, src/assets/illustrations/\n검증: /games/coloring → 색상 선택 → 영역 터치 → 색 채워짐 → 모든 영역 완성 → 별"
+        },
+        {
+          "id": "t023",
+          "title": "게임 6: 버블 매칭 (Bubble Match)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/pages/BubbleGamePage.tsx",
+            "src/components/games/BubbleMatchGame.tsx"
+          ],
+          "depends_on": ["t010", "t017"],
+          "prompt": "목표: PRD 4.5.2 게임 6 — 같은 글자/숫자 버블 2개를 연속 터치하여 매칭 제거.\n\n생성 파일: src/pages/BubbleGamePage.tsx, src/components/games/BubbleMatchGame.tsx\n\n구현 상세:\nBubbleMatchGame.tsx:\n- 카테고리 선택: 숫자/한글/영어\n- 화면에 글자/숫자 버블 N쌍이 무작위 배치 (겹침 방지 알고리즘)\n  - 쉬움: 4쌍(8개), 보통: 6쌍(12개), 어려움: 8쌍(16개)\n- 버블: 64px 원형 (design_spec bubble-colors 6색), 내부 글자(24px Nunito Bold)\n- 버블 idle 애니메이션: 부유(floating) y=[0,-4,0] 3s infinite, 각 버블 랜덤 delay\n- 첫 번째 버블 터치: 선택 표시 (glow effect + scale 1.1)\n- 두 번째 버블 터치:\n  - 같은 글자: 두 버블이 중앙으로 합쳐지며 사라짐 + match_success 효과음 + 파티클\n  - 다른 글자: 두 버블 모두 shake_wrong + wrong 효과음 + 선택 해제\n- 힌트 버튼: 같은 쌍 하이라이트 (glow effect 3초) — 최대 3회\n- 시간 제한 없음 (PRD 4.5.2)\n- 모든 버블 쌍 제거 → confetti + GameResult\n\nBubbleGamePage.tsx: BubbleMatchGame 래퍼\n\n참조: src/hooks/use-game-logic.ts, src/data/learning-content.ts\n검증: /games/bubble → 버블 배치 → 같은 글자 2개 터치 → 합쳐짐 → 전체 클리어 → 별"
+        },
+        {
+          "id": "t024",
+          "title": "게임 7: 그림자 맞추기 (Shadow Match)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/pages/ShadowGamePage.tsx",
+            "src/components/games/ShadowMatchGame.tsx"
+          ],
+          "depends_on": ["t011", "t017", "t020"],
+          "prompt": "목표: PRD 4.5.2 게임 7 — 컬러 오브젝트를 올바른 그림자(실루엣)에 드래그앤드롭 매칭.\n\n생성 파일: src/pages/ShadowGamePage.tsx, src/components/games/ShadowMatchGame.tsx\n\n구현 상세:\nShadowMatchGame.tsx:\n- 상단: 컬러 오브젝트 이미지 (Illustration 컴포넌트, 80px)\n- 하단: 3~4개 그림자(실루엣) 보기\n  - 실루엣 스타일: CSS filter brightness(0) opacity(0.4) (design_spec ShadowMatchGame)\n  - 배치: 가로 균등 분포, 80px 원형 영역\n- useDragDrop으로 오브젝트를 실루엣에 드래그앤드롭\n- 올바른 그림자에 드롭:\n  - 실루엣이 컬러로 전환 (filter 제거 + fadeIn) + correct 효과음\n  - 오브젝트 첫 글자 표시 (예: 사과 → 'ㅅ') + TTS '사과의 첫 글자는 시옷이야!'\n  - 또리 praise + 별\n- 잘못된 그림자에 드롭: 스냅백 + wrong + 또리 encourage '모양을 잘 봐!'\n- 문제 생성: learning-content에서 랜덤 오브젝트 선택, 정답 1 + 오답 2~3 실루엣\n- 5라운드 후 GameResult\n\nShadowGamePage.tsx: ShadowMatchGame 래퍼\n\n참조: src/hooks/use-drag-drop.ts (t020), src/hooks/use-game-logic.ts, src/components/features/Illustration.tsx\n검증: /games/shadow → 오브젝트 표시 → 그림자에 드래그 → 매칭 → 글자 표시 → 5라운드 → 별"
+        },
+        {
+          "id": "t025",
+          "title": "게임 8: 단어 만들기 (Word Builder)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/pages/WordBuilderGamePage.tsx",
+            "src/components/games/WordBuilderGame.tsx"
+          ],
+          "depends_on": ["t010", "t011", "t017", "t020"],
+          "prompt": "목표: PRD 4.5.2 게임 8 — 이미지 보고 글자 블록을 올바른 순서로 빈칸에 드래그하여 단어 완성.\n\n생성 파일: src/pages/WordBuilderGamePage.tsx, src/components/games/WordBuilderGame.tsx\n\n구현 상세:\nWordBuilderGame.tsx:\n- 상단: 이미지 (Illustration 80px) + 단어 빈칸 슬롯 (글자 수만큼)\n  - 빈칸: 56×56px 점선 테두리 사각형, 순서 번호\n- 하단: 글자 블록들 셔플 배치 (정답 글자 + 오답 글자 1~2개)\n  - 블록: 56×56px (design_spec WordBuilderGame), 둥근 사각형, 카테고리 색상 배경\n  - 글자: 24px Pretendard Bold\n- useDragDrop으로 블록을 빈칸에 드래그\n- 올바른 블록 + 올바른 순서: drag_drop '착!' + 초록 테두리 + 블록 고정\n- 잘못된 블록: 스냅백 + wrong + 또리 '다시 생각해봐!'\n- 모든 빈칸 채우면: 단어 TTS 재생 + 또리 celebrate + confetti + 별\n- 단어 데이터: HANGUL_CONSONANTS/VOWELS의 대표 단어 분해 (예: 나비 → ㄴ, ㅏ, ㅂ, ㅣ)\n- 난이도: 쉬움(2글자, 오답 0), 보통(3글자, 오답 1), 어려움(4글자, 오답 2)\n- 5라운드 후 GameResult\n\nWordBuilderGamePage.tsx: WordBuilderGame 래퍼\n\n참조: src/hooks/use-drag-drop.ts (t020), src/hooks/use-game-logic.ts, src/data/learning-content.ts\n검증: /games/word-builder → 나비 이미지 → ㄴ,ㅏ,ㅂ,ㅣ 블록 드래그 → 빈칸 채우기 → TTS '나비' → 별"
+        }
+      ]
+    },
+    {
+      "phase": 6,
+      "name": "게이미피케이션 UI + 보조 화면",
+      "description": "별/레벨/콤보 애니메이션, 스티커북, 부모 설정(부모 게이트 포함), 일일 추천 (병렬 가능)",
+      "estimated_hours": 6,
+      "validation": "별 획득 애니메이션, 레벨업 모달, 콤보 표시, 스티커 앨범 렌더링, 부모 게이트 동작, 설정 토글",
+      "tasks": [
+        {
+          "id": "t026",
+          "title": "게이미피케이션 UI (별/레벨/콤보/레벨업 모달)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/components/features/StarReward.tsx",
+            "src/components/features/LevelBadge.tsx",
+            "src/components/features/ComboIndicator.tsx",
+            "src/components/features/LevelUpModal.tsx"
+          ],
+          "depends_on": ["t005", "t007", "t009"],
+          "prompt": "목표: PRD 4.6 게이미피케이션 UI — 별 획득, 레벨업, 콤보 등 화려한 애니메이션이 동작하는 상태.\n\n생성 파일: src/components/features/StarReward.tsx, LevelBadge.tsx, ComboIndicator.tsx, LevelUpModal.tsx\n\n구현 상세:\nStarReward.tsx:\n- props: count(1-3), onComplete\n- 별 등장 애니메이션 (design_spec star_earned): scale(0→1.5→1) + rotate(0→360) + 방사형 파티클\n- 별 N개: stagger 200ms\n- star_earned 효과음\n- 완료 후 별이 TopBar 별 카운터 위치로 날아감 (position fixed + Motion layoutId)\n\nLevelBadge.tsx (React.memo):\n- props: level(number), size('sm'|'md'|'lg')\n- 원형 배지: 레벨 아이콘(LEVEL_TABLE[level].badge) + 레벨명\n- ProgressRing: 다음 레벨까지 진행률\n- 색상: 레벨별 그라데이션\n\nComboIndicator.tsx:\n- props: comboCount(number)\n- 'COMBO x{N}!' 텍스트(32px Nunito Bold) + 불꽃 파티클\n- Motion: bounceIn → 3초 유지 → fadeOut\n- comboCount >= 3이면 무지개 색상 + 더 큰 파티클\n\nLevelUpModal.tsx:\n- props: newLevel(LevelInfo), onDismiss\n- Modal 기반 전체 오버레이 + confetti_burst(3초)\n- 또리 celebrate(size lg) + 새 배지 확대(scale 0→1.2→1)\n- '와~! 레벨 {N}!' heading-xl + 새 스티커/의상 획득 알림\n- TTS '축하해! 레벨이 올랐어!'\n- level_up 효과음 (팡파레 1.5초)\n- focus management: 모달 열릴 때 포커스 트랩\n\n참조: src/stores/gamification-store.ts, src/types/gamification.ts (LEVEL_TABLE)\n검증: StarReward count={3} → 별 3개 stagger + 날아감, LevelUpModal → confetti + 또리 + 팡파레"
+        },
+        {
+          "id": "t027",
+          "title": "스티커북 화면 (P1)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 45,
+          "files_to_create": [
+            "src/data/stickers.ts",
+            "src/pages/StickersPage.tsx",
+            "src/components/features/StickerBook.tsx"
+          ],
+          "depends_on": ["t005", "t009"],
+          "prompt": "목표: PRD 4.9 스티커북 — 레벨업으로 획득한 스티커를 앨범 형태로 열람하는 화면.\n\n생성 파일: src/data/stickers.ts, src/pages/StickersPage.tsx, src/components/features/StickerBook.tsx\n\n구현 상세:\nsrc/data/stickers.ts:\n- STICKERS: StickerItem[] — { id, name, category('numbers'|'hangul'|'english'|'special'), illustrationId, unlockCondition(string) }\n- 카테고리별 스티커 테마 (PRD 4.6.3): 숫자=동물(10개), 한글=음식(10개), 영어=탈것(10개), 특별=레벨업 보상(10개) = 총 40개\n- 해금 조건: 학습 진행도 / 레벨 달성 / 연속 학습일\n\nStickersPage.tsx (PRD 4.9 — 라우트: /stickers):\n- 카테고리 필터 탭: 전체/숫자/한글/영어/특별\n- StickerBook 렌더링\n\nStickerBook.tsx:\n- 4열 그리드, 스티커 카드 aspect-ratio 1/1\n- 획득한 스티커: 컬러 SVG + shimmer 애니메이션 (CSS background gradient animation)\n- 미획득 스티커: grayscale + 자물쇠 아이콘 오버레이 + 실루엣\n- 스티커 터치 시: Modal로 확대 표시 + 획득 조건 텍스트 (미획득 시)\n- React.memo 각 스티커 카드\n- gamification-store.stickers에서 획득 상태 조회\n\n참조: src/stores/gamification-store.ts, src/components/features/Illustration.tsx\n검증: /stickers → 40개 스티커 그리드 → 획득=컬러, 미획득=실루엣 → 터치 시 확대"
+        },
+        {
+          "id": "t028",
+          "title": "부모 설정 화면 (부모 게이트 + 학습 통계 + 타이머)",
+          "type": "feature",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/pages/SettingsPage.tsx",
+            "src/components/features/ParentGate.tsx",
+            "src/components/features/SettingsPanel.tsx",
+            "src/components/features/LearningStats.tsx"
+          ],
+          "depends_on": ["t005"],
+          "prompt": "목표: PRD 4.8 부모 설정 — 부모 게이트(수학 문제) 통과 후 학습 통계, 타이머 설정, 사운드 설정, 데이터 초기화 기능.\n\n생성 파일: src/pages/SettingsPage.tsx, src/components/features/ParentGate.tsx, SettingsPanel.tsx, LearningStats.tsx\n\n구현 상세:\nParentGate.tsx (PRD 4.8):\n- props: onSuccess, onCancel\n- 간단한 수학 문제: 'a + b = ?' (한 자리 숫자 덧셈, 랜덤 생성)\n- 숫자 키패드 UI (3×4 그리드, 0~9 + 지우기 + 확인)\n- 최대 3회 시도, 실패 시 '어른에게 부탁해주세요' 메시지\n- 성공 시 onSuccess 콜백\n\nSettingsPage.tsx (PRD 4.8 — 라우트: /settings):\n- 진입 시 ParentGate 모달 표시\n- 통과 후 SettingsPanel + LearningStats 표시\n\nSettingsPanel.tsx:\n- 사운드: 효과음 ON/OFF 토글, TTS 속도 슬라이더(0.5~1.2), 볼륨 슬라이더(0~1)\n- 프로필: 닉네임 변경 (input 56px + 확인 버튼)\n- 학습 타이머: 일일 제한 라디오 (15분/30분/무제한) — PRD 4.8\n- 데이터 초기화: '모든 학습 기록 삭제' 확인 모달 (2단계: '정말요?' → '네, 삭제합니다')\n- 시맨틱 HTML: <fieldset>, <legend>, aria-label\n- settings-store 연동\n\nLearningStats.tsx (PRD 4.8):\n- 카테고리별 진행도: 숫자(N/10), 한글(N/24), 영어(N/26) + ProgressRing\n- 총 별 개수 + 현재 레벨\n- 일별 학습 기록 차트 (최근 7일, 간단한 SVG 바 차트)\n- progress-store + gamification-store에서 데이터 조회\n\n참조: src/stores/settings-store.ts, src/stores/progress-store.ts, src/stores/gamification-store.ts\n검증: /settings → 부모 게이트(3+4=7) → 통과 → 설정 화면 → 토글/슬라이더 동작 → 데이터 초기화 확인"
+        }
+      ]
+    },
+    {
+      "phase": 7,
+      "name": "PWA 완성 + 성능 최적화 + 통합",
+      "description": "오프라인 지원 완성, 성능/접근성 최적화, 전체 플로우 통합 검증",
+      "estimated_hours": 4,
+      "validation": "PWA 오프라인 학습 동작, Lighthouse Performance 80+/Accessibility 90+, 번들 < 500KB gzip, 전체 E2E 플로우",
+      "tasks": [
+        {
+          "id": "t029",
+          "title": "PWA 완성 + 오프라인 지원",
+          "type": "setup",
+          "agent": "developer",
+          "estimated_minutes": 45,
+          "files_to_create": [
+            "src/hooks/use-online-status.ts",
+            "src/components/features/OfflineBanner.tsx"
+          ],
+          "depends_on": ["t003", "t012"],
+          "prompt": "목표: PRD 8.2 PWA 완전 동작 — 오프라인에서도 학습 가능, 업데이트 알림, 설치 프롬프트.\n\n생성 파일: src/hooks/use-online-status.ts, src/components/features/OfflineBanner.tsx\n\n구현 상세:\nsrc/hooks/use-online-status.ts:\n- useOnlineStatus(): { isOnline: boolean }\n- navigator.onLine + online/offline 이벤트 리스너\n- cleanup on unmount\n\nsrc/components/features/OfflineBanner.tsx:\n- isOnline false 시 상단 배너 표시: '오프라인 모드 — 저장된 학습만 가능해요' + 구름 아이콘\n- 배경: accent-orange/80, 텍스트 white, rounded-b-xl, h-8\n- AnimatePresence slideDown\n\nvite.config.ts 업데이트:\n- manifest 완성: name, short_name, display, orientation, theme_color, background_color, icons, start_url, scope\n- workbox runtimeCaching 강화:\n  - CacheFirst: images, fonts, SVG (maxEntries: 100, maxAgeSeconds: 30일)\n  - StaleWhileRevalidate: JS, CSS (maxEntries: 50)\n- globPatterns: ['**/*.{js,css,html,svg,png,woff2}']\n\nAppLayout.tsx 수정: OfflineBanner 통합 (TopBar 위에 조건부 렌더링)\n\n참조: src/components/ui/AppLayout.tsx\n검증: DevTools Network offline → 오프라인 배너 표시 → 학습 화면 접근 가능 → Network online → 배너 사라짐"
+        },
+        {
+          "id": "t030",
+          "title": "성능 최적화 + 접근성 + 전체 통합",
+          "type": "optimization",
+          "agent": "developer",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "src/hooks/use-reduced-motion.ts"
+          ],
+          "files_to_modify": [
+            "src/router.tsx",
+            "src/App.tsx",
+            "index.html"
+          ],
+          "depends_on": ["t029"],
+          "prompt": "목표: PRD 8.1 성능 + 8.4 접근성 최적화 — Lighthouse Performance 80+, Accessibility 90+, 번들 < 500KB gzip.\n\n생성/수정 파일: src/hooks/use-reduced-motion.ts, src/router.tsx, src/App.tsx, index.html\n\n구현 상세:\n성능 최적화:\n- React.lazy 코드 스플리팅 확인: 18개 페이지 모두 lazy import + Suspense fallback\n- React.memo 확인: CategoryCard, GameCard, LearningCard, Illustration, LevelBadge, StarCounter, BottomNav\n- useMemo/useCallback: 무거운 계산(진행도 백분율, 게임 문제 생성)에 적용\n- SVG 인라인 확인: 별도 이미지 요청 없음\n- 캔버스: requestAnimationFrame 60fps 확인, 불필요한 리렌더 방지\n\nuse-reduced-motion.ts:\n- useReducedMotion(): boolean — prefers-reduced-motion: reduce 미디어 쿼리 감지\n- 활성 시 Motion 애니메이션 비활성화 (또는 duration 0)\n\n접근성 (PRD 8.4):\n- 시맨틱 HTML: <nav> (BottomNav), <main> (컨텐츠), <button> (모든 인터랙티브), <fieldset>/<legend> (설정)\n- aria-label: 모든 인터랙티브 요소, SVG role='img' + aria-label\n- 최소 폰트 16px (body-md), 학습 글자 80px+\n- 색상 대비 WCAG AA (4.5:1)\n- 터치 타겟 56px+ (PRD 2.2, 주요 버튼 64px+)\n- focus management: 모달 포커스 트랩, 게임 결과 포커스 이동\n- keyboard navigation: Tab/Enter/Escape 지원 (설정 화면)\n\nindex.html:\n- <html lang='ko'>\n- viewport: width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover\n- apple-mobile-web-app-capable, apple-mobile-web-app-status-bar-style\n- theme-color: #4A90D9\n- preconnect: fonts.googleapis.com, fonts.gstatic.com\n- og:title '키즈에듀', og:description '4~5세 유아를 위한 숫자/한글/영어 학습 앱'\n\n전체 통합 체크:\n- 홈 → 숫자 목록 → 숫자 학습 → 3단계 따라쓰기 → 별 획득 → 홈\n- 홈 → 게임 목록 → 풍선 터뜨리기 → GameResult → 게임 목록\n- 별 누적 → 레벨업 → LevelUpModal → 스티커 획득 → 스티커북\n- 설정: 부모 게이트 → 사운드 토글 → 데이터 초기화\n- 오프라인 배너 + PWA\n\n참조: 모든 컴포넌트 파일\n검증: Lighthouse 4개 항목 80+, pnpm build 성공, 전체 플로우 동작"
+        }
+      ]
+    },
+    {
+      "phase": 8,
+      "name": "테스트 + QA + 배포 준비",
+      "description": "Playwright E2E 테스트, 빌드 검증, 배포 준비",
+      "estimated_hours": 2,
+      "validation": "Playwright E2E 핵심 플로우 통과, 프로덕션 빌드 성공, dist/ 정상",
+      "tasks": [
+        {
+          "id": "t031",
+          "title": "Playwright E2E 테스트",
+          "type": "test",
+          "agent": "qa",
+          "estimated_minutes": 60,
+          "files_to_create": [
+            "playwright.config.ts",
+            "e2e/home.spec.ts",
+            "e2e/learning.spec.ts",
+            "e2e/games.spec.ts",
+            "e2e/settings.spec.ts"
+          ],
+          "depends_on": ["t030"],
+          "prompt": "목표: PRD 핵심 사용자 플로우 4개의 E2E 테스트가 Playwright로 통과하는 상태.\n\n생성 파일: playwright.config.ts, e2e/home.spec.ts, e2e/learning.spec.ts, e2e/games.spec.ts, e2e/settings.spec.ts\n\n구현 상세:\nplaywright.config.ts:\n- baseURL: 'http://localhost:5173'\n- webServer: { command: 'pnpm dev', port: 5173 }\n- projects: [{ name: 'chromium' }]\n- use: { actionTimeout: 10000, screenshot: 'only-on-failure' }\n\ne2e/home.spec.ts:\n- 홈 화면 렌더링: 4개 카테고리 카드 표시 확인\n- 카테고리 카드 클릭 → 해당 목록 페이지 이동\n- 별 카운터 표시\n- BottomNav 5개 탭 동작\n\ne2e/learning.spec.ts:\n- 숫자 목록 → 숫자 '1' 클릭 → 학습 화면 표시\n- 캔버스 존재 확인\n- 이전/다음 네비게이션 동작\n- 한글 목록 → 자음/모음 탭 전환\n- 영문 목록 → A~Z 카드 표시\n\ne2e/games.spec.ts:\n- 게임 목록 8종 카드 표시\n- 소리 퀴즈 페이지 진입 → 선택지 3개 표시\n- 풍선 터뜨리기 페이지 진입 → 풍선 표시\n\ne2e/settings.spec.ts:\n- 설정 페이지 진입 → 부모 게이트 표시\n- 수학 문제 정답 입력 → 설정 패널 표시\n- 효과음 토글 동작\n\n참조: PRD 6절 화면 목록, 라우트 정의\n검증: pnpm exec playwright test --reporter=list 전체 통과"
+        },
+        {
+          "id": "t032",
+          "title": "빌드 검증 + 배포 준비",
+          "type": "deploy",
+          "agent": "developer",
+          "estimated_minutes": 30,
+          "files_to_create": [],
+          "files_to_modify": [
+            "package.json",
+            "vercel.json"
+          ],
+          "depends_on": ["t031"],
+          "prompt": "목표: 프로덕션 빌드 성공, Vercel 배포 설정 완료, SPA fallback 동작.\n\n생성/수정 파일: package.json (scripts 확인), vercel.json\n\n구현 상세:\n빌드 검증:\n- pnpm build → dist/ 디렉토리 생성 확인\n- dist/index.html 존재\n- dist/manifest.webmanifest 존재\n- dist/sw.js (Service Worker) 존재\n- 번들 사이즈 확인: < 500KB gzip (PRD 8.1)\n- pnpm preview → localhost:4173에서 앱 동작 확인\n\nvercel.json:\n- SPA fallback: { \"rewrites\": [{ \"source\": \"/(.*)\", \"destination\": \"/index.html\" }] }\n- headers: Cache-Control 설정 (정적 에셋 1년, HTML no-cache)\n\npackage.json 최종 확인:\n- name: 'kidsedu'\n- version: '2.0.0'\n- scripts: dev, build, preview, lint, typecheck, test:e2e\n- engines: { node: '>=20' }\n\n참조: .github/workflows/ci.yml\n검증: pnpm build 성공, dist/ 파일 구조 정상, pnpm preview 앱 동작, vercel.json 유효"
+        }
+      ]
+    }
+  ]
+}

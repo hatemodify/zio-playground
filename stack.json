@@ -1,0 +1,120 @@
+{
+  "frontend": {
+    "framework": "React 19 + Vite 8 (Rolldown)",
+    "language": "TypeScript 5.7+ (strict mode)",
+    "ui_library": "Tailwind CSS 4 (CSS-first config, @theme directive)",
+    "state_management": {
+      "client_state": "Zustand 5 (persist middleware → localStorage + IndexedDB)",
+      "form_state": "Controlled components + Zod validation"
+    },
+    "routing": "React Router v7 (createBrowserRouter, lazy routes)",
+    "canvas": "HTML5 Canvas API (커스텀 훅: useCanvas, useStrokeMatching) — 3단계 오버레이 트레이싱",
+    "tts": "Web Speech API (SpeechSynthesis)",
+    "audio": "Web Audio API (효과음 14종 + BGM)",
+    "animation": "Motion 12 (구 Framer Motion, AnimatePresence, stagger, spring)",
+    "pwa": "vite-plugin-pwa 1.2 (Workbox — precache + runtime cache)",
+    "font": "Pretendard Variable (한글) + Nunito (영문/숫자, Google Fonts CDN)",
+    "icons": "인라인 SVG React 컴포넌트 (커스텀 제작, 이모지 사용 금지)",
+    "testing": "Vitest + Playwright (E2E)"
+  },
+  "backend": {
+    "framework": "없음 (순수 클라이언트 SPA, 서버 전송 없음)",
+    "database": "localStorage (Zustand persist) + IndexedDB (대용량 학습 데이터/게임 기록)",
+    "auth": "없음 (MVP) — 부모 게이트는 간단한 수학 문제 PIN 방식"
+  },
+  "infra": {
+    "hosting": "Vercel (free tier, 정적 SPA)",
+    "storage": "Service Worker Cache (정적 에셋) + localStorage (학습 데이터)",
+    "ci": "GitHub Actions → lint → typecheck → build → Lighthouse CI → Vercel 배포",
+    "ci_pipeline": {
+      "trigger": "push to main, PR to main",
+      "jobs": {
+        "lint_and_typecheck": {
+          "runs_on": "ubuntu-latest",
+          "steps": ["checkout + pnpm install (cache)", "eslint --max-warnings 0", "tsc --noEmit"]
+        },
+        "build": {
+          "needs": "lint_and_typecheck",
+          "runs_on": "ubuntu-latest",
+          "steps": ["checkout + pnpm install", "vite build", "upload dist/ artifact"]
+        },
+        "lighthouse": {
+          "needs": "build",
+          "runs_on": "ubuntu-latest",
+          "steps": ["download dist/ artifact", "treosh/lighthouse-ci-action@v12"]
+        }
+      },
+      "quality_gates": {
+        "lint": "eslint --max-warnings 0",
+        "typecheck": "tsc --noEmit (strict mode)",
+        "bundle_size": "< 500KB gzip (PRD 8.1 목표)",
+        "lighthouse": "PWA >= 90, Performance >= 80, Accessibility >= 90"
+      }
+    }
+  },
+  "key_libraries": {
+    "react": "^19 — UI 프레임워크 (use() hook, useActionState 등 최신 기능)",
+    "react-dom": "^19 — React DOM 렌더링",
+    "react-router-dom": "^7 — SPA 클라이언트 라우팅 (lazy loading 지원)",
+    "zustand": "^5.0 — 클라이언트 상태 + persist 미들웨어 (localStorage)",
+    "motion": "^12.36 — 캐릭터 반응, 보상 파티클, 페이지 전환, AnimatePresence",
+    "zod": "^3.24 — 스키마 검증, localStorage hydration 검증",
+    "clsx": "조건부 className 결합",
+    "tailwind-merge": "Tailwind 클래스 충돌 해결",
+    "vite-plugin-pwa": "^1.2 — PWA 서비스워커, Workbox 기반 오프라인 캐싱",
+    "@vitejs/plugin-react": "^6 — Oxc 기반 React Refresh (Babel 의존 제거)"
+  },
+  "architecture_patterns": {
+    "compound_components": "LearningScreen + WritingCanvas + CharacterDdori를 compound component로 구성 — 학습 상태 공유 context",
+    "overlay_tracing": "3단계 트레이싱 (따라가기→점잇기→자유쓰기): 가이드 텍스트 위에 Canvas 오버레이 (벤치마크: LetterSchool/Writing Wizard)",
+    "error_boundary": "App-level ErrorBoundary + 라우트별 ErrorBoundary (캔버스/TTS 실패 graceful degradation)",
+    "custom_hooks": "비즈니스 로직 훅 분리: useCanvas, useTTS, useSound, useGameLogic, useDragDrop, useStrokeMatching, useOnlineStatus, useConfetti",
+    "react_memo": "순수 렌더링 컴포넌트에 React.memo: CategoryCard, GameCard, LearningCard, Illustration, LevelBadge, StarCounter",
+    "cn_utility": "cn() = clsx + tailwind-merge 유틸 — 모든 컴포넌트의 className 조합에 사용",
+    "render_layer": "캔버스 3-레이어: 배경 텍스트(가이드 글자) → 가이드 점선(현재 획) → 사용자 입력(활성 드로잉)",
+    "game_state_machine": "모든 게임 상태: ready → playing → success/fail → reward"
+  },
+  "design_decisions": {
+    "vite_over_nextjs": "모든 화면이 클라이언트 전용 — SSR/RSC 이점 없음. Vite 8 Rolldown 기반 10-30x 빠른 빌드, 정적 SPA CDN 배포",
+    "no_ui_library": "유아 학습앱은 범용 UI와 디자인이 완전히 다름 — 파스텔 톤, 56px+ 터치, 둥근 캐릭터 등 모든 것이 커스텀",
+    "overlay_canvas": "LetterSchool 3단계 트레이싱 + Writing Wizard 오버레이 방식 — 실제 글자 위에 직접 따라쓰기",
+    "eight_games": "PRD v2.0 기반 8종: 매칭/소리퀴즈/순서맞추기/풍선터뜨리기/색칠하기/버블매칭/그림자맞추기/단어만들기",
+    "child_friendly_ux": "벤치마크 분석: 56px+ 터치 타겟, 둥근 UI(radius 16px+), 파스텔 팔레트, 긍정적 강화(실패 없는 설계)",
+    "web_speech_api": "브라우저 내장 TTS — 외부 API 의존 없음, 오프라인 동작 가능, 무료",
+    "web_audio_api": "효과음 14종: 브라우저 내장 Web Audio API, 합성 톤 fallback, MP3 에셋 선택적",
+    "react_19_features": "use() hook 비동기 처리, useActionState 폼 상태, React.memo 최적화"
+  },
+  "directory_structure": {
+    "src/": {
+      "main.tsx": "앱 진입점",
+      "App.tsx": "라우터 설정 + ErrorBoundary + 전역 레이아웃",
+      "router.tsx": "createBrowserRouter 라우트 정의 (lazy loading)",
+      "index.css": "Tailwind @theme directive + 디자인 토큰 CSS 변수",
+      "components/": {
+        "ui/": "공통 UI (Button, Card, TopBar, BottomNav, AppLayout, ErrorFallback, ProgressRing, Modal, Badge)",
+        "features/": "기능별 컴포넌트 (WritingCanvas, CharacterDdori, LearningScreen, OverlayCanvas, CategoryCard, GameCard, StickerBook, ParentGate ...)",
+        "games/": "게임 컴포넌트 8종 (MemoryMatchGame, SoundQuizGame, SortingGame, BalloonPopGame, ColoringGame, BubbleMatchGame, ShadowMatchGame, WordBuilderGame)"
+      },
+      "hooks/": "커스텀 훅 (useCanvas, useTTS, useSound, useGameLogic, useDragDrop, useStrokeMatching, useOnlineStatus, useConfetti)",
+      "stores/": "Zustand 스토어 (progress-store, gamification-store, settings-store)",
+      "data/": "학습 콘텐츠 정적 데이터 (stroke paths, learning items, game configs, stickers)",
+      "lib/": "유틸리티 (stroke-utils, sound-manager, cn, confetti)",
+      "types/": "TypeScript 타입 정의 (learning, gamification, canvas, game)",
+      "assets/": "SVG 캐릭터/일러스트 React 컴포넌트 (characters/, illustrations/)",
+      "pages/": "라우트 페이지 컴포넌트 (18개 화면)"
+    },
+    "public/": {
+      "sounds/": "효과음 MP3 파일",
+      "icons/": "PWA 아이콘 (192x192, 512x512)"
+    }
+  },
+  "benchmark_references": {
+    "letterschool": "3단계 반복 트레이싱 (따라가기→점잇기→자유쓰기), 글자 위 직접 오버레이, 11개 언어",
+    "writing_wizard": "50+ 애니메이션 스티커, 5-star 난이도, 가이드 위에 직접 따라쓰기",
+    "khan_academy_kids": "다양한 미니 게임, 스토리텔링, 캐릭터 기반 학습 여정",
+    "pinkfong": "동요 연계 학습, 밝은 색감, 반복 노출",
+    "sago_mini_world": "개방형 탐색 게임, cause-and-effect 체험",
+    "toctocmath": "수 개념 체계적 학습, 구체물 조작"
+  },
+  "rationale": "1인 MVP 3주: 서버 없는 순수 클라이언트 PWA — Vite 8 Rolldown 빌드로 10-30x 성능 향상, @vitejs/plugin-react v6 Oxc 기반 Babel 제거, React 19 최신 패턴(use() hook), React Router v7 lazy로 18개 화면 코드 스플리팅, Zustand 5 persist로 오프라인 데이터 영속, Tailwind CSS 4 CSS-first config로 디자인 토큰 매핑, HTML5 Canvas 3단계 오버레이 트레이싱(LetterSchool/Writing Wizard 벤치마크), Motion 12로 유아 친화적 인터랙션, 8종 미니 게임(PRD v2.0), 56px+ 터치 타겟/둥근 UI/파스텔 그라데이션으로 아동 친화적 디자인 완성, Error Boundary + Lighthouse CI로 품질 보장"
+}
