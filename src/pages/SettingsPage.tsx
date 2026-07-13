@@ -6,6 +6,8 @@ import { ParentGate } from '@/components/features';
 import { useSettingsStore } from '@/stores/settings-store';
 import { useProgressStore } from '@/stores/progress-store';
 import { useGamificationStore } from '@/stores/gamification-store';
+import { useTTS } from '@/hooks/use-tts';
+import type { TTSDiagnostics } from '@/lib/tts-utils';
 import { CATEGORY_TOTALS, CATEGORY_LABELS } from '@/types/learning';
 import { cn } from '@/lib/cn';
 
@@ -33,9 +35,11 @@ export default function SettingsPage() {
   // Settings store
   const sfxEnabled = useSettingsStore((s) => s.sfxEnabled);
   const ttsSpeed = useSettingsStore((s) => s.ttsSpeed);
+  const volume = useSettingsStore((s) => s.volume);
   const dailyTimeLimit = useSettingsStore((s) => s.dailyTimeLimit);
   const toggleSfx = useSettingsStore((s) => s.toggleSfx);
   const setTtsSpeed = useSettingsStore((s) => s.setTtsSpeed);
+  const setVolume = useSettingsStore((s) => s.setVolume);
   const setDailyTimeLimit = useSettingsStore((s) => s.setDailyTimeLimit);
   const resetSettings = useSettingsStore((s) => s.resetSettings);
 
@@ -275,6 +279,27 @@ export default function SettingsPage() {
             ))}
           </div>
         </div>
+
+        {/* Volume */}
+        <div className="py-3">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-base font-medium text-text-dark">읽어주기 음량</span>
+            <span className="text-sm font-semibold text-text-medium">{Math.round(volume * 100)}%</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.1}
+            value={volume}
+            onChange={(e) => setVolume(Number(e.target.value))}
+            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-bg-soft accent-primary"
+            aria-label="읽어주기 음량"
+          />
+        </div>
+
+        {/* Speech check — tells a parent exactly why a tablet is silent */}
+        <TtsTestPanel />
       </section>
 
       {/* Time Limit */}
@@ -355,6 +380,61 @@ export default function SettingsPage() {
 }
 
 // --- Sub-components ---
+
+/**
+ * Speaks a test phrase and reports what the device's speech engine actually has.
+ * On a tablet with no Korean voice pack installed, no amount of app code will
+ * produce Korean speech — this says so instead of failing silently.
+ */
+function TtsTestPanel() {
+  const { speak, isSupported, diagnostics } = useTTS();
+  const [report, setReport] = useState<TTSDiagnostics | null>(null);
+
+  const handleTest = useCallback(() => {
+    // Called straight from the tap: iOS only allows speech queued in a gesture.
+    speak('안녕하세요! 소리가 잘 들리나요?', 'ko-KR');
+    setReport(diagnostics());
+  }, [speak, diagnostics]);
+
+  return (
+    <div className="mt-2 rounded-radius-lg bg-bg-warm p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col">
+          <span className="text-base font-medium text-text-dark">소리 테스트</span>
+          <span className="text-xs text-text-medium">태블릿에서 소리가 안 나면 눌러보세요</span>
+        </div>
+        <Button variant="secondary" size="sm" onClick={handleTest} disabled={!isSupported}>
+          들어보기
+        </Button>
+      </div>
+
+      {!isSupported && (
+        <p className="mt-3 text-xs font-medium text-error">
+          이 브라우저는 읽어주기를 지원하지 않아요.
+        </p>
+      )}
+
+      {report && (
+        <div className="mt-3 flex flex-col gap-1 text-xs text-text-medium">
+          <span>음성 {report.voiceCount}개 사용 가능</span>
+          <span>
+            한국어 음성:{' '}
+            {report.koreanVoice ? (
+              <span className="font-semibold text-success">{report.koreanVoice}</span>
+            ) : (
+              <span className="font-semibold text-error">없음</span>
+            )}
+          </span>
+          {!report.koreanVoice && (
+            <span className="text-error">
+              태블릿 설정에서 한국어 음성(TTS) 데이터를 내려받아야 소리가 나요.
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface ToggleSwitchProps {
   checked: boolean;
