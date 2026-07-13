@@ -8,3 +8,4 @@ export { default as RewardCelebration } from './RewardCelebration';
 export { default as ParentGate } from './ParentGate';
 export { default as LearningScreen } from './LearningScreen';
 export { default as WritingCanvas } from './WritingCanvas';
+export { default as UndoRedoControls } from './UndoRedoControls';

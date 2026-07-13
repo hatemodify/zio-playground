@@ -6,6 +6,7 @@ import ErrorFallback from './ErrorFallback';
 import { useSession } from '@/hooks/use-session';
 import { useLandscapeTablet } from '@/hooks/use-media-query';
 import { soundManager } from '@/lib/sound-manager';
+import { primeSpeech } from '@/lib/tts-utils';
 import { cn } from '@/lib/cn';
 
 interface ErrorBoundaryProps {
@@ -52,31 +53,28 @@ export default function AppLayout() {
   useSession();
   const isLandscape = useLandscapeTablet();
 
-  // Global iOS unlock for TTS + AudioContext
+  // iOS Safari and Android WebViews keep speech and audio muted until each is
+  // started from a real user gesture. Spend the app's first tap on both.
   const unlockedRef = useRef(false);
   useEffect(() => {
     const unlock = () => {
       if (unlockedRef.current) return;
       unlockedRef.current = true;
 
-      // TTS unlock — play silent utterance (use space, not empty string for iOS)
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(' ');
-        utterance.volume = 0;
-        window.speechSynthesis.speak(utterance);
-      }
-
-      // AudioContext unlock
+      primeSpeech();
       soundManager.unlock();
 
+      document.removeEventListener('pointerdown', unlock);
       document.removeEventListener('touchstart', unlock);
       document.removeEventListener('click', unlock);
     };
 
-    document.addEventListener('touchstart', unlock, { once: true });
-    document.addEventListener('click', unlock, { once: true });
+    document.addEventListener('pointerdown', unlock);
+    document.addEventListener('touchstart', unlock);
+    document.addEventListener('click', unlock);
 
     return () => {
+      document.removeEventListener('pointerdown', unlock);
       document.removeEventListener('touchstart', unlock);
       document.removeEventListener('click', unlock);
     };
@@ -85,13 +83,16 @@ export default function AppLayout() {
   return (
     <div
       className={cn(
-        'mx-auto flex min-h-dvh bg-bg-cream',
+        // h-dvh, not min-h-dvh: <main> needs a definite height, otherwise a child
+        // sized from its parent (the drawing canvas) and a parent sized from its
+        // child grow each other without bound. Long pages scroll inside <main>.
+        'mx-auto flex h-dvh bg-bg-cream',
         isLandscape ? 'max-w-none flex-row' : 'max-w-[1024px] flex-col',
       )}
     >
       {!isLandscape && <TopBar />}
       {isLandscape && <BottomNav landscape />}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex flex-1 flex-col overflow-y-auto">
         {isLandscape && <TopBar compact />}
         <ErrorBoundary>
           <Outlet />
