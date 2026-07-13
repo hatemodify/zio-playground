@@ -11,7 +11,8 @@ export default function NumbersListPage() {
   const { getCompletionPercentage, isItemCompleted } = useProgressStore();
 
   const progress = getCompletionPercentage('numbers');
-  const completedCount = Math.round(progress / 100 * 10);
+  const total = NUMBERS_DATA.length;
+  const completedCount = Math.round((progress / 100) * total);
 
   const handleCardClick = useCallback((item: typeof NUMBERS_DATA[number]) => {
     navigate(`/numbers/${item.number}`);
@@ -24,7 +25,7 @@ export default function NumbersListPage() {
         <h1 className="text-2xl font-bold text-numbers">숫자 놀이</h1>
         <div className="flex items-center gap-2">
           <ProgressRing progress={progress} size="sm" color="var(--color-numbers)">
-            <span className="text-[9px] font-bold text-text-medium">{completedCount}/10</span>
+            <span className="text-[9px] font-bold text-text-medium">{completedCount}/{total}</span>
           </ProgressRing>
         </div>
       </div>

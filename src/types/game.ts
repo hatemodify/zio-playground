@@ -23,7 +23,10 @@ export type GameId =
   | 'connect-dots'
   | 'whack-a-mole'
   | 'catch-falling'
-  | 'tap-speed';
+  | 'tap-speed'
+  | 'addition'
+  | 'number-compare'
+  | 'number-order';
 
 export type GameState = 'ready' | 'playing' | 'success' | 'fail' | 'reward';
 
@@ -204,6 +207,27 @@ export const GAMES: GameInfo[] = [
     name: '빠른 손',
     description: '10초 안에 최대한 많이 터치하세요!',
     path: '/games/tap-speed',
+    unlockThreshold: 0,
+  },
+  {
+    id: 'addition',
+    name: '더하기 놀이',
+    description: '두 수를 더하면 얼마일까요?',
+    path: '/games/addition',
+    unlockThreshold: 0,
+  },
+  {
+    id: 'number-compare',
+    name: '큰 수 찾기',
+    description: '어느 숫자가 더 클까요?',
+    path: '/games/number-compare',
+    unlockThreshold: 0,
+  },
+  {
+    id: 'number-order',
+    name: '숫자 이어세기',
+    description: '빈칸에 들어갈 숫자를 찾아보세요!',
+    path: '/games/number-order',
     unlockThreshold: 0,
   },
 ] as const;

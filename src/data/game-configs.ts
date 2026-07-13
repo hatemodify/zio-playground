@@ -438,6 +438,60 @@ export const GAME_CONFIGS: GameConfig[] = [
       '이전 기록에 도전해 보세요!',
     ],
   },
+  {
+    id: 'addition',
+    name: '더하기 놀이',
+    description: '두 수를 더하면 얼마일까요?',
+    icon: 'plus',
+    categories: ['numbers'],
+    difficulties: {
+      easy: { label: '쉬움', questionCount: 8 },
+      normal: { label: '보통', questionCount: 10 },
+      hard: { label: '어려움', questionCount: 12 },
+    },
+    unlockThreshold: 0,
+    rules: [
+      '그림을 보고 두 수를 더해요',
+      '3개 중에서 답을 골라요',
+      '점점 더 큰 수가 나와요!',
+    ],
+  },
+  {
+    id: 'number-compare',
+    name: '큰 수 찾기',
+    description: '어느 숫자가 더 클까요?',
+    icon: 'compare',
+    categories: ['numbers'],
+    difficulties: {
+      easy: { label: '쉬움', questionCount: 8 },
+      normal: { label: '보통', questionCount: 10 },
+      hard: { label: '어려움', questionCount: 12 },
+    },
+    unlockThreshold: 0,
+    rules: [
+      '두 숫자를 잘 비교해요',
+      '더 큰 수를 고를 때도, 작은 수를 고를 때도 있어요',
+      '문제를 잘 읽어보세요!',
+    ],
+  },
+  {
+    id: 'number-order',
+    name: '숫자 이어세기',
+    description: '빈칸에 들어갈 숫자를 찾아보세요!',
+    icon: 'sequence',
+    categories: ['numbers'],
+    difficulties: {
+      easy: { label: '쉬움', questionCount: 8 },
+      normal: { label: '보통', questionCount: 10 },
+      hard: { label: '어려움', questionCount: 12 },
+    },
+    unlockThreshold: 0,
+    rules: [
+      '숫자가 순서대로 늘어서 있어요',
+      '빈칸에 들어갈 숫자를 골라요',
+      '2씩, 5씩 뛰어 세기도 나와요!',
+    ],
+  },
 ];
 
 export function getGameConfig(gameId: GameId): GameConfig | undefined {

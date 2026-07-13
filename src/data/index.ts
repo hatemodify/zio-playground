@@ -1,4 +1,11 @@
-export { NUMBERS_DATA, getNumberById, getNumberByValue } from './numbers';
+export {
+  NUMBERS_DATA,
+  NUMBERS_MAX,
+  getNumberById,
+  getNumberByValue,
+  toNativeKoreanName,
+  toEnglishName,
+} from './numbers';
 export type { NumberItem } from './numbers';
 
 export { HANGUL_DATA, HANGUL_CONSONANTS, HANGUL_VOWELS, getHangulById, getHangulByCharacter } from './hangul';

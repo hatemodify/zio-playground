@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import LearningScreen from '@/components/features/LearningScreen';
 import { useTTS } from '@/hooks/use-tts';
-import { getNumberByValue } from '@/data';
+import { getNumberByValue, NUMBERS_MAX, toNativeKoreanName } from '@/data';
 import { cn } from '@/lib/cn';
 
 export default function NumberLearnPage() {
@@ -15,7 +15,7 @@ export default function NumberLearnPage() {
   const item = useMemo(() => getNumberByValue(numId), [numId]);
 
   const handleNext = useCallback(() => {
-    if (numId < 10) {
+    if (numId < NUMBERS_MAX) {
       navigate(`/numbers/${numId + 1}`, { replace: true });
     } else {
       navigate('/numbers');
@@ -44,7 +44,7 @@ export default function NumberLearnPage() {
         category="numbers"
         ttsText={item.koreanName}
         ttsLang="ko-KR"
-        onNext={numId < 10 ? handleNext : undefined}
+        onNext={numId < NUMBERS_MAX ? handleNext : undefined}
         onPrev={numId > 1 ? handlePrev : undefined}
         topContent={
           <div className="flex flex-col items-center gap-3 pt-2">
@@ -93,7 +93,8 @@ function CountingInteraction({ count, objectLabel, onComplete }: CountingProps) 
     setTouched(newTouched);
 
     const newCount = newTouched.filter(Boolean).length;
-    speak(String(newCount), 'ko-KR');
+    // Native count words (하나, 둘 …) — that's how a child counts objects aloud.
+    speak(toNativeKoreanName(newCount), 'ko-KR');
 
     if (newCount === count) {
       onComplete?.();
@@ -110,8 +111,10 @@ function CountingInteraction({ count, objectLabel, onComplete }: CountingProps) 
           <motion.button
             key={i}
             className={cn(
-              'flex h-12 w-12 items-center justify-center rounded-full text-2xl',
+              'flex items-center justify-center rounded-full text-2xl',
               'touch-manipulation select-none transition-colors',
+              // Past 20 objects a full-size grid no longer fits a phone screen.
+              count > 20 ? 'h-9 w-9' : 'h-12 w-12',
               touched[i]
                 ? 'bg-success/20 text-success'
                 : 'bg-numbers/15 text-numbers',

@@ -145,6 +145,18 @@ export const router = createBrowserRouter([
         element: lazyPage(() => import('./pages/TapSpeedGamePage')),
       },
       {
+        path: '/games/addition',
+        element: lazyPage(() => import('./pages/AdditionGamePage')),
+      },
+      {
+        path: '/games/number-compare',
+        element: lazyPage(() => import('./pages/NumberCompareGamePage')),
+      },
+      {
+        path: '/games/number-order',
+        element: lazyPage(() => import('./pages/NumberOrderGamePage')),
+      },
+      {
         path: '/stickers',
         element: lazyPage(() => import('./pages/StickersPage')),
       },

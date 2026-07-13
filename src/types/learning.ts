@@ -12,7 +12,7 @@ export interface ProgressItem {
 }
 
 export const CATEGORY_TOTALS: Record<LearningCategory, number> = {
-  numbers: 10,
+  numbers: 50,
   hangul: 24,
   english: 26,
 } as const;
