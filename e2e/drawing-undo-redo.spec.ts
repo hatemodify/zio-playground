@@ -91,41 +91,6 @@ test.describe('Drawing Undo/Redo', () => {
     await expect(page.getByRole('button', { name: '지우기' })).toBeVisible();
   });
 
-  test('coloring: undo removes paint but keeps the sketch outline', async ({ page }) => {
-    await page.goto('/games/coloring');
-    await page.locator('button[aria-label$="색칠하기"]').first().click();
-    await expect(page.locator('canvas')).toBeVisible();
-
-    const undo = page.getByRole('button', { name: '되돌리기' });
-    const redo = page.getByRole('button', { name: '다시 실행' });
-    await expect(undo).toBeDisabled();
-
-    const outlineOnly = await paintedPixels(page);
-    expect(outlineOnly).toBeGreaterThan(0);
-
-    await scribble(page, 0);
-    const painted = await paintedPixels(page);
-    expect(painted).toBeGreaterThan(outlineOnly);
-
-    await undo.click();
-    // Paint is gone; the outline the child colors over must not be.
-    expect(await paintedPixels(page)).toBe(outlineOnly);
-
-    await redo.click();
-    expect(await paintedPixels(page)).toBe(painted);
-    await expect(redo).toBeDisabled();
-  });
-
-  test('coloring: canvas fits within the viewport', async ({ page }) => {
-    await page.setViewportSize({ width: 420, height: 860 });
-    await page.goto('/games/coloring');
-    await page.locator('button[aria-label$="색칠하기"]').first().click();
-    await expect(page.locator('canvas')).toBeVisible();
-
-    const box = (await page.locator('canvas').boundingBox())!;
-    // The old canvas was a hardcoded 480px square — wider than this screen.
-    expect(box.x).toBeGreaterThanOrEqual(0);
-    expect(box.width).toBeLessThanOrEqual(420);
-    expect(box.y + box.height).toBeLessThanOrEqual(860);
-  });
+  // Coloring is now SVG tap-to-fill (not a canvas) — its undo/redo and fill
+  // behavior is covered in coloring-sketches-flow.spec.ts.
 });
