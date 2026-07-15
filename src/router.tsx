@@ -57,10 +57,6 @@ export const router = createBrowserRouter([
         element: lazyPage(() => import('./pages/MatchingGamePage')),
       },
       {
-        path: '/games/quiz',
-        element: lazyPage(() => import('./pages/QuizGamePage')),
-      },
-      {
         path: '/games/sorting',
         element: lazyPage(() => import('./pages/SortingGamePage')),
       },
@@ -91,10 +87,6 @@ export const router = createBrowserRouter([
       {
         path: '/games/size-compare',
         element: lazyPage(() => import('./pages/SizeCompareGamePage')),
-      },
-      {
-        path: '/games/speak',
-        element: lazyPage(() => import('./pages/SpeakGamePage')),
       },
       {
         path: '/games/odd-one-out',
@@ -155,6 +147,10 @@ export const router = createBrowserRouter([
       {
         path: '/games/number-order',
         element: lazyPage(() => import('./pages/NumberOrderGamePage')),
+      },
+      {
+        path: '/games/food-stack',
+        element: lazyPage(() => import('./pages/FoodStackGamePage')),
       },
       {
         path: '/stickers',

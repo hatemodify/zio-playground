@@ -36,7 +36,7 @@ const initialState = {
   streak: 0,
   lastLoginDate: '',
   stickers: [] as string[],
-  unlockedGames: ['matching', 'quiz'] as string[],
+  unlockedGames: ['matching', 'sorting'] as string[],
   characterOutfits: ['default'] as string[],
   gameRecords: [] as GameRecord[],
 };

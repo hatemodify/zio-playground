@@ -2,14 +2,12 @@ import { useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import LearningScreen from '@/components/features/LearningScreen';
-import { useTTS } from '@/hooks/use-tts';
-import { getNumberByValue, NUMBERS_MAX, toNativeKoreanName } from '@/data';
+import { getNumberByValue, NUMBERS_MAX } from '@/data';
 import { cn } from '@/lib/cn';
 
 export default function NumberLearnPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { speak } = useTTS();
 
   const numId = Number(id);
   const item = useMemo(() => getNumberByValue(numId), [numId]);
@@ -66,7 +64,6 @@ export default function NumberLearnPage() {
           <CountingInteraction
             count={item.number}
             objectLabel={item.objectLabel}
-            onComplete={() => speak(`${item.number}개!`, 'ko-KR')}
           />
         }
       />
@@ -82,7 +79,6 @@ interface CountingProps {
 }
 
 function CountingInteraction({ count, objectLabel, onComplete }: CountingProps) {
-  const { speak } = useTTS();
   const [touched, setTouched] = useState<boolean[]>(Array(count).fill(false));
   const touchedCount = touched.filter(Boolean).length;
 
@@ -93,13 +89,10 @@ function CountingInteraction({ count, objectLabel, onComplete }: CountingProps) 
     setTouched(newTouched);
 
     const newCount = newTouched.filter(Boolean).length;
-    // Native count words (하나, 둘 …) — that's how a child counts objects aloud.
-    speak(toNativeKoreanName(newCount), 'ko-KR');
-
     if (newCount === count) {
       onComplete?.();
     }
-  }, [touched, count, speak, onComplete]);
+  }, [touched, count, onComplete]);
 
   return (
     <div className="flex flex-col items-center gap-3 rounded-2xl bg-bg-soft p-4">

@@ -6,7 +6,6 @@ import ErrorFallback from './ErrorFallback';
 import { useSession } from '@/hooks/use-session';
 import { useLandscapeTablet } from '@/hooks/use-media-query';
 import { soundManager } from '@/lib/sound-manager';
-import { primeSpeech } from '@/lib/tts-utils';
 import { cn } from '@/lib/cn';
 
 interface ErrorBoundaryProps {
@@ -53,15 +52,14 @@ export default function AppLayout() {
   useSession();
   const isLandscape = useLandscapeTablet();
 
-  // iOS Safari and Android WebViews keep speech and audio muted until each is
-  // started from a real user gesture. Spend the app's first tap on both.
+  // iOS Safari and Android WebViews keep the AudioContext muted until it's
+  // resumed from a real user gesture. Spend the app's first tap on it.
   const unlockedRef = useRef(false);
   useEffect(() => {
     const unlock = () => {
       if (unlockedRef.current) return;
       unlockedRef.current = true;
 
-      primeSpeech();
       soundManager.unlock();
 
       document.removeEventListener('pointerdown', unlock);

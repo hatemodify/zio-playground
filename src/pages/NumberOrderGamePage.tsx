@@ -4,7 +4,6 @@ import { motion } from 'motion/react';
 import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
-import { useTTS } from '@/hooks/use-tts';
 import { useGameLogic } from '@/hooks/use-game-logic';
 import { useGamificationStore } from '@/stores/gamification-store';
 import { NUMBERS_MAX } from '@/data';
@@ -70,7 +69,6 @@ function generateQuestions(total: number): OrderQuestion[] {
 export default function NumberOrderGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { speak } = useTTS();
   const { recordGameScore } = useGamificationStore();
   const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
@@ -102,7 +100,6 @@ export default function NumberOrderGamePage() {
       setFeedback('correct');
       play('correct');
       addScore(1);
-      speak(String(q.answer), 'ko-KR');
 
       setTimeout(() => {
         if (currentQ + 1 >= questions.length) {
@@ -121,7 +118,7 @@ export default function NumberOrderGamePage() {
         setSelected(null);
       }, 800);
     }
-  }, [feedback, questions, currentQ, play, addScore, wrongAnswer, finish, speak]);
+  }, [feedback, questions, currentQ, play, addScore, wrongAnswer, finish]);
 
   const handleRestart = useCallback(() => {
     setShowReward(true);

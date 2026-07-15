@@ -43,24 +43,6 @@ export const GAME_CONFIGS: GameConfig[] = [
     ],
   },
   {
-    id: 'quiz',
-    name: '소리 퀴즈',
-    description: '소리를 듣고 맞는 글자를 찾아보세요!',
-    icon: 'speaker',
-    categories: ['numbers', 'hangul', 'english'],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 5 },
-      normal: { label: '보통', questionCount: 10 },
-      hard: { label: '어려움', questionCount: 15 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '소리를 잘 들어보세요',
-      '3개 중에서 맞는 것을 골라요',
-      '틀려도 괜찮아요! 다시 들어볼까요?',
-    ],
-  },
-  {
     id: 'sorting',
     name: '순서 맞추기',
     description: '올바른 순서로 정렬해 보세요!',
@@ -202,24 +184,6 @@ export const GAME_CONFIGS: GameConfig[] = [
       '두 숫자를 비교해요',
       '더 큰 쪽을 터치해요',
       '그림의 개수를 세어보세요!',
-    ],
-  },
-  {
-    id: 'speak',
-    name: '따라 말하기',
-    description: '소리를 듣고 따라 말해보세요!',
-    icon: 'mic',
-    categories: ['numbers', 'hangul', 'english'],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 5 },
-      normal: { label: '보통', questionCount: 8 },
-      hard: { label: '어려움', questionCount: 10 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '소리를 잘 들어보세요',
-      '마이크 버튼을 누르고 따라 말해요',
-      '잘했어! 하고 칭찬해 줄게요!',
     ],
   },
   {
@@ -490,6 +454,24 @@ export const GAME_CONFIGS: GameConfig[] = [
       '숫자가 순서대로 늘어서 있어요',
       '빈칸에 들어갈 숫자를 골라요',
       '2씩, 5씩 뛰어 세기도 나와요!',
+    ],
+  },
+  {
+    id: 'food-stack',
+    name: '음식 만들기',
+    description: '예시와 똑같은 순서로 재료를 쌓아보세요!',
+    icon: 'burger',
+    categories: [],
+    difficulties: {
+      easy: { label: '쉬움', questionCount: 3 },
+      normal: { label: '보통', questionCount: 4 },
+      hard: { label: '어려움', questionCount: 5 },
+    },
+    unlockThreshold: 0,
+    rules: [
+      '예시 그림을 잘 보세요',
+      '똑같은 순서로 재료를 눌러요',
+      '순서가 맞으면 음식이 완성돼요!',
     ],
   },
 ];

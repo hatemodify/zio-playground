@@ -26,7 +26,8 @@ export type GameId =
   | 'tap-speed'
   | 'addition'
   | 'number-compare'
-  | 'number-order';
+  | 'number-order'
+  | 'food-stack';
 
 export type GameState = 'ready' | 'playing' | 'success' | 'fail' | 'reward';
 
@@ -53,13 +54,6 @@ export const GAMES: GameInfo[] = [
     name: '글자-이미지 매칭',
     description: '카드를 뒤집어 같은 짝을 찾아보세요!',
     path: '/games/matching',
-    unlockThreshold: 0,
-  },
-  {
-    id: 'quiz',
-    name: '소리 퀴즈',
-    description: '소리를 듣고 맞는 글자를 골라보세요!',
-    path: '/games/quiz',
     unlockThreshold: 0,
   },
   {
@@ -116,13 +110,6 @@ export const GAMES: GameInfo[] = [
     name: '크기 비교',
     description: '어느 쪽이 더 클까요?',
     path: '/games/size-compare',
-    unlockThreshold: 0,
-  },
-  {
-    id: 'speak',
-    name: '따라 말하기',
-    description: '소리를 듣고 따라 말해보세요!',
-    path: '/games/speak',
     unlockThreshold: 0,
   },
   {
@@ -228,6 +215,13 @@ export const GAMES: GameInfo[] = [
     name: '숫자 이어세기',
     description: '빈칸에 들어갈 숫자를 찾아보세요!',
     path: '/games/number-order',
+    unlockThreshold: 0,
+  },
+  {
+    id: 'food-stack',
+    name: '음식 만들기',
+    description: '예시와 똑같은 순서로 재료를 쌓아보세요!',
+    path: '/games/food-stack',
     unlockThreshold: 0,
   },
 ] as const;

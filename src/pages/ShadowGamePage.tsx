@@ -4,7 +4,6 @@ import { motion } from 'motion/react';
 import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
-import { useTTS } from '@/hooks/use-tts';
 import { useGameLogic } from '@/hooks/use-game-logic';
 import { useGamificationStore } from '@/stores/gamification-store';
 import { NUMBERS_DATA, HANGUL_CONSONANTS, ENGLISH_DATA } from '@/data';
@@ -67,7 +66,6 @@ function generateShadowQuestions(category: LearningCategory, count: number): Sha
 export default function ShadowGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { speak } = useTTS();
   const { recordGameScore } = useGamificationStore();
   const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
@@ -100,8 +98,6 @@ export default function ShadowGamePage() {
       setFeedback('correct');
       play('correct');
       addScore(1);
-      const q = questions[currentQ];
-      if (q) speak(q.ttsText, q.ttsLang);
 
       setTimeout(() => {
         if (currentQ + 1 >= questions.length) {
@@ -117,7 +113,7 @@ export default function ShadowGamePage() {
       wrongAnswer();
       setTimeout(() => setFeedback(null), 800);
     }
-  }, [feedback, play, addScore, wrongAnswer, questions, currentQ, finish, speak]);
+  }, [feedback, play, addScore, wrongAnswer, questions, currentQ, finish]);
 
   const handleRestart = useCallback(() => {
     setShowReward(true);

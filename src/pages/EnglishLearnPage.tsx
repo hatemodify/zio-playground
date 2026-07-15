@@ -2,13 +2,11 @@ import { useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import LearningScreen from '@/components/features/LearningScreen';
-import { useTTS } from '@/hooks/use-tts';
 import { ENGLISH_DATA, getEnglishByCharacter } from '@/data';
 
 export default function EnglishLearnPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { speak } = useTTS();
 
   const item = useMemo(() => {
     if (!id) return undefined;
@@ -34,10 +32,6 @@ export default function EnglishLearnPage() {
     }
   }, [currentIndex, navigate]);
 
-  const handleSpeakWord = useCallback(() => {
-    if (item) speak(item.word, 'en-US');
-  }, [item, speak]);
-
   if (!item) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center p-4">
@@ -52,8 +46,6 @@ export default function EnglishLearnPage() {
         id={item.id}
         character={item.uppercase}
         category="english"
-        ttsText={item.uppercase}
-        ttsLang="en-US"
         onNext={currentIndex < ENGLISH_DATA.length - 1 ? handleNext : undefined}
         onPrev={currentIndex > 0 ? handlePrev : undefined}
         topContent={
@@ -75,11 +67,7 @@ export default function EnglishLearnPage() {
           </div>
         }
         bottomContent={
-          <motion.button
-            className="flex w-full items-center gap-4 rounded-2xl bg-bg-soft p-4 touch-manipulation"
-            whileTap={{ scale: 0.98 }}
-            onClick={handleSpeakWord}
-          >
+          <div className="flex w-full items-center gap-4 rounded-2xl bg-bg-soft p-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-english/15 text-2xl font-bold text-english">
               {item.uppercase}
             </div>
@@ -87,13 +75,7 @@ export default function EnglishLearnPage() {
               <span className="font-display text-lg font-bold text-text-dark">{item.word}</span>
               <span className="text-sm text-text-medium">{item.wordKorean}</span>
             </div>
-            <div className="ml-auto">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-english)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-              </svg>
-            </div>
-          </motion.button>
+          </div>
         }
       />
     </div>

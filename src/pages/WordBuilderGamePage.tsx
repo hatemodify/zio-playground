@@ -4,7 +4,6 @@ import { motion } from 'motion/react';
 import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
-import { useTTS } from '@/hooks/use-tts';
 import { useGameLogic } from '@/hooks/use-game-logic';
 import { useGamificationStore } from '@/stores/gamification-store';
 import { cn } from '@/lib/cn';
@@ -36,7 +35,6 @@ function getShuffledPuzzles(count: number): WordPuzzle[] {
 export default function WordBuilderGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { speak } = useTTS();
   const { recordGameScore } = useGamificationStore();
   const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
@@ -99,7 +97,6 @@ export default function WordBuilderGamePage() {
         setFeedback('correct');
         play('correct');
         addScore(1);
-        speak(puzzle.word, 'ko-KR');
 
         setTimeout(() => {
           if (currentP + 1 >= puzzles.length) {
@@ -119,7 +116,7 @@ export default function WordBuilderGamePage() {
         }, 1000);
       }
     }
-  }, [feedback, availableLetters, slots, puzzles, currentP, play, addScore, wrongAnswer, finish, speak, loadPuzzle]);
+  }, [feedback, availableLetters, slots, puzzles, currentP, play, addScore, wrongAnswer, finish, loadPuzzle]);
 
   const handleSlotClick = useCallback((slotIndex: number) => {
     if (feedback !== null) return;

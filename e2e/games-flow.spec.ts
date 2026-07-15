@@ -23,18 +23,13 @@ test.describe('Games Flow', () => {
     await page.goto('/games');
     await expect(page.getByText('미니 게임')).toBeVisible();
     await expect(page.getByText('글자-이미지 매칭')).toBeVisible();
-    await expect(page.getByText('소리 퀴즈')).toBeVisible();
+    await expect(page.getByText('순서 맞추기')).toBeVisible();
   });
 
   test('should start matching game', async ({ page }) => {
     await page.goto('/games/matching');
     await expect(page.getByText('글자-이미지 매칭')).toBeVisible();
     await expect(page.locator('button').first()).toBeVisible();
-  });
-
-  test('should start quiz game', async ({ page }) => {
-    await page.goto('/games/quiz');
-    await expect(page.getByText('소리 퀴즈')).toBeVisible();
   });
 
   test('should start sorting game', async ({ page }) => {

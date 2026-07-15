@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import WritingCanvas from './WritingCanvas';
 import Ddori from '@/assets/characters/Ddori';
@@ -6,7 +6,6 @@ import Button from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
 import { useProgressStore } from '@/stores/progress-store';
 import { useGamificationStore } from '@/stores/gamification-store';
-import { useTTS } from '@/hooks/use-tts';
 import { useSound } from '@/hooks/use-sound';
 import { useLandscapeTablet } from '@/hooks/use-media-query';
 import type { LearningCategory } from '@/types/learning';
@@ -30,15 +29,12 @@ export default function LearningScreen({
   category,
   topContent,
   bottomContent,
-  ttsText,
-  ttsLang = 'ko-KR',
   onNext,
   onPrev,
   className,
 }: LearningScreenProps) {
   const { completeTracingStage, getItem, initializeItem, markCompleted } = useProgressStore();
   const { addStars, addSticker } = useGamificationStore();
-  const { speak } = useTTS();
   const { play } = useSound();
   const isLandscape = useLandscapeTablet();
 
@@ -83,24 +79,6 @@ export default function LearningScreen({
     setTimeout(() => setShowCelebration(false), 3000);
   }, [id, writingDone, completeTracingStage, markCompleted, addStars, addSticker, play]);
 
-  const handleTTSPlay = useCallback(() => {
-    if (ttsText) {
-      speak(ttsText, ttsLang);
-    }
-  }, [ttsText, ttsLang, speak]);
-
-  // Auto TTS on page entry or id change
-  const autoTTSFiredRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (ttsText && autoTTSFiredRef.current !== id) {
-      autoTTSFiredRef.current = id;
-      const timer = setTimeout(() => {
-        speak(ttsText, ttsLang);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
-
   // Reset writingDone when character changes
   const [prevId, setPrevId] = useState(id);
   if (prevId !== id) {
@@ -110,22 +88,10 @@ export default function LearningScreen({
 
   return (
     <div className={cn('flex items-start gap-4 px-4 pb-6', isLandscape ? 'flex-row' : 'flex-col items-center', className)}>
-      {/* Left panel: content + TTS */}
+      {/* Left panel: content */}
       <div className={cn('flex flex-col items-center gap-4', isLandscape ? 'w-1/2 sticky top-14' : 'w-full')}>
         {/* Top content (big character, object image, etc.) */}
         {topContent && <div className="w-full">{topContent}</div>}
-
-        {/* TTS button */}
-        {ttsText && (
-          <Button variant="ghost" size="lg" onClick={handleTTSPlay} className="gap-2">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-            </svg>
-            소리 듣기
-          </Button>
-        )}
 
         {/* Bottom content (word card, counting, etc.) */}
         {bottomContent && <div className="w-full">{bottomContent}</div>}

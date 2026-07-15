@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
-import { useTTS } from '@/hooks/use-tts';
 import { useGameLogic } from '@/hooks/use-game-logic';
 import { useGamificationStore } from '@/stores/gamification-store';
 import { NUMBERS_DATA, HANGUL_CONSONANTS, ENGLISH_DATA } from '@/data';
@@ -61,7 +60,6 @@ function generateBalloonQuestion(category: LearningCategory, questionIndex: numb
 export default function BalloonGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { speak } = useTTS();
   const { recordGameScore } = useGamificationStore();
   const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
@@ -78,8 +76,7 @@ export default function BalloonGamePage() {
     setQuestion(q);
     setPoppedBalloons(new Set());
     setFeedback(null);
-    speak(q.ttsText, q.ttsLang).catch(() => {});
-  }, [category, speak]);
+  }, [category]);
 
   const startGame = useCallback(() => {
     setCurrentQ(0);
@@ -176,19 +173,10 @@ export default function BalloonGamePage() {
         />
       </div>
 
-      {/* TTS replay */}
-      <div className="flex items-center justify-center gap-2">
-        <motion.button
-          className="flex items-center gap-2 rounded-full bg-games/10 px-4 py-2 touch-manipulation"
-          whileTap={{ scale: 0.95 }}
-          onClick={() => question && speak(question.ttsText, question.ttsLang)}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-games)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-          </svg>
-          <span className="text-sm font-medium text-games">다시 듣기</span>
-        </motion.button>
+      {/* Target to find */}
+      <div className="flex items-center justify-center gap-3 rounded-2xl bg-games/10 py-3">
+        <span className="text-sm font-medium text-text-medium">이걸 찾아 터뜨려요</span>
+        <span className="font-display text-3xl font-extrabold text-games">{question.answer}</span>
       </div>
 
       {/* Balloon area */}
