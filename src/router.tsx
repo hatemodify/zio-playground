@@ -2,9 +2,10 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense, type ComponentType } from 'react';
 import AppLayout from '@/components/ui/AppLayout';
 import PageLoading from '@/components/ui/PageLoading';
+import { loadPage } from '@/lib/page-load-recovery';
 
 function lazyPage(factory: () => Promise<{ default: ComponentType }>) {
-  const LazyComponent = lazy(factory);
+  const LazyComponent = lazy(() => loadPage(factory));
   return (
     <Suspense fallback={<PageLoading />}>
       <LazyComponent />

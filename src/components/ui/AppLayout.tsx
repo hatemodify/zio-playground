@@ -1,5 +1,5 @@
 import { Component, useEffect, useRef, type ReactNode, type ErrorInfo } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import TopBar from './TopBar';
 import BottomNav from './BottomNav';
 import ErrorFallback from './ErrorFallback';
@@ -50,6 +50,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
 export default function AppLayout() {
   useSession();
+  const { pathname } = useLocation();
   const isLandscape = useLandscapeTablet();
 
   // iOS Safari and Android WebViews keep the AudioContext muted until it's
@@ -92,7 +93,7 @@ export default function AppLayout() {
       {isLandscape && <BottomNav landscape />}
       <main className="flex flex-1 flex-col overflow-y-auto">
         {isLandscape && <TopBar compact />}
-        <ErrorBoundary>
+        <ErrorBoundary key={pathname}>
           <Outlet />
         </ErrorBoundary>
       </main>

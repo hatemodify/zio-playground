@@ -56,3 +56,5 @@ Kenney의 Animal Pack, Animal Pack Remastered, Space Shooter Remastered, Racing 
 `.github/workflows/ci.yml`에서 린트·실제 프로젝트 타입 검사·빌드·Chromium E2E를 실행합니다. 게임 타이머 테스트는 Playwright 가상 시간을 이용합니다. `e2e/discovery-content.spec.ts`에 신규 콘텐츠, 보상 저장, 중복 지급, 숫자 진도, 작품 저장 회귀 테스트가 있습니다.
 
 기존 `prd.md`, `qa_report.md`, `change_plan.md`, `pr_description.md`는 과거 기획·작업 기록입니다. 현재 기능과 다를 수 있습니다. 브라우저 저장소를 지우면 기록이 사라지며, 서버 백업·기기 간 동기화는 제공하지 않습니다.
+
+배포 후 이전 화면에서 사라진 페이지 파일을 요청하면 `page-load-recovery`가 서비스 워커 업데이트를 확인하고 경로별 한 번만 새로고침합니다. 재시도도 실패하면 안내 화면을 보여 주며 다른 메뉴로 이동할 수 있습니다. 학습 저장소는 지우지 않습니다. `e2e/page-load-recovery.spec.ts`는 파일 로딩 실패·재시도·오프라인·일반 오류를 검증하며, 빌드와 미리보기 서버 실행 후 `RECOVERY_TEST_URL=http://127.0.0.1:4173 pnpm exec playwright test e2e/page-load-recovery.spec.ts`로 배포용 파일에서도 실행할 수 있습니다.

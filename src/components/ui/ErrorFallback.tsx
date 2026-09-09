@@ -1,11 +1,13 @@
 import Button from './Button';
+import { isPageLoadError } from '@/lib/page-load-recovery';
 
 interface ErrorFallbackProps {
   error?: Error;
   resetErrorBoundary?: () => void;
 }
 
-export default function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps) {
+export default function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
+  const pageLoadFailed = isPageLoadError(error);
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-bg-cream p-8 text-center">
       {/* Sad Ddori placeholder */}
@@ -25,19 +27,19 @@ export default function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps
 
       <div className="space-y-2">
         <h2 className="font-display text-2xl font-bold text-text-dark">
-          앗, 문제가 생겼어요!
+          {pageLoadFailed ? '화면을 불러오지 못했어요' : '앗, 문제가 생겼어요!'}
         </h2>
         <p className="text-lg text-text-medium">
-          걱정 마세요, 다시 시도해볼까요?
+          {pageLoadFailed ? '인터넷 연결을 확인하고 다시 열어 주세요. 학습 기록은 그대로 있어요.' : '걱정 마세요, 다시 시도해볼까요?'}
         </p>
       </div>
 
       <Button
         size="xl"
         variant="primary"
-        onClick={resetErrorBoundary ?? (() => window.location.reload())}
+        onClick={pageLoadFailed ? () => window.location.reload() : resetErrorBoundary ?? (() => window.location.reload())}
       >
-        다시 시도하기
+        {pageLoadFailed ? '화면 다시 열기' : '다시 시도하기'}
       </Button>
     </div>
   );
