@@ -5,7 +5,6 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { NUMBERS_DATA, HANGUL_CONSONANTS, ENGLISH_DATA } from '@/data';
 import { cn } from '@/lib/cn';
 import type { LearningCategory } from '@/types/learning';
@@ -50,10 +49,9 @@ function generateQuestions(category: LearningCategory, count: number): MissingCh
 export default function MissingCharGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [category, setCategory] = useState<LearningCategory>('numbers');
+  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'missing-char', category });
   const [questions, setQuestions] = useState<MissingCharQuestion[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
@@ -74,8 +72,7 @@ export default function MissingCharGamePage() {
     if (gameState === 'ready') {
       startGame();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [gameState, startGame]);
 
   const handleOptionClick = useCallback((option: string) => {
     if (feedback !== null) return;
@@ -121,18 +118,11 @@ export default function MissingCharGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'missing-char',
-              category,
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">

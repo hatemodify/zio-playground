@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 
 const SETTINGS = {
-  state: { sfxEnabled: false, ttsSpeed: 0.8, volume: 0.8, onboarded: true, dailyTimeLimit: 30 },
+  state: { sfxEnabled: false, volume: 0.8, onboarded: true },
   version: 1,
 };
 

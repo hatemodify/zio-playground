@@ -1,3 +1,5 @@
+import { shuffled } from '@/data/picture-content';
+import { PictureToken } from '@/components/games/Picture';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -5,10 +7,9 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { cn } from '@/lib/cn';
 
-const COUNTING_EMOJIS = ['🍎', '⭐', '🌸', '🐟', '🎈', '🍪', '🦋', '🌈', '🍬', '🎵'];
+const COUNTING_EMOJIS = ['🍎', '⭐', '🥕', '🐟', '🍌', '🍇', '🐰', '🐧', '🍓', '🥦'];
 
 interface CountingQuestion {
   emoji: string;
@@ -19,23 +20,20 @@ interface CountingQuestion {
 function generateQuestion(qIndex: number): CountingQuestion {
   const emoji = COUNTING_EMOJIS[qIndex % COUNTING_EMOJIS.length];
   const count = Math.floor(Math.random() * 9) + 1; // 1-9
-  const choices = new Set<number>([count]);
-  while (choices.size < 4) {
-    const wrong = Math.max(1, count + Math.floor(Math.random() * 5) - 2);
-    if (wrong !== count && wrong >= 1 && wrong <= 10) choices.add(wrong);
-  }
+  // Sample without replacement. At count=1, the old +/-2 loop had only
+  // three possible values and could never produce its four choices.
+  const wrong = shuffled(Array.from({ length: 10 }, (_, i) => i + 1).filter((value) => value !== count)).slice(0, 3);
   return {
     emoji,
     count,
-    choices: [...choices].sort(() => Math.random() - 0.5),
+    choices: shuffled([count, ...wrong]),
   };
 }
 
 export default function CountingGamePage() {
   const navigate = useNavigate();
+  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'counting' });
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [currentQ, setCurrentQ] = useState(0);
   const [totalQuestions] = useState(8);
@@ -58,8 +56,7 @@ export default function CountingGamePage() {
     if (gameState === 'ready') {
       startGame();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [gameState, startGame]);
 
   const handleChoice = useCallback((choice: number) => {
     if (!question || feedback !== null) return;
@@ -98,18 +95,11 @@ export default function CountingGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'counting',
-              category: 'numbers',
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">
@@ -131,7 +121,7 @@ export default function CountingGamePage() {
       animate={{ scale: 1, rotate: 0 }}
       transition={{ delay: i * 0.08, type: 'spring', stiffness: 300 }}
     >
-      {question.emoji}
+      {<PictureToken value={question.emoji} />}
     </motion.span>
   ));
 

@@ -1,3 +1,4 @@
+import { localDate } from '@/lib/local-date';
 import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSettingsStore } from '@/stores/settings-store';
@@ -34,7 +35,7 @@ export function useSession(): SessionResult {
   useEffect(() => {
     if (!onboarded) return;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDate();
     if (lastLoginDate !== today) {
       const result = checkAndClaimDailyBonus();
       dailyResult.current = {
@@ -50,6 +51,11 @@ export function useSession(): SessionResult {
       };
     }
   }, [onboarded, lastLoginDate, streak, checkAndClaimDailyBonus]);
+
+  // Reconcile milestones for existing saved progress, including a same-day upgrade.
+  useEffect(() => {
+    if (onboarded) useGamificationStore.getState().checkAndGrantStickers();
+  }, [onboarded]);
 
   return dailyResult.current;
 }

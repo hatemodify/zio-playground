@@ -1,3 +1,4 @@
+import { PictureToken } from '@/components/games/Picture';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -5,7 +6,6 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { cn } from '@/lib/cn';
 
 const VEHICLE_EMOJIS = ['🚗', '🚌', '🚜', '✈️', '🚁', '🚂', '🚒', '🚑', '🏎️'];
@@ -22,9 +22,8 @@ interface MoleState {
 
 export default function WhackAMoleGamePage() {
   const navigate = useNavigate();
+  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'whack-a-mole', category: 'play' });
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({});
 
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [activeMoles, setActiveMoles] = useState<MoleState[]>([]);
@@ -72,16 +71,13 @@ export default function WhackAMoleGamePage() {
     start(30); // target score for 3 stars
     gameStateRef.current = 'playing'; // Set ref immediately before async state update
 
-    // Start countdown timer
+    // Use a deadline: delayed timer callbacks must not extend a round.
+    const deadline = Date.now() + GAME_DURATION * 1000;
     timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearTimers();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+      const seconds = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      setTimeLeft(seconds);
+      if (seconds === 0) clearTimers();
+    }, 250);
 
     // Start spawning moles
     setTimeout(() => spawnMole(), 500);
@@ -141,14 +137,6 @@ export default function WhackAMoleGamePage() {
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'whack-a-mole',
-              category: 'numbers',
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: GAME_DURATION,
-            });
           }}
         />
         <p className="text-xl font-bold text-text-dark">{score}마리 잡았어요!</p>
@@ -209,7 +197,7 @@ export default function WhackAMoleGamePage() {
                     exit={{ y: 40, opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                   >
-                    {mole.emoji}
+                    {<PictureToken value={mole.emoji} />}
                   </motion.div>
                 )}
               </AnimatePresence>

@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import Button from '@/components/ui/Button';
 import { RewardCelebration } from '@/components/features';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { useSound } from '@/hooks/use-sound';
 import { NUMBERS_DATA } from '@/data/numbers';
 import { HANGUL_DATA } from '@/data/hangul';
@@ -46,10 +45,9 @@ function generateRounds(category: LearningCategory, count: number): MemoryRound[
 export default function MemorySequenceGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
 
   const [category, setCategory] = useState<LearningCategory>('numbers');
-  const { state, score, start, addScore, wrongAnswer, finish, calculateStars } = useGameLogic();
+  const { state, score, start, addScore, wrongAnswer, finish, calculateStars, earnedStickers } = useGameLogic({ gameId: 'memory-sequence', category });
 
   const TOTAL_ROUNDS = 5;
   const [rounds, setRounds] = useState<MemoryRound[]>([]);
@@ -151,17 +149,8 @@ export default function MemorySequenceGamePage() {
   }, [phase, currentRound, userInput, roundIdx, addScore, wrongAnswer, finish, play]);
 
   const handleFinish = useCallback(() => {
-    const stars = calculateStars(score);
-    recordGameScore({
-      gameId: 'memory-sequence',
-      category,
-      score,
-      stars,
-      completedAt: new Date().toISOString(),
-      duration: 0,
-    });
     navigate('/games');
-  }, [score, category, calculateStars, recordGameScore, navigate]);
+  }, [navigate]);
 
   return (
     <div className="flex flex-col gap-4 px-4 pb-6 pt-2">
@@ -319,6 +308,7 @@ export default function MemorySequenceGamePage() {
       {(state === 'success' || state === 'reward') && (
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={calculateStars(score)}
           message={`${TOTAL_ROUNDS}라운드 중 ${score}라운드 성공!`}
           open={showReward}

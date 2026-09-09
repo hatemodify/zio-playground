@@ -5,7 +5,6 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { cn } from '@/lib/cn';
 
 const OBJECTS = ['🍎', '⭐', '🌸', '🐟', '🦋', '🎈', '🍬', '☁️', '💖', '🍊'];
@@ -56,9 +55,8 @@ function ObjectGrid({ count, object }: { count: number; object: string }) {
 
 export default function SizeCompareGamePage() {
   const navigate = useNavigate();
+  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'size-compare' });
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [questions, setQuestions] = useState<CompareQuestion[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
@@ -80,8 +78,7 @@ export default function SizeCompareGamePage() {
     if (gameState === 'ready') {
       startGame();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [gameState, startGame]);
 
   const handleSideClick = useCallback((side: 'left' | 'right') => {
     if (feedback !== null) return;
@@ -127,18 +124,11 @@ export default function SizeCompareGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'size-compare',
-              category: 'numbers',
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">

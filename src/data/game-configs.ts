@@ -1,3 +1,4 @@
+import { DISCOVERY_GAMES } from './discovery-games';
 import type { GameId } from '@/types/game';
 import type { LearningCategory } from '@/types/learning';
 
@@ -13,6 +14,9 @@ export interface GameConfig {
   name: string;
   description: string;
   icon: string;
+  kind?: 'learning' | 'play';
+  focus?: string;
+  isNew?: boolean;
   categories: LearningCategory[];
   difficulties: {
     easy: GameDifficultyConfig;
@@ -24,6 +28,18 @@ export interface GameConfig {
 }
 
 export const GAME_CONFIGS: GameConfig[] = [
+  ...Object.entries(DISCOVERY_GAMES).map(([id, game]): GameConfig => ({
+    id: id as GameId, name: game.title, description: game.subtitle, icon: game.picture,
+    kind: 'learning', focus: game.objective, isNew: true,
+    categories: id === 'picture-words' ? ['hangul', 'english'] : ['animal-families', 'vehicle-missions'].includes(id) ? [] : ['numbers'],
+    difficulties: { easy: { label: '처음 해요', questionCount: 6 }, normal: { label: '할 수 있어요', questionCount: 8 }, hard: { label: '자신 있어요', questionCount: 10 } },
+    unlockThreshold: 0, rules: [...game.instructions],
+  })),
+  { id: 'rocket-ride', name: '반짝 우주 비행', description: '우주선을 움직여 별을 모으는 짜릿한 여행', icon: 'rocket', kind: 'play', focus: '반응 · 놀이', isNew: true, categories: [],
+    difficulties: { easy: { label: '느긋하게' }, normal: { label: '신나게' }, hard: { label: '빠르게' } }, unlockThreshold: 0, rules: ['좌우 버튼이나 방향키로 이동해요.', '별을 모으고 운석을 피해요.'] },
+  { id: 'animal-playground', name: '상상 마을 놀이터', description: '탈것과 동물로 도로와 공사장을 꾸며요', icon: 'excavator', kind: 'play', focus: '꾸미기 · 자유 놀이', isNew: true, categories: [],
+    difficulties: { easy: { label: '자유 놀이' }, normal: { label: '자유 놀이' }, hard: { label: '자유 놀이' } }, unlockThreshold: 0, rules: ['동물을 고르고 빈자리를 눌러요.', '배경을 바꾸고 함께 춤춰요.'] },
+
   {
     id: 'matching',
     name: '글자-이미지 매칭',
@@ -61,25 +77,8 @@ export const GAME_CONFIGS: GameConfig[] = [
     ],
   },
   {
-    id: 'balloon',
-    name: '풍선 터뜨리기',
-    description: '맞는 풍선을 찾아 터뜨려 보세요!',
-    icon: 'balloon',
-    categories: ['numbers', 'hangul', 'english'],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 5 },
-      normal: { label: '보통', questionCount: 10 },
-      hard: { label: '어려움', questionCount: 15 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '소리를 듣고 맞는 풍선을 터뜨려요',
-      '풍선이 떠오르면 빨리 찾아보세요',
-      '맞으면 풍선이 펑! 하고 터져요',
-    ],
-  },
-  {
     id: 'coloring',
+    kind: 'play',
     name: '색칠하기',
     description: '예쁜 색으로 글자를 색칠해 보세요!',
     icon: 'palette',
@@ -129,7 +128,7 @@ export const GAME_CONFIGS: GameConfig[] = [
     rules: [
       '위에 있는 그림을 잘 살펴보세요',
       '아래 그림자 중 맞는 것에 끌어 놓아요',
-      '맞추면 글자의 첫소리를 알려줘요!',
+      '그림의 윤곽을 자세히 살펴봐요!',
     ],
   },
   {
@@ -223,24 +222,6 @@ export const GAME_CONFIGS: GameConfig[] = [
     ],
   },
   {
-    id: 'speed-quiz',
-    name: '빠르기 도전',
-    description: '30초 안에 최대한 많이 맞춰보세요!',
-    icon: 'timer',
-    categories: ['numbers', 'hangul', 'english'],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 10 },
-      normal: { label: '보통', questionCount: 15 },
-      hard: { label: '어려움', questionCount: 20 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '시간이 제한되어 있어요!',
-      '맞는 것을 빨리 골라요',
-      '최대한 많이 맞추면 별을 많이 받아요!',
-    ],
-  },
-  {
     id: 'memory-sequence',
     name: '순서 기억하기',
     description: '순서를 기억하고 따라해 보세요!',
@@ -260,6 +241,7 @@ export const GAME_CONFIGS: GameConfig[] = [
   },
   {
     id: 'free-draw',
+    kind: 'play',
     name: '자유 그리기',
     description: '마음껏 그림을 그려보세요!',
     icon: 'pencil',
@@ -458,8 +440,9 @@ export const GAME_CONFIGS: GameConfig[] = [
   },
   {
     id: 'food-stack',
-    name: '음식 만들기',
-    description: '예시와 똑같은 순서로 재료를 쌓아보세요!',
+    name: '차곡차곡 햄버거 가게',
+    description: '주문서를 보고 아랫빵부터 재료를 쌓고 손님께 드려요!',
+    kind: 'learning', focus: '순서 · 관찰 · 기억', isNew: true,
     icon: 'burger',
     categories: [],
     difficulties: {

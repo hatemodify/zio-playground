@@ -146,3 +146,41 @@ body {
   background-color: var(--color-primary-light);
   color: white;
 }
+
+/* Illustrated discovery games: roomy touch targets and pictures that teach. */
+.adventure-page { width: 100%; max-width: 1040px; margin: 0 auto; padding: 16px 20px 32px; display: flex; flex-direction: column; gap: 20px; }
+.adventure-intro { border-radius: 28px; background: white; padding: 20px; box-shadow: 0 8px 32px #134e4a08; }
+.scene-meadow { background: radial-gradient(ellipse at 10% 115%, #91c979 0 29%, transparent 30%), radial-gradient(ellipse at 90% 125%, #b6dc94 0 35%, transparent 36%), linear-gradient(#dcf2ef, #f2f7d9); }
+.scene-night { background: radial-gradient(circle at 80% 20%, #44598e, transparent 40%), #14263e; }
+.adventure-primary { min-height: 56px; border-radius: 18px; padding: 14px 24px; font-weight: 800; background: #177d70; color: white; box-shadow: 0 4px 0 #0e5c51; touch-action: manipulation; }
+.adventure-primary:disabled { opacity: .5; box-shadow: none; }
+.adventure-secondary { min-height: 52px; border: 2px solid #dce6e3; border-radius: 16px; padding: 10px 20px; font-weight: 700; background: white; touch-action: manipulation; }
+.adventure-page button:focus-visible, .game-library button:focus-visible { outline: 3px solid #f1a545; outline-offset: 4px; }
+.picture-choice { min-height: 100px; border: 2px solid #e3ebe8; border-radius: 22px; background: white; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-weight: 800; touch-action: manipulation; }
+.picture-choice:active { transform: scale(.97); }
+.picture-choice:disabled { opacity: .5; }
+.feedback-card { border-radius: 20px; padding: 16px 20px; background: #f0f8ef; border: 1px solid #d5e9d0; color: #285d39; }
+@media (max-width: 480px) { .adventure-page { padding: 12px 12px 24px; gap: 16px; } .adventure-intro { padding: 12px; } }
+
+.adventure-page progress { appearance: none; border: 0; border-radius: 999px; overflow: hidden; background: #dce9e3; }
+.adventure-page progress::-webkit-progress-bar { background: #dce9e3; border-radius: 999px; }
+.adventure-page progress::-webkit-progress-value { background: #177d70; border-radius: 999px; }
+.adventure-page progress::-moz-progress-bar { background: #177d70; border-radius: 999px; }
+
+/* Original illustrated burger counter. DOM order is the assembly order. */
+.burger-awning { height: 23px; background: repeating-linear-gradient(90deg, #db775d 0 26px, #fff2d8 26px 52px); border-bottom: 5px solid #e9b894; }
+.burger-ticket { box-shadow: 0 5px 0 #e7d8bc; border-bottom: 2px dashed #e8d8bd; }
+.burger-counter { background: #efd2a5; border-top: 5px solid #e2bb84; }
+.burger-ingredient { display: flex; min-height: 70px; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 2px solid #fdf7e9; border-radius: 14px; background: #fffaf1; box-shadow: 0 3px 0 #cfad80; touch-action: manipulation; }
+.burger-ingredient:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+.burger-ingredient:disabled { opacity: .55; }
+.burger-stage { position: relative; display: flex; width: 100%; min-height: 182px; align-items: flex-end; justify-content: center; padding: 0 8px 32px; }
+.burger-stage-compact { max-width: 300px; margin: 0 auto; }
+.burger-plate { position: absolute; bottom: 20px; left: 2%; width: 96%; height: 26px; border: 3px solid #d9e4e0; border-radius: 50%; background: #fffef5; box-shadow: 0 7px 0 #d9d0b9; }
+.burger-layers { position: relative; display: flex; width: 100%; max-width: 220px; flex-direction: column-reverse; align-items: center; }
+.burger-layer { width: 100%; margin-top: -12px; }
+.burger-layer img { display: block; width: 100%; height: auto; }
+
+@media (min-width: 640px) { .burger-layer { margin-top: -22px; } .burger-stage { min-height: 275px; } }
+.scene-town { background: linear-gradient(180deg, #cce7ec 0 28%, #dee8d7 28% 35%, #e9d5b1 35% 62%, #809499 62% 68%, #f8ecc5 68% 70%, #809499 70% 76%, #e9d5b1 76%); }
+.scene-construction { background: linear-gradient(180deg, #d4e9e9 0 30%, #ead4a8 30% 66%, #dab981 66%); }

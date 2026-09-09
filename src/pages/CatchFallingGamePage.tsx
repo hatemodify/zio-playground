@@ -1,3 +1,4 @@
+import { PictureToken } from '@/components/games/Picture';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -5,7 +6,6 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { cn } from '@/lib/cn';
 
 const GOOD_ITEMS = ['⭐', '💖', '💎', '🌟', '💫'];
@@ -25,9 +25,8 @@ interface FallingItem {
 
 export default function CatchFallingGamePage() {
   const navigate = useNavigate();
+  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'catch-falling', category: 'play' });
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [basketX, setBasketX] = useState(50); // percentage
@@ -171,18 +170,11 @@ export default function CatchFallingGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'catch-falling',
-              category: 'numbers',
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: GAME_DURATION,
-            });
           }}
         />
         <p className="text-xl font-bold text-text-dark">{score}개 잡았어요!</p>
@@ -237,7 +229,7 @@ export default function CatchFallingGamePage() {
               transform: 'translateX(-50%)',
             }}
           >
-            {item.emoji}
+            {<PictureToken value={item.emoji} />}
           </div>
         ))}
 

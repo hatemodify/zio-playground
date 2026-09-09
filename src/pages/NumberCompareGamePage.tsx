@@ -5,7 +5,6 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { NUMBERS_MAX } from '@/data';
 import { cn } from '@/lib/cn';
 
@@ -51,9 +50,8 @@ function generateQuestions(total: number): CompareQuestion[] {
 
 export default function NumberCompareGamePage() {
   const navigate = useNavigate();
+  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'number-compare' });
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [questions, setQuestions] = useState<CompareQuestion[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
@@ -116,18 +114,11 @@ export default function NumberCompareGamePage() {
       <div className="flex h-full flex-col items-center justify-center gap-6 px-4 pt-8">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'number-compare',
-              category: 'numbers',
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">

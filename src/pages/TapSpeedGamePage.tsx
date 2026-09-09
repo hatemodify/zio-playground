@@ -1,3 +1,4 @@
+import { useGamificationStore } from '@/stores/gamification-store';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -5,16 +6,14 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { cn } from '@/lib/cn';
 
 const GAME_DURATION = 10; // seconds
 
 export default function TapSpeedGamePage() {
   const navigate = useNavigate();
+  const { state: gameState, start, finish, reset, calculateStars, earnedStickers } = useGameLogic({ gameId: 'tap-speed', category: 'play' });
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, finish, reset, calculateStars } = useGameLogic({});
 
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [tapCount, setTapCount] = useState(0);
@@ -91,18 +90,11 @@ export default function TapSpeedGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'tap-speed',
-              category: 'numbers',
-              score: tapCount,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: GAME_DURATION,
-            });
           }}
         />
         <p className="text-xl font-bold text-text-dark">{tapCount}번 터치!</p>

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import WritingCanvas from './WritingCanvas';
 import Ddori from '@/assets/characters/Ddori';
@@ -16,8 +16,6 @@ interface LearningScreenProps {
   category: LearningCategory;
   topContent?: React.ReactNode;
   bottomContent?: React.ReactNode;
-  ttsText?: string;
-  ttsLang?: 'ko-KR' | 'en-US';
   onNext?: () => void;
   onPrev?: () => void;
   className?: string;
@@ -33,57 +31,54 @@ export default function LearningScreen({
   onPrev,
   className,
 }: LearningScreenProps) {
-  const { completeTracingStage, getItem, initializeItem, markCompleted } = useProgressStore();
-  const { addStars, addSticker } = useGamificationStore();
+  const { completeTracingStage, getItem, initializeItem } = useProgressStore();
+  const { addStars, addSticker, checkAndGrantStickers } = useGamificationStore();
   const { play } = useSound();
   const isLandscape = useLandscapeTablet();
 
-  // Ensure progress item exists
-  const progressItem = getItem(id);
-  if (!progressItem) {
-    initializeItem({
-      id,
-      category,
-      character,
-      tracingStage: 0,
-      completed: false,
-      attempts: 0,
-      bestScore: 0,
-      lastPracticedAt: null,
-    });
-  }
+  useEffect(() => {
+    initializeItem({ id, category, character, tracingStage: 0, completed: false,
+      attempts: 0, bestScore: 0, lastPracticedAt: null });
+  }, [id, category, character, initializeItem]);
+  const completedId = useRef<string | null>(null);
+  const celebrationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (celebrationTimer.current) clearTimeout(celebrationTimer.current); }, []);
 
   const [showCelebration, setShowCelebration] = useState(false);
   const [writingDone, setWritingDone] = useState(false);
+  const [rewardStars, setRewardStars] = useState(0);
 
   // Single-step writing completion
   const handleWritingComplete = useCallback(() => {
-    if (writingDone) return;
+    if (completedId.current === id) return;
+    completedId.current = id;
     setWritingDone(true);
 
     play('stroke_complete');
 
     // Complete all tracing stages at once
-    completeTracingStage(id, 1);
-    completeTracingStage(id, 2);
+    const firstCompletion = !getItem(id)?.completed;
     completeTracingStage(id, 3);
-    markCompleted(id);
 
     // Award stars and sticker
-    addStars(3);
+    setRewardStars(firstCompletion ? 3 : 0);
+    if (firstCompletion) addStars(3);
     const stickerId = `sticker-learn-${id}`;
     addSticker(stickerId);
+    checkAndGrantStickers();
     play('confetti');
 
     setShowCelebration(true);
-    setTimeout(() => setShowCelebration(false), 3000);
-  }, [id, writingDone, completeTracingStage, markCompleted, addStars, addSticker, play]);
+    if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
+    celebrationTimer.current = setTimeout(() => setShowCelebration(false), 3000);
+  }, [id, getItem, completeTracingStage, addStars, addSticker, checkAndGrantStickers, play]);
 
   // Reset writingDone when character changes
   const [prevId, setPrevId] = useState(id);
   if (prevId !== id) {
     setPrevId(id);
     setWritingDone(false);
+    setShowCelebration(false);
   }
 
   return (
@@ -159,9 +154,9 @@ export default function LearningScreen({
             >
               <Ddori expression="excited" size={100} />
               <p className="text-2xl font-bold text-text-dark">잘했어!</p>
-              <p className="text-sm text-text-medium">스티커를 받았어요!</p>
+              <p className="text-sm text-text-medium">{rewardStars ? '스티커를 받았어요!' : '한 번 더 멋지게 연습했어요!'}</p>
               <div className="flex gap-1">
-                {[1, 2, 3].map((i) => (
+                {Array.from({ length: rewardStars }, (_, i) => i + 1).map((i) => (
                   <motion.svg
                     key={i}
                     width="32"

@@ -1,3 +1,6 @@
+import { earnedMilestones } from '@/lib/sticker-rules';
+import { localDate } from '@/lib/local-date';
+import { useProgressStore } from './progress-store';
 import { create, type StateCreator } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { GameRecord } from '@/types/game';
@@ -16,7 +19,7 @@ interface GamificationState {
   // Actions
   addStars: (count: number) => void;
   checkAndClaimDailyBonus: () => { bonusStars: number; newStreak: number };
-  recordGameScore: (record: GameRecord) => void;
+  completeGame: (record: GameRecord) => string[];
   unlockGame: (gameId: string) => void;
   addSticker: (stickerId: string) => void;
   unlockOutfit: (outfitId: string) => void;
@@ -42,14 +45,14 @@ const initialState = {
 };
 
 function getDateString(): string {
-  return new Date().toISOString().split('T')[0];
+  return localDate();
 }
 
 function isYesterday(dateStr: string): boolean {
   if (!dateStr) return false;
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  return dateStr === yesterday.toISOString().split('T')[0];
+  return dateStr === localDate(yesterday);
 }
 
 export const useGamificationStore = create<GamificationState>()(
@@ -99,11 +102,6 @@ export const useGamificationStore = create<GamificationState>()(
         return { bonusStars, newStreak };
       },
 
-      recordGameScore: (record) => {
-        set((state) => ({
-          gameRecords: [...state.gameRecords, record],
-        }));
-      },
 
       unlockGame: (gameId) => {
         set((state) => {
@@ -127,74 +125,23 @@ export const useGamificationStore = create<GamificationState>()(
       },
 
       checkAndGrantStickers: () => {
-        const state = get();
-        const { totalStars, level, streak, gameRecords, stickers } = state;
-        const newStickers: string[] = [];
-
-        const uniqueGames = new Set(gameRecords.map((r) => r.gameId));
-
-        // Game-related stickers
-        if (gameRecords.length >= 1 && !stickers.includes('sticker-special-firstgame')) {
-          newStickers.push('sticker-special-firstgame');
-        }
-        if (uniqueGames.size >= 5 && !stickers.includes('sticker-ocean-dolphin')) {
-          newStickers.push('sticker-ocean-dolphin');
-        }
-        if (uniqueGames.size >= 10 && !stickers.includes('sticker-music-guitar')) {
-          newStickers.push('sticker-music-guitar');
-        }
-        if (uniqueGames.size >= 23 && !stickers.includes('sticker-special-allgames')) {
-          newStickers.push('sticker-special-allgames');
-        }
-
-        // Star-related stickers
-        if (totalStars >= 30 && !stickers.includes('sticker-ocean-whale')) {
-          newStickers.push('sticker-ocean-whale');
-        }
-        if (totalStars >= 50 && !stickers.includes('sticker-space-ufo')) {
-          newStickers.push('sticker-space-ufo');
-        }
-        if (totalStars >= 100 && !stickers.includes('sticker-dino-tricera')) {
-          newStickers.push('sticker-dino-tricera');
-        }
-        if (totalStars >= 200 && !stickers.includes('sticker-sports-soccer')) {
-          newStickers.push('sticker-sports-soccer');
-        }
-
-        // Level-related stickers
-        const levelStickerMap: Record<number, string> = {
-          3: 'sticker-space-rocket',
-          4: 'sticker-music-drum',
-          5: 'sticker-space-astronaut',
-          7: 'sticker-dino-trex',
-          10: 'sticker-sports-medal',
-        };
-        for (const [lvl, id] of Object.entries(levelStickerMap)) {
-          if (level >= Number(lvl) && !stickers.includes(id)) {
-            newStickers.push(id);
-          }
-        }
-
-        // Streak-related stickers
-        const streakStickerMap: Record<number, string> = {
-          3: 'sticker-special-streak3',
-          7: 'sticker-special-streak7',
-          14: 'sticker-ocean-octopus',
-          30: 'sticker-music-piano',
-        };
-        for (const [days, id] of Object.entries(streakStickerMap)) {
-          if (streak >= Number(days) && !stickers.includes(id)) {
-            newStickers.push(id);
-          }
-        }
-
-        if (newStickers.length > 0) {
-          set((s) => ({
-            stickers: [...s.stickers, ...newStickers],
-          }));
-        }
-
+        const newStickers = earnedMilestones(get(), useProgressStore.getState().items);
+        if (newStickers.length) set((state) => ({ stickers: [...state.stickers, ...newStickers] }));
         return newStickers;
+      },
+
+      completeGame: (record) => {
+        if (record.runId && get().gameRecords.some((item) => item.runId === record.runId)) return [];
+        let earned: string[] = [];
+        set((state) => {
+          const totalStars = state.totalStars + record.stars;
+          const next = { ...state, totalStars, level: getLevelForStars(totalStars).level,
+            gameRecords: [...state.gameRecords, record] };
+          earned = earnedMilestones(next, useProgressStore.getState().items);
+          return { totalStars, level: next.level, gameRecords: next.gameRecords,
+            stickers: [...state.stickers, ...earned] };
+        });
+        return earned;
       },
 
       resetGamification: () => set(initialState),

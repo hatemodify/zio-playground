@@ -1,3 +1,5 @@
+import Picture from '@/components/games/Picture';
+import type { PictureId } from '@/data/picture-content';
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useGamificationStore } from '@/stores/gamification-store';
@@ -19,70 +21,49 @@ const TAB_LABELS: Record<StickerTab, string> = {
   special: '특별',
 };
 
-// Emoji icons for character-based stickers — vehicles theme
-const CATEGORY_EMOJI_MAP: Record<string, string[]> = {
-  numbers: ['🚗', '🚙', '🏎️', '🚓', '🚕', '🚑', '🚒', '🛻', '🚐', '🚎'],
-  hangul: [
-    '🚜', '🏗️', '🚧', '🔧', '🪨', '🚛', '🔩', '⚙️', '🪝', '🛞',
-    '🧱', '🪚', '🔨', '🛠️', '⛏️', '🪛', '🏭', '🛤️', '🚏', '🪜',
-    '🏗️', '🚜', '🔧', '🪨',
-  ],
-  english: [
-    '✈️', '🚁', '🛩️', '🚀', '🛸', '🎈', '🪂', '🛫', '🛬', '🌍',
-    '🛰️', '⭐', '🌙', '☁️', '🌤️', '🌈', '💫', '🪁', '🎆', '🎇',
-    '🌠', '🛫', '🛬', '🚁', '✈️', '🚀',
-  ],
+const CATEGORY_PICTURES: Record<LearningCategory, PictureId[]> = {
+  numbers: ['car', 'suv', 'race-car', 'police-car', 'taxi', 'ambulance', 'fire-truck', 'pickup', 'truck', 'bus'],
+  hangul: ['excavator', 'crane', 'dump-truck', 'bulldozer', 'cement-mixer', 'forklift', 'tractor', 'roller'],
+  english: ['airplane', 'helicopter', 'light-plane', 'rocket', 'ufo', 'hot-air-balloon', 'hang-glider', 'shuttle'],
 };
-
-// Milestone sticker emoji — vehicles theme
-const MILESTONE_EMOJI: Record<string, string> = {
-  // Numbers — cars
-  'sticker-num-puppy': '🚓',
-  'sticker-num-kitten': '🚒',
-  'sticker-num-bunny': '🚑',
-  'sticker-num-panda': '🏎️',
-  'sticker-num-lion': '🚙',
-  'sticker-num-trophy': '🏆',
-  // Hangul — construction
-  'sticker-han-cake': '🚜',
-  'sticker-han-cookie': '🏗️',
-  'sticker-han-donut': '🚛',
-  'sticker-han-icecream': '⚙️',
-  'sticker-han-candy': '🔧',
-  'sticker-han-trophy': '🏆',
-  // English — aviation
-  'sticker-eng-car': '✈️',
-  'sticker-eng-bus': '🚁',
-  'sticker-eng-train': '🛩️',
-  'sticker-eng-airplane': '🚀',
-  'sticker-eng-rocket': '🛸',
-  'sticker-eng-trophy': '🏆',
-  // Special — special vehicles
-  'sticker-special-streak3': '🚂',
-  'sticker-special-streak7': '🚃',
-  'sticker-special-firstgame': '⛵',
-  'sticker-special-allgames': '🛳️',
-  // Water vehicles
-  'sticker-space-rocket': '🛥️',
-  'sticker-space-astronaut': '🚤',
-  'sticker-space-ufo': '🛶',
-  // Rail vehicles
-  'sticker-ocean-whale': '🚝',
-  'sticker-ocean-dolphin': '🚡',
-  'sticker-ocean-octopus': '🚊',
-  // Two-wheelers
-  'sticker-dino-trex': '🏍️',
-  'sticker-dino-tricera': '🛵',
-  // Fun vehicles
-  'sticker-insect-butterfly': '🎈',
-  'sticker-insect-ladybug': '🪂',
-  // Special purpose
-  'sticker-music-guitar': '🚢',
-  'sticker-music-drum': '🚠',
-  'sticker-music-piano': '🛷',
-  // Achievement
-  'sticker-sports-soccer': '🛩️',
-  'sticker-sports-medal': '🚀',
+const MILESTONE_PICTURES: Record<string, PictureId> = {
+  'sticker-num-puppy': 'police-car',
+  'sticker-num-kitten': 'fire-truck',
+  'sticker-num-bunny': 'ambulance',
+  'sticker-num-panda': 'race-car',
+  'sticker-num-lion': 'suv',
+  'sticker-num-trophy': 'trophy',
+  'sticker-han-cake': 'excavator',
+  'sticker-han-cookie': 'crane',
+  'sticker-han-donut': 'dump-truck',
+  'sticker-han-icecream': 'bulldozer',
+  'sticker-han-candy': 'cement-mixer',
+  'sticker-han-trophy': 'trophy',
+  'sticker-eng-car': 'airplane',
+  'sticker-eng-bus': 'helicopter',
+  'sticker-eng-train': 'light-plane',
+  'sticker-eng-airplane': 'rocket',
+  'sticker-eng-rocket': 'ufo',
+  'sticker-eng-trophy': 'trophy',
+  'sticker-special-streak3': 'train',
+  'sticker-special-streak7': 'high-speed-train',
+  'sticker-special-firstgame': 'boat',
+  'sticker-special-allgames': 'cruise-ship',
+  'sticker-space-rocket': 'submarine',
+  'sticker-space-astronaut': 'speedboat',
+  'sticker-space-ufo': 'hovercraft',
+  'sticker-ocean-whale': 'monorail',
+  'sticker-ocean-dolphin': 'cable-car',
+  'sticker-ocean-octopus': 'tram',
+  'sticker-dino-trex': 'motorcycle',
+  'sticker-dino-tricera': 'scooter',
+  'sticker-insect-butterfly': 'hot-air-balloon',
+  'sticker-insect-ladybug': 'hang-glider',
+  'sticker-music-guitar': 'submersible',
+  'sticker-music-drum': 'zipline',
+  'sticker-music-piano': 'snowmobile',
+  'sticker-sports-soccer': 'fighter',
+  'sticker-sports-medal': 'shuttle',
 };
 
 interface CharacterSticker {
@@ -90,7 +71,7 @@ interface CharacterSticker {
   name: string;
   category: LearningCategory;
   character: string;
-  emoji: string;
+  picture: PictureId;
 }
 
 function getCharacterStickers(): CharacterSticker[] {
@@ -102,7 +83,7 @@ function getCharacterStickers(): CharacterSticker[] {
       name: `숫자 ${n.character}`,
       category: 'numbers',
       character: n.character,
-      emoji: CATEGORY_EMOJI_MAP.numbers[i % CATEGORY_EMOJI_MAP.numbers.length],
+      picture: CATEGORY_PICTURES.numbers[i % CATEGORY_PICTURES.numbers.length],
     });
   });
 
@@ -112,7 +93,7 @@ function getCharacterStickers(): CharacterSticker[] {
       name: h.character,
       category: 'hangul',
       character: h.character,
-      emoji: CATEGORY_EMOJI_MAP.hangul[i % CATEGORY_EMOJI_MAP.hangul.length],
+      picture: CATEGORY_PICTURES.hangul[i % CATEGORY_PICTURES.hangul.length],
     });
   });
 
@@ -122,7 +103,7 @@ function getCharacterStickers(): CharacterSticker[] {
       name: e.uppercase,
       category: 'english',
       character: e.uppercase,
-      emoji: CATEGORY_EMOJI_MAP.english[i % CATEGORY_EMOJI_MAP.english.length],
+      picture: CATEGORY_PICTURES.english[i % CATEGORY_PICTURES.english.length],
     });
   });
 
@@ -133,7 +114,7 @@ export default function StickersPage() {
   const { stickers: ownedStickers } = useGamificationStore();
   const { getItem } = useProgressStore();
   const [tab, setTab] = useState<StickerTab>('all');
-  const [selectedSticker, setSelectedSticker] = useState<{ id: string; name: string; emoji: string; description: string; owned: boolean } | null>(null);
+  const [selectedSticker, setSelectedSticker] = useState<{ id: string; name: string; picture: PictureId; description: string; owned: boolean } | null>(null);
 
   const characterStickers = getCharacterStickers();
 
@@ -168,7 +149,7 @@ export default function StickersPage() {
     setSelectedSticker({
       id: sticker.id,
       name: sticker.name,
-      emoji: MILESTONE_EMOJI[sticker.id] || '⭐',
+      picture: MILESTONE_PICTURES[sticker.id] || 'star',
       description: sticker.description,
       owned: ownedStickers.includes(sticker.id),
     });
@@ -178,7 +159,7 @@ export default function StickersPage() {
     setSelectedSticker({
       id: sticker.id,
       name: sticker.name,
-      emoji: sticker.emoji,
+      picture: sticker.picture,
       description: `${sticker.character} 학습 완료`,
       owned,
     });
@@ -227,8 +208,8 @@ export default function StickersPage() {
                   onClick={() => handleMilestoneStickerClick(sticker)}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className={cn('text-3xl', !owned && 'grayscale opacity-30')}>
-                    {MILESTONE_EMOJI[sticker.id] || '⭐'}
+                  <span className={cn('w-full', !owned && 'grayscale opacity-30')}>
+                    {<Picture id={MILESTONE_PICTURES[sticker.id] || 'star'} className="h-16 w-full" />}
                   </span>
                   <span className={cn(
                     'text-[10px] font-medium leading-tight text-center',
@@ -266,8 +247,8 @@ export default function StickersPage() {
                   onClick={() => handleCharStickerClick(sticker, owned)}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className={cn('text-2xl', !owned && 'grayscale opacity-20')}>
-                    {sticker.emoji}
+                  <span className={cn('w-full', !owned && 'grayscale opacity-20')}>
+                    {<Picture id={sticker.picture} className="h-10 w-full" />}
                   </span>
                   <span className={cn(
                     'text-[10px] font-bold',
@@ -302,7 +283,7 @@ export default function StickersPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <span className={cn('text-6xl', !selectedSticker.owned && 'grayscale opacity-30')}>
-                {selectedSticker.emoji}
+                {<Picture id={selectedSticker.picture} className="h-36 w-48" />}
               </span>
               <span className="text-xl font-bold text-text-dark">{selectedSticker.name}</span>
               <span className="text-sm text-text-medium">{selectedSticker.description}</span>

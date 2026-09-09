@@ -1,3 +1,4 @@
+import { usePlaygroundStore } from '@/stores/playground-store';
 import { useState, useCallback } from 'react';
 import { motion } from 'motion/react';
 import Button from '@/components/ui/Button';
@@ -11,11 +12,6 @@ import { cn } from '@/lib/cn';
 
 type SettingsSection = 'gate' | 'main';
 
-const TIME_LIMIT_OPTIONS = [
-  { value: 15, label: '15분' },
-  { value: 30, label: '30분' },
-  { value: 0, label: '무제한' },
-] as const;
 
 export default function SettingsPage() {
   const [section, setSection] = useState<SettingsSection>('gate');
@@ -25,9 +21,7 @@ export default function SettingsPage() {
 
   // Settings store
   const sfxEnabled = useSettingsStore((s) => s.sfxEnabled);
-  const dailyTimeLimit = useSettingsStore((s) => s.dailyTimeLimit);
   const toggleSfx = useSettingsStore((s) => s.toggleSfx);
-  const setDailyTimeLimit = useSettingsStore((s) => s.setDailyTimeLimit);
   const resetSettings = useSettingsStore((s) => s.resetSettings);
 
   // Progress store
@@ -53,6 +47,7 @@ export default function SettingsPage() {
   }, []);
 
   const handleResetAll = useCallback(() => {
+    usePlaygroundStore.getState().reset();
     resetProgress();
     resetGamification();
     resetSettings();
@@ -243,37 +238,13 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Time Limit */}
-      <section className="rounded-radius-card bg-white p-5 shadow-card">
-        <h2 className="mb-4 text-lg font-bold text-text-dark">학습 시간 제한</h2>
-        <p className="mb-3 text-sm text-text-medium">
-          하루 학습 시간을 설정해주세요
-        </p>
-        <div className="flex gap-3">
-          {TIME_LIMIT_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => setDailyTimeLimit(option.value)}
-              className={cn(
-                'flex-1 rounded-radius-lg py-3.5 text-base font-semibold transition-colors',
-                'min-h-[56px] touch-manipulation',
-                dailyTimeLimit === option.value
-                  ? 'bg-accent-orange text-white shadow-button'
-                  : 'bg-bg-warm text-text-medium hover:bg-bg-soft',
-              )}
-              aria-pressed={dailyTimeLimit === option.value}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </section>
+      <p className="px-2 text-xs text-text-medium">그림 에셋: Kenney · CC0 <a className="underline" href="/assets/kenney/CREDITS.txt" target="_blank" rel="noreferrer">출처 보기</a></p>
 
       {/* Data Reset */}
       <section className="rounded-radius-card bg-white p-5 shadow-card">
         <h2 className="mb-3 text-lg font-bold text-text-dark">데이터 관리</h2>
         <p className="mb-4 text-sm text-text-medium">
-          모든 학습 기록, 별, 스티커가 초기화됩니다. 되돌릴 수 없습니다.
+          모든 학습 기록, 별, 스티커, 놀이터 작품이 초기화됩니다. 되돌릴 수 없습니다.
         </p>
         <Button
           variant="ghost"
@@ -293,7 +264,7 @@ export default function SettingsPage() {
       >
         <div className="flex flex-col gap-5">
           <p className="text-sm text-text-medium">
-            모든 학습 기록, 별 {totalStars}개, 스티커 {stickers.length}개가 영구 삭제됩니다.
+            모든 학습 기록, 별 {totalStars}개, 스티커 {stickers.length}개와 놀이터 작품이 영구 삭제됩니다.
             이 작업은 되돌릴 수 없습니다.
           </p>
           <div className="flex gap-3">

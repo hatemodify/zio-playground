@@ -1,3 +1,5 @@
+import Picture from '@/components/games/Picture';
+import { PICTURE_WORDS, shuffled, type PictureId } from '@/data/picture-content';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -5,8 +7,6 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
-import { NUMBERS_DATA, HANGUL_CONSONANTS, ENGLISH_DATA } from '@/data';
 import { cn } from '@/lib/cn';
 import type { LearningCategory } from '@/types/learning';
 
@@ -15,34 +15,26 @@ interface CardItem {
   content: string;
   type: 'character' | 'label';
   matchId: string;
+  picture?: PictureId;
+  quantity?: number;
 }
 
 function generatePairs(category: LearningCategory, pairCount: number): CardItem[] {
-  let sourceData: { character: string; label: string }[];
-  if (category === 'numbers') {
-    sourceData = NUMBERS_DATA.map((n) => ({ character: n.character, label: n.koreanName }));
-  } else if (category === 'hangul') {
-    sourceData = HANGUL_CONSONANTS.map((h) => ({ character: h.character, label: h.representativeWord }));
-  } else {
-    sourceData = ENGLISH_DATA.map((e) => ({ character: e.uppercase, label: e.word }));
-  }
-
-  const shuffled = [...sourceData].sort(() => Math.random() - 0.5).slice(0, pairCount);
-  const cards: CardItem[] = [];
-  shuffled.forEach((item, i) => {
-    cards.push({ id: `char-${i}`, content: item.character, type: 'character', matchId: String(i) });
-    cards.push({ id: `label-${i}`, content: item.label, type: 'label', matchId: String(i) });
-  });
-  return cards.sort(() => Math.random() - 0.5);
+  const source = category === 'numbers'
+    ? shuffled(Array.from({ length: 8 }, (_, i) => ({ character: String(i + 1), label: `${i + 1}개`, picture: 'apple' as PictureId, quantity: i + 1 })))
+    : shuffled(PICTURE_WORDS).map((item) => ({ character: category === 'hangul' ? item.name : item.english, label: item.name, picture: item.id as PictureId, quantity: 1 }));
+  return shuffled(source.slice(0, pairCount).flatMap((item, i) => [
+    { id: `char-${i}`, content: item.character, type: 'character' as const, matchId: String(i) },
+    { id: `label-${i}`, content: item.label, type: 'label' as const, matchId: String(i), picture: item.picture, quantity: item.quantity },
+  ]));
 }
 
 export default function MatchingGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [category, setCategory] = useState<LearningCategory>('numbers');
+  const { state: gameState, start, addScore, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'matching', category });
   const [cards, setCards] = useState<CardItem[]>([]);
   const [flipped, setFlipped] = useState<Set<string>>(new Set());
   const [matched, setMatched] = useState<Set<string>>(new Set());
@@ -68,8 +60,7 @@ export default function MatchingGamePage() {
     if (gameState === 'ready') {
       startGame();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [gameState, startGame]);
 
   const handleCardClick = useCallback((cardId: string) => {
     if (isChecking || flipped.has(cardId) || matched.has(cardId)) return;
@@ -136,18 +127,11 @@ export default function MatchingGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'matching',
-              category,
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">
@@ -210,7 +194,7 @@ export default function MatchingGamePage() {
                   'font-bold',
                   card.type === 'character' ? 'font-display text-2xl text-games' : 'text-sm text-text-dark',
                 )}>
-                  {card.content}
+                  {card.picture ? <span className="flex flex-wrap justify-center gap-0.5" aria-label={card.content}>{Array.from({ length: card.quantity ?? 1 }, (_, i) => <Picture key={i} id={card.picture!} className={(card.quantity ?? 1) > 1 ? 'h-6 w-6 sm:h-9 sm:w-9' : 'h-16 w-16 sm:h-20 sm:w-20'} />)}</span> : card.content}
                 </span>
               ) : (
                 <span className="text-2xl text-games/40">?</span>

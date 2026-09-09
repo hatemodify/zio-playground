@@ -5,7 +5,6 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration, UndoRedoControls } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { COLORING_CATEGORIES, pagesByCategory } from '@/data';
 import type { ColoringCategory, ColoringPage } from '@/data';
 import { cn } from '@/lib/cn';
@@ -51,10 +50,9 @@ function PagePreview({ page }: { page: ColoringPage }) {
 export default function ColoringGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, finish, reset: resetGame, score, calculateStars, earnedStickers } = useGameLogic({});
 
   const [category, setCategory] = useState<ColoringCategory>('animals');
+  const { state: gameState, start, finish, reset: resetGame, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'coloring', category: 'play' });
   const [page, setPage] = useState<ColoringPage | null>(null);
   const [showPicker, setShowPicker] = useState(true);
   const [selectedColor, setSelectedColor] = useState(PALETTE_COLORS[0]);
@@ -152,14 +150,6 @@ export default function ColoringGamePage() {
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'coloring',
-              category: 'numbers',
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">

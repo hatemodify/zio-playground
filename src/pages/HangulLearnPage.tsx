@@ -1,3 +1,5 @@
+import Picture from '@/components/games/Picture';
+import { PICTURE_WORDS } from '@/data/picture-content';
 import { useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -12,6 +14,8 @@ export default function HangulLearnPage() {
     if (!id) return undefined;
     return getHangulByCharacter(id);
   }, [id]);
+
+  const picture = PICTURE_WORDS.find((word) => word.id === item?.wordImage);
 
   const currentIndex = useMemo(() => {
     if (!item) return -1;
@@ -46,8 +50,6 @@ export default function HangulLearnPage() {
         id={item.id}
         character={item.character}
         category="hangul"
-        ttsText={item.name}
-        ttsLang="ko-KR"
         onNext={currentIndex < HANGUL_DATA.length - 1 ? handleNext : undefined}
         onPrev={currentIndex > 0 ? handlePrev : undefined}
         topContent={
@@ -67,7 +69,7 @@ export default function HangulLearnPage() {
         bottomContent={
           <div className="flex items-center gap-4 rounded-2xl bg-bg-soft p-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-hangul/15 text-2xl font-bold text-hangul">
-              {item.character}
+              {picture ? <Picture id={picture.id} label={picture.name} className="h-16 w-16" /> : item.character}
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-bold text-text-dark">{item.representativeWord}</span>

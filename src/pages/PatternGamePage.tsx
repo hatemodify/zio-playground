@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import Button from '@/components/ui/Button';
 import { RewardCelebration } from '@/components/features';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 // Sound handled by useGameLogic
 import { NUMBERS_DATA } from '@/data/numbers';
 import { HANGUL_DATA } from '@/data/hangul';
@@ -53,10 +52,9 @@ function generatePatternQuestions(category: LearningCategory, count: number): Pa
 
 export default function PatternGamePage() {
   const navigate = useNavigate();
-  const { recordGameScore } = useGamificationStore();
 
   const [category, setCategory] = useState<LearningCategory>('numbers');
-  const { state, score, start, addScore, wrongAnswer, finish, calculateStars } = useGameLogic();
+  const { state, score, start, addScore, wrongAnswer, finish, calculateStars, earnedStickers } = useGameLogic({ gameId: 'pattern', category });
 
   const TOTAL_QUESTIONS = 8;
   const [questions, setQuestions] = useState<PatternQuestion[]>([]);
@@ -101,17 +99,8 @@ export default function PatternGamePage() {
   }, [selectedAnswer, currentQuestion, currentIdx, score, addScore, wrongAnswer, finish]);
 
   const handleFinish = useCallback(() => {
-    const stars = calculateStars(score);
-    recordGameScore({
-      gameId: 'pattern',
-      category,
-      score,
-      stars,
-      completedAt: new Date().toISOString(),
-      duration: 0,
-    });
     navigate('/games');
-  }, [score, category, calculateStars, recordGameScore, navigate]);
+  }, [navigate]);
 
   return (
     <div className="flex flex-col gap-4 px-4 pb-6 pt-2">
@@ -239,6 +228,7 @@ export default function PatternGamePage() {
       {(state === 'success' || state === 'reward') && (
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={calculateStars(score)}
           message={`${score}문제 맞았어요!`}
           open={showReward}

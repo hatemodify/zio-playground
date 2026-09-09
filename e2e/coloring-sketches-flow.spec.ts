@@ -6,7 +6,7 @@ test.describe('Coloring (tap-to-fill) Flow', () => {
       localStorage.setItem(
         'kidsedu-settings',
         JSON.stringify({
-          state: { sfxEnabled: false, volume: 0.8, onboarded: true, dailyTimeLimit: 30 },
+          state: { sfxEnabled: false, volume: 0.8, onboarded: true },
           version: 1,
         })
       );

@@ -40,8 +40,6 @@ export default function NumberLearnPage() {
         id={item.id}
         character={item.character}
         category="numbers"
-        ttsText={item.koreanName}
-        ttsLang="ko-KR"
         onNext={numId < NUMBERS_MAX ? handleNext : undefined}
         onPrev={numId > 1 ? handlePrev : undefined}
         topContent={

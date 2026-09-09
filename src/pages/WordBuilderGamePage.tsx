@@ -5,7 +5,6 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { cn } from '@/lib/cn';
 
 interface WordPuzzle {
@@ -34,9 +33,8 @@ function getShuffledPuzzles(count: number): WordPuzzle[] {
 
 export default function WordBuilderGamePage() {
   const navigate = useNavigate();
+  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'word-builder' });
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [puzzles, setPuzzles] = useState<WordPuzzle[]>([]);
   const [currentP, setCurrentP] = useState(0);
@@ -65,8 +63,7 @@ export default function WordBuilderGamePage() {
     if (gameState === 'ready') {
       startGame();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [gameState, startGame]);
 
   const handleLetterClick = useCallback((letterIndex: number) => {
     if (feedback !== null) return;
@@ -149,18 +146,11 @@ export default function WordBuilderGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'word-builder',
-              category: 'hangul',
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">

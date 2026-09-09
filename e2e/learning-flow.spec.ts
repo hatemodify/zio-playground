@@ -6,7 +6,7 @@ test.describe('Learning Flow', () => {
       localStorage.setItem(
         'kidsedu-settings',
         JSON.stringify({
-          state: { sfxEnabled: true, ttsSpeed: 1, volume: 0.8, onboarded: true, dailyTimeLimit: 30 },
+          state: { sfxEnabled: true, volume: 0.8, onboarded: true },
           version: 1,
         })
       );
@@ -15,7 +15,7 @@ test.describe('Learning Flow', () => {
 
   test('should navigate from home to numbers list', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByText('숫자')).toBeVisible();
+    await expect(page.getByRole('button', { name: '숫자', exact: true })).toBeVisible();
     await page.locator('text=숫자').first().click();
     await expect(page).toHaveURL('/numbers');
   });

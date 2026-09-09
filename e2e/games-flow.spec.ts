@@ -6,7 +6,7 @@ test.describe('Games Flow', () => {
       localStorage.setItem(
         'kidsedu-settings',
         JSON.stringify({
-          state: { sfxEnabled: true, ttsSpeed: 1, volume: 0.8, onboarded: true, dailyTimeLimit: 30 },
+          state: { sfxEnabled: true, volume: 0.8, onboarded: true },
           version: 1,
         })
       );
@@ -37,9 +37,9 @@ test.describe('Games Flow', () => {
     await expect(page.getByText('순서 맞추기')).toBeVisible();
   });
 
-  test('should start balloon game', async ({ page }) => {
+  test('should redirect retired balloon game', async ({ page }) => {
     await page.goto('/games/balloon');
-    await expect(page.getByText('풍선 터뜨리기')).toBeVisible();
+    await expect(page).toHaveURL('/games');
   });
 
   test('should start coloring game', async ({ page }) => {

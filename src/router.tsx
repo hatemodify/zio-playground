@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense, type ComponentType } from 'react';
 import AppLayout from '@/components/ui/AppLayout';
 import PageLoading from '@/components/ui/PageLoading';
@@ -20,6 +20,10 @@ export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
+      { path: '/games/quiz', element: <Navigate to="/games" replace /> },
+      { path: '/games/speak', element: <Navigate to="/games" replace /> },
+      { path: '/games/balloon', element: <Navigate to="/games" replace /> },
+      { path: '/games/speed-quiz', element: <Navigate to="/games" replace /> },
       {
         path: '/',
         element: lazyPage(() => import('./pages/HomePage')),
@@ -52,6 +56,13 @@ export const router = createBrowserRouter([
         path: '/games',
         element: lazyPage(() => import('./pages/GamesListPage')),
       },
+      { path: '/games/vehicle-missions', element: lazyPage(() => import('./pages/DiscoveryGamePage')) },
+      { path: '/games/little-market', element: lazyPage(() => import('./pages/DiscoveryGamePage')) },
+      { path: '/games/animal-families', element: lazyPage(() => import('./pages/DiscoveryGamePage')) },
+      { path: '/games/picture-words', element: lazyPage(() => import('./pages/DiscoveryGamePage')) },
+      { path: '/games/pattern-garden', element: lazyPage(() => import('./pages/DiscoveryGamePage')) },
+      { path: '/games/rocket-ride', element: lazyPage(() => import('./pages/RocketRideGamePage')) },
+      { path: '/games/animal-playground', element: lazyPage(() => import('./pages/AnimalPlaygroundPage')) },
       {
         path: '/games/matching',
         element: lazyPage(() => import('./pages/MatchingGamePage')),
@@ -59,10 +70,6 @@ export const router = createBrowserRouter([
       {
         path: '/games/sorting',
         element: lazyPage(() => import('./pages/SortingGamePage')),
-      },
-      {
-        path: '/games/balloon',
-        element: lazyPage(() => import('./pages/BalloonGamePage')),
       },
       {
         path: '/games/coloring',
@@ -95,10 +102,6 @@ export const router = createBrowserRouter([
       {
         path: '/games/pattern',
         element: lazyPage(() => import('./pages/PatternGamePage')),
-      },
-      {
-        path: '/games/speed-quiz',
-        element: lazyPage(() => import('./pages/SpeedQuizGamePage')),
       },
       {
         path: '/games/memory-sequence',

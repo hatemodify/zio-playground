@@ -6,7 +6,7 @@ test.describe('Stickers Flow', () => {
       localStorage.setItem(
         'kidsedu-settings',
         JSON.stringify({
-          state: { sfxEnabled: true, ttsSpeed: 1, volume: 0.8, onboarded: true, dailyTimeLimit: 30 },
+          state: { sfxEnabled: true, volume: 0.8, onboarded: true },
           version: 1,
         })
       );

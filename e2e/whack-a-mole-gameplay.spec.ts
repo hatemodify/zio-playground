@@ -2,11 +2,12 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Whack-a-Mole Gameplay', () => {
   test.beforeEach(async ({ page }) => {
+    await page.clock.install();
     await page.addInitScript(() => {
       localStorage.setItem(
         'kidsedu-settings',
         JSON.stringify({
-          state: { sfxEnabled: true, ttsSpeed: 1, volume: 0.8, onboarded: true, dailyTimeLimit: 30 },
+          state: { sfxEnabled: true, volume: 0.8, onboarded: true },
           version: 1,
         })
       );
@@ -20,15 +21,15 @@ test.describe('Whack-a-Mole Gameplay', () => {
     // Score should start at 0
     await expect(page.getByText('0점')).toBeVisible();
 
-    // Timer should be counting down (starts at 30)
+    // Timer should be counting down (starts at 60)
     await expect(page.getByText(/\d+초/)).toBeVisible();
 
     // Wait a moment and verify timer changes
-    await page.waitForTimeout(1500);
+    await page.clock.runFor(1500);
     const timerText = await page.getByText(/\d+초/).textContent();
     expect(timerText).toBeTruthy();
     const seconds = parseInt(timerText!.replace('초', ''));
-    expect(seconds).toBeLessThan(30);
+    expect(seconds).toBeLessThan(60);
   });
 
   test('should display 3x3 hole grid with interactive buttons', async ({ page }) => {
@@ -46,7 +47,7 @@ test.describe('Whack-a-Mole Gameplay', () => {
     await expect(page.getByText('두더지 잡기')).toBeVisible();
 
     // Wait for moles to start spawning (500ms delay + spawn time)
-    await page.waitForTimeout(2000);
+    await page.clock.runFor(2000);
 
     // At least one hole should have content (emoji text) visible
     // Moles display vehicle emojis or bomb
@@ -68,7 +69,12 @@ test.describe('Whack-a-Mole Gameplay', () => {
     await expect(page.getByText('두더지 잡기')).toBeVisible();
 
     // Wait for the 30-second game to end + 1.5s transition to reward
-    await page.waitForTimeout(33000);
+    await expect(page.getByText('두더지 잡기', { exact: true })).toBeVisible();
+    const now = await page.evaluate(() => Date.now());
+    await page.clock.setSystemTime(new Date(now + 62000));
+    await page.clock.runFor(300);
+    await page.clock.runFor(1800);
+    await page.clock.resume();
 
     // Should show reward celebration or score result
     await expect(page.getByText(/마리 잡았어요/)).toBeVisible({ timeout: 5000 });

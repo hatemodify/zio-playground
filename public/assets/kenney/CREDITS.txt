@@ -1,0 +1,24 @@
+KidsEdu artwork credits
+Downloaded 2026-09-08 from the original creator. Selected files bundled locally for offline use.
+
+Kenney / Kenney Vleugels — Creative Commons Zero (CC0 1.0)
+License: https://creativecommons.org/publicdomain/zero/1.0/
+Each selected pack's original license text is included in its folder.
+
+animals/ — Animal Pack, round animal illustrations
+https://kenney.nl/assets/animal-pack
+
+food/ — Food Kit, rendered preview sprites (unmodified)
+https://kenney.nl/assets/food-kit
+
+space/ — Space Shooter Remastered, ships, star, meteor and background
+https://kenney.nl/assets/space-shooter-remastered
+
+cars/ — Racing Pack, top-down car sprites (renamed only)
+https://kenney.nl/assets/racing-pack
+
+Game layouts, CSS landscapes, and 14 original food SVG illustrations in /assets/illustrations/: KidsEdu project.
+No account, external runtime asset service, or paid asset is required.
+
+animals/ (additional animals) — Animal Pack Remastered, CC0
+https://kenney.nl/assets/animal-pack-remastered

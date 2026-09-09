@@ -5,15 +5,12 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { NUMBERS_DATA, HANGUL_CONSONANTS, ENGLISH_DATA } from '@/data';
 import { cn } from '@/lib/cn';
 import type { LearningCategory } from '@/types/learning';
 
 interface ShadowQuestion {
   character: string;
-  ttsText: string;
-  ttsLang: 'ko-KR' | 'en-US';
   options: { character: string; transform: string; isCorrect: boolean }[];
 }
 
@@ -26,13 +23,13 @@ const SHADOW_TRANSFORMS = [
 ];
 
 function generateShadowQuestions(category: LearningCategory, count: number): ShadowQuestion[] {
-  let source: { character: string; ttsText: string; ttsLang: 'ko-KR' | 'en-US' }[];
+  let source: { character: string }[];
   if (category === 'numbers') {
-    source = NUMBERS_DATA.map((n) => ({ character: n.character, ttsText: n.koreanName, ttsLang: 'ko-KR' as const }));
+    source = NUMBERS_DATA.map((n) => ({ character: n.character}));
   } else if (category === 'hangul') {
-    source = HANGUL_CONSONANTS.map((h) => ({ character: h.character, ttsText: h.name, ttsLang: 'ko-KR' as const }));
+    source = HANGUL_CONSONANTS.map((h) => ({ character: h.character}));
   } else {
-    source = ENGLISH_DATA.map((e) => ({ character: e.uppercase, ttsText: e.word, ttsLang: 'en-US' as const }));
+    source = ENGLISH_DATA.map((e) => ({ character: e.uppercase}));
   }
 
   const shuffled = [...source].sort(() => Math.random() - 0.5);
@@ -54,8 +51,6 @@ function generateShadowQuestions(category: LearningCategory, count: number): Sha
     const options = [correctOption, ...wrongOptions].sort(() => Math.random() - 0.5);
     questions.push({
       character: item.character,
-      ttsText: item.ttsText,
-      ttsLang: item.ttsLang,
       options,
     });
   }
@@ -66,10 +61,9 @@ function generateShadowQuestions(category: LearningCategory, count: number): Sha
 export default function ShadowGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [category, setCategory] = useState<LearningCategory>('numbers');
+  const { state: gameState, start, addScore, wrongAnswer, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'shadow', category });
   const [questions, setQuestions] = useState<ShadowQuestion[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
@@ -88,8 +82,7 @@ export default function ShadowGamePage() {
     if (gameState === 'ready') {
       startGame();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [gameState, startGame]);
 
   const handleOptionClick = useCallback((isCorrect: boolean) => {
     if (feedback !== null) return;
@@ -128,18 +121,11 @@ export default function ShadowGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'shadow',
-              category,
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">

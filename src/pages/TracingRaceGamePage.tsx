@@ -5,7 +5,6 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { NUMBERS_DATA, HANGUL_CONSONANTS, ENGLISH_DATA } from '@/data';
 import { cn } from '@/lib/cn';
 import type { LearningCategory } from '@/types/learning';
@@ -30,10 +29,9 @@ function getChallenges(category: LearningCategory, count: number): TracingChalle
 export default function TracingRaceGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [category, setCategory] = useState<LearningCategory>('numbers');
+  const { state: gameState, start, addScore, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'tracing-race', category });
   const [challenges, setChallenges] = useState<TracingChallenge[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [timeLeft, setTimeLeft] = useState(10);
@@ -62,8 +60,7 @@ export default function TracingRaceGamePage() {
     if (gameState === 'ready') {
       startGame();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [gameState, startGame]);
 
   // Timer countdown
   useEffect(() => {
@@ -202,18 +199,11 @@ export default function TracingRaceGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'tracing-race',
-              category,
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">

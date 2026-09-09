@@ -2,11 +2,12 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Game Reward & Sticker System', () => {
   test.beforeEach(async ({ page }) => {
+    await page.clock.install();
     await page.addInitScript(() => {
       localStorage.setItem(
         'kidsedu-settings',
         JSON.stringify({
-          state: { sfxEnabled: true, ttsSpeed: 1, volume: 0.8, onboarded: true, dailyTimeLimit: 30 },
+          state: { sfxEnabled: true, volume: 0.8, onboarded: true },
           version: 1,
         })
       );
@@ -17,8 +18,13 @@ test.describe('Game Reward & Sticker System', () => {
     test.setTimeout(45000);
     await page.goto('/games/whack-a-mole');
 
-    // Wait for game to complete (30s + buffer)
-    await page.waitForTimeout(33000);
+    // Wait for game to complete (60s + buffer)
+    await expect(page.getByText('두더지 잡기', { exact: true })).toBeVisible();
+    const now = await page.evaluate(() => Date.now());
+    await page.clock.setSystemTime(new Date(now + 62000));
+    await page.clock.runFor(300);
+    await page.clock.runFor(1800);
+    await page.clock.resume();
 
     // RewardCelebration should show "게임 클리어!" title
     await expect(page.getByText('게임 클리어!')).toBeVisible({ timeout: 5000 });
@@ -37,7 +43,12 @@ test.describe('Game Reward & Sticker System', () => {
     await page.goto('/games/whack-a-mole');
 
     // Wait for game to complete
-    await page.waitForTimeout(33000);
+    await expect(page.getByText('두더지 잡기', { exact: true })).toBeVisible();
+    const now = await page.evaluate(() => Date.now());
+    await page.clock.setSystemTime(new Date(now + 62000));
+    await page.clock.runFor(300);
+    await page.clock.runFor(1800);
+    await page.clock.resume();
 
     // Reward should be visible
     await expect(page.getByText('게임 클리어!')).toBeVisible({ timeout: 5000 });
@@ -54,8 +65,13 @@ test.describe('Game Reward & Sticker System', () => {
     test.setTimeout(45000);
     await page.goto('/games/whack-a-mole');
 
-    // Wait for game to end (30s game + 1.5s transition)
-    await page.waitForTimeout(33000);
+    // Wait for game to end (60s game + 1.5s transition)
+    await expect(page.getByText('두더지 잡기', { exact: true })).toBeVisible();
+    const now = await page.evaluate(() => Date.now());
+    await page.clock.setSystemTime(new Date(now + 62000));
+    await page.clock.runFor(300);
+    await page.clock.runFor(1800);
+    await page.clock.resume();
 
     // Should show reward screen with default game complete message
     await expect(page.getByText('게임 클리어!')).toBeVisible({ timeout: 5000 });
@@ -77,7 +93,12 @@ test.describe('Game Reward & Sticker System', () => {
   test('should navigate from game completion back to games list', async ({ page }) => {
     test.setTimeout(45000);
     await page.goto('/games/whack-a-mole');
-    await page.waitForTimeout(33000);
+    await expect(page.getByText('두더지 잡기', { exact: true })).toBeVisible();
+    const now = await page.evaluate(() => Date.now());
+    await page.clock.setSystemTime(new Date(now + 62000));
+    await page.clock.runFor(300);
+    await page.clock.runFor(1800);
+    await page.clock.resume();
 
     // Dismiss reward
     await expect(page.getByText('게임 클리어!')).toBeVisible({ timeout: 5000 });

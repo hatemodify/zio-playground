@@ -5,7 +5,6 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { NUMBERS_DATA, HANGUL_CONSONANTS, ENGLISH_DATA } from '@/data';
 import { cn } from '@/lib/cn';
 import type { LearningCategory } from '@/types/learning';
@@ -41,10 +40,9 @@ function generatePuzzle(category: LearningCategory, pieceCount: number): PuzzleP
 export default function PuzzleGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [category, setCategory] = useState<LearningCategory>('numbers');
+  const { state: gameState, start, addScore, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'puzzle', category });
   const [pieces, setPieces] = useState<PuzzlePiece[]>([]);
   const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
   const [moves, setMoves] = useState(0);
@@ -72,8 +70,7 @@ export default function PuzzleGamePage() {
     if (gameState === 'ready') {
       startGame();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [gameState, startGame]);
 
   const checkSolved = useCallback((currentPieces: PuzzlePiece[]) => {
     return currentPieces.every((p) => p.currentPos === p.correctPos);
@@ -130,18 +127,11 @@ export default function PuzzleGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'puzzle',
-              category,
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">

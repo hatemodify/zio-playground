@@ -16,17 +16,16 @@ function getGreeting(): string {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { getCompletionPercentage } = useProgressStore();
+  const progressItems = useProgressStore((s) => s.items);
   const { streak } = useGamificationStore();
   const nickname = useProgressStore((s) => s.nickname);
 
-  const numbersProgress = Math.round(getCompletionPercentage('numbers') / 100 * 10);
-  const hangulProgress = Math.round(getCompletionPercentage('hangul') / 100 * 24);
-  const englishProgress = Math.round(getCompletionPercentage('english') / 100 * 26);
+  const numbersProgress = Object.values(progressItems).filter((item) => item.category === 'numbers' && item.completed).length;
+  const hangulProgress = Object.values(progressItems).filter((item) => item.category === 'hangul' && item.completed).length;
+  const englishProgress = Object.values(progressItems).filter((item) => item.category === 'english' && item.completed).length;
 
   const recommendations = useMemo(() => {
     const items: { id: string; character: string; category: LearningCategory; label?: string }[] = [];
-    const progressItems = useProgressStore.getState().items;
 
     for (const num of NUMBERS_DATA) {
       if (!progressItems[num.id]?.completed) {
@@ -47,7 +46,7 @@ export default function HomePage() {
     // Shuffle and take up to 5
     const shuffled = items.sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 5);
-  }, []);
+  }, [progressItems]);
 
   const handleCategoryClick = useCallback((route: string) => {
     navigate(route);

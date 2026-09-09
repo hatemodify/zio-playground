@@ -5,16 +5,14 @@ import Button from '@/components/ui/Button';
 import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
-import { useGamificationStore } from '@/stores/gamification-store';
 import { NUMBERS_DATA, HANGUL_CONSONANTS, ENGLISH_DATA } from '@/data';
 import { cn } from '@/lib/cn';
 import type { LearningCategory } from '@/types/learning';
 
 export default function SortingGamePage() {
   const navigate = useNavigate();
+  const { state: gameState, start, addScore, finish, reset, score, calculateStars, earnedStickers } = useGameLogic({ gameId: 'sorting' });
   const { play } = useSound();
-  const { recordGameScore } = useGamificationStore();
-  const { state: gameState, start, addScore, finish, reset, score, calculateStars } = useGameLogic({});
 
   const [category] = useState<LearningCategory>('numbers');
   const [round, setRound] = useState(0);
@@ -56,8 +54,7 @@ export default function SortingGamePage() {
     if (gameState === 'ready') {
       startGame();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [gameState, startGame]);
 
   const handleItemClick = useCallback((index: number) => {
     if (shuffledItems[index].placed) return;
@@ -117,18 +114,11 @@ export default function SortingGamePage() {
       <div className="flex flex-col items-center gap-6 px-4 pt-8  h-full justify-center">
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={finalStars}
           open={showReward}
           onDismiss={() => {
             setShowReward(false);
-            recordGameScore({
-              gameId: 'sorting',
-              category,
-              score,
-              stars: finalStars,
-              completedAt: new Date().toISOString(),
-              duration: 0,
-            });
           }}
         />
         <div className="flex gap-3 pt-4">

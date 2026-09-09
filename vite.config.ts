@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/*.svg', 'sounds/*.mp3'],
+      includeAssets: ['icons/*.svg', 'assets/kenney/**/*.png', 'assets/illustrations/*.svg'],
       manifest: {
         name: '키즈에듀 - 유아 학습',
         short_name: '키즈에듀',
@@ -62,6 +62,7 @@ export default defineConfig({
       },
     }),
   ],
+  build: { rollupOptions: { output: { manualChunks: { animation: ['motion'], validation: ['zod'] } } } },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

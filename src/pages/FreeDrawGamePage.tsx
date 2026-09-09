@@ -31,9 +31,11 @@ const MAX_BACKING = 2400;
 export default function FreeDrawGamePage() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { addStars, recordGameScore } = useGamificationStore();
+  const { completeGame } = useGamificationStore();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const runId = useRef(crypto.randomUUID());
+  const [earnedStickers, setEarnedStickers] = useState<string[]>([]);
   const strokeRef = useRef<DrawStroke | null>(null);
   const { ref: stageRef, size: stage } = useElementSize<HTMLDivElement>();
 
@@ -106,17 +108,17 @@ export default function FreeDrawGamePage() {
 
   const handleComplete = useCallback(() => {
     play('confetti');
-    addStars(2);
-    recordGameScore({
+    setEarnedStickers(completeGame({
+      runId: runId.current,
       gameId: 'free-draw',
-      category: 'numbers',
+      category: 'play',
       score: 1,
       stars: 2,
       completedAt: new Date().toISOString(),
       duration: 0,
-    });
+    }));
     setShowReward(true);
-  }, [play, addStars, recordGameScore]);
+  }, [play, completeGame]);
 
   const handleDismissReward = useCallback(() => {
     setShowReward(false);
@@ -197,6 +199,7 @@ export default function FreeDrawGamePage() {
       {showReward && (
         <RewardCelebration
           type="game_complete"
+          newStickers={earnedStickers}
           stars={2}
           message="멋진 그림이에요!"
           open={showReward}

@@ -1,3 +1,5 @@
+> 과거 작업 기록입니다. 현재 구현 및 검증 방법은 README.md를 참고하세요.
+
 # QA Report — KidsEdu (zio-edu)
 
 **Date**: 2026-03-18

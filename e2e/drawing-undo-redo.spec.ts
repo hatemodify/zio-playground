@@ -32,7 +32,7 @@ test.describe('Drawing Undo/Redo', () => {
       localStorage.setItem(
         'kidsedu-settings',
         JSON.stringify({
-          state: { sfxEnabled: false, ttsSpeed: 1, volume: 0, onboarded: true, dailyTimeLimit: 30 },
+          state: { sfxEnabled: false, volume: 0, onboarded: true },
           version: 1,
         })
       );
