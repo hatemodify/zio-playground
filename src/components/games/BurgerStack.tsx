@@ -2,8 +2,12 @@ import { motion } from 'motion/react';
 import { INGREDIENTS, type IngredientId } from '@/data/recipes';
 
 export function IngredientPicture({ id, className = '' }: { id: IngredientId; className?: string }) {
-  const added = ['bread', 'dough', 'sauce', 'mushroom', 'pancake', 'cream', 'strawberry', 'banana', 'syrup'].includes(id);
-  return <img src={`/assets/illustrations/${added ? 'food' : 'burger'}-${id}.svg`} alt="" draggable={false} className={`select-none object-contain ${className}`} />;
+  const assetNames: Partial<Record<IngredientId, string>> = {
+    bread: 'food-bread', dough: 'food-dough', sauce: 'food-sauce', mushroom: 'food-mushroom',
+    pancake: 'food-pancake', cream: 'food-cream', strawberry: 'food-strawberry', banana: 'food-banana', syrup: 'food-syrup',
+    broccoli: 'broccoli', carrot: 'carrot', corn: 'corn', apple: 'apple', grapes: 'grapes', orange: 'orange', pumpkin: 'pumpkin',
+  };
+  return <img src={`/assets/illustrations/${assetNames[id] ?? `burger-${id}`}.svg`} alt="" draggable={false} className={`select-none object-contain ${className}`} />;
 }
 export default function BurgerStack({ layers, compact = false }: { layers: IngredientId[]; compact?: boolean }) {
   return <div className={`burger-stage ${compact ? 'burger-stage-compact' : ''}`}>

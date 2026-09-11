@@ -45,9 +45,12 @@ for (const [difficulty, rounds] of [['처음 해요', 3], ['할 수 있어요', 
 
 test('creative burger supports any recipe, undo and the ten-layer limit', async ({ page }) => {
   await page.goto('/games/food-stack');
-    await page.getByRole('button', { name: '햄버거', exact: true }).click();
+  await page.getByRole('button', { name: '햄버거', exact: true }).click();
   await page.getByRole('button', { name: '내 마음대로 만들기' }).click();
   await page.getByRole('button', { name: '같이 시작하기' }).click();
+  const ingredientChoices = page.getByRole('group', { name: '재료 고르기' }).getByRole('button');
+  expect(await ingredientChoices.count()).toBeGreaterThanOrEqual(10);
+  await expect(page.getByRole('button', { name: '브로콜리 놓기', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '내 음식 완성' })).toBeDisabled();
   for (let i = 0; i < 10; i++) await page.getByRole('button', { name: '치즈 놓기', exact: true }).click();
   await expect(page.getByRole('button', { name: '치즈 놓기', exact: true })).toBeDisabled();
