@@ -201,6 +201,12 @@ body {
 .paint-color { width: 42px; height: 42px; border: 4px solid white; border-radius: 50%; box-shadow: 0 2px 5px #0002, inset 0 -4px 0 #0001; touch-action: manipulation; }
 .paint-color-selected { outline: 3px solid #376e65; outline-offset: 2px; }
 .paint-color[style*="#FFFFFF"] { border-color: #d9e0e8; }
+.paint-custom-color { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #607d78; font-size: 11px; font-weight: 800; line-height: 1; cursor: pointer; }
+.paint-custom-color input { width: 42px; height: 42px; padding: 0; border: 4px solid white; border-radius: 50%; background: conic-gradient(#ff6b6b, #ffd93d, #53d39b, #74c9f5, #a29bfe, #ff6b6b); box-shadow: 0 2px 5px #0002; cursor: pointer; }
+.paint-custom-color input::-webkit-color-swatch-wrapper { padding: 0; }
+.paint-custom-color input::-webkit-color-swatch { border: 0; border-radius: 50%; }
+.paint-custom-color > span { margin-top: -31px; margin-bottom: 20px; color: white; font-size: 18px; line-height: 1; text-shadow: 0 1px 2px #0006; pointer-events: none; }
+.paint-custom-color small { white-space: nowrap; }
 .region-chip { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 7px 12px; border-radius: 12px; background: white; font-size: 12px; font-weight: 700; color: #625e55; }
 .region-chip span { width: 14px; height: 14px; border-radius: 50%; }
 .finished-art { width: min(100%, 400px); padding: 25px; border: 12px solid #ecd5b5; border-radius: 8px; background: #fffdf8; box-shadow: 0 12px 35px #66513620, inset 0 0 0 1px #e2d8c8; }
@@ -230,7 +236,7 @@ body {
 .festival-balloon::after { position: absolute; content: ''; bottom: -15px; width: 2px; height: 15px; background: #fff7; }
 .festival-note { display: flex; width: 52px; height: 62px; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; color: white; font-size: 24px; }.festival-note small { font-size: 11px; font-weight: 800; }
 @media (min-width: 640px) { .painting-stage { padding-top: 45px; }.studio-badge { position: absolute; top: 24px; right: 24px; }.festival-screen { padding: 26px; }.festival-controls { gap: 25px; } }
-@media (max-width: 639px) { .paint-color-grid { grid-template-columns: repeat(6, minmax(34px, 1fr)); gap: 9px 8px; }.paint-color { width: 39px; height: 39px; } }
+@media (max-width: 639px) { .paint-color-grid { grid-template-columns: repeat(6, minmax(34px, 1fr)); gap: 9px 8px; }.paint-color { width: 39px; height: 39px; }.paint-custom-color input { width: 39px; height: 39px; } }
 @media (prefers-reduced-motion: reduce) { .celebration-rays { animation: none; }.art-studio *, .festival-cabinet * { scroll-behavior: auto; transition: none !important; } }
 @media (max-width: 639px) {
   .adventure-page:has(.festival-cabinet) { gap: 12px; }

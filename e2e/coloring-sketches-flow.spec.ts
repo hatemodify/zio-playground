@@ -49,6 +49,19 @@ test.describe('Coloring (tap-to-fill) Flow', () => {
 
     const colors = page.locator('button[aria-label^="색상"]');
     expect(await colors.count()).toBeGreaterThanOrEqual(18);
+    await expect(page.getByLabel('내 색 만들기')).toBeVisible();
+  });
+
+  test('can mix a custom color for any region', async ({ page }) => {
+    await openFirstPage(page);
+
+    const customColor = page.getByLabel('내 색 만들기');
+    await customColor.fill('#123456');
+    await expect(customColor).toHaveValue('#123456');
+
+    const firstRegion = page.locator('svg path[role="button"]').first();
+    await firstRegion.press('Enter');
+    await expect(firstRegion).toHaveAttribute('fill', '#123456');
   });
 
   test('tapping a region fills it, and undo reverts it', async ({ page }) => {
