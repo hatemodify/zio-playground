@@ -8,7 +8,26 @@ import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
 import { COLORING_CATEGORIES, COLORING_PAGES, pagesByCategory, type ColoringCategory, type ColoringPage } from '@/data';
 
-const COLORS = ['#FF6B81', '#FF9F43', '#FFD93D', '#2ED573', '#4A90D9', '#A29BFE', '#FF9FF3', '#8B5E3C'];
+const COLORS = [
+  { name: '체리 레드', value: '#E6495B' },
+  { name: '산호 핑크', value: '#FF7B7B' },
+  { name: '살구 오렌지', value: '#FF9F43' },
+  { name: '레몬 옐로', value: '#FFD93D' },
+  { name: '민트 그린', value: '#53D39B' },
+  { name: '숲 그린', value: '#2F9E70' },
+  { name: '하늘 블루', value: '#74C9F5' },
+  { name: '바다 블루', value: '#4A90D9' },
+  { name: '라벤더', value: '#A29BFE' },
+  { name: '보라', value: '#7950F2' },
+  { name: '사랑 핑크', value: '#FF9FF3' },
+  { name: '장미 핑크', value: '#E64980' },
+  { name: '코코아 브라운', value: '#8B5E3C' },
+  { name: '머드 브라운', value: '#A9825A' },
+  { name: '크림', value: '#FFF1C1' },
+  { name: '구름 회색', value: '#D7DEE8' },
+  { name: '차콜', value: '#495057' },
+  { name: '눈꽃 흰색', value: '#FFFFFF' },
+];
 type Fills = Record<string, string>;
 export default function ColoringGamePage() {
   const navigate = useNavigate();
@@ -16,7 +35,7 @@ export default function ColoringGamePage() {
   const game = useGameLogic({ gameId: 'coloring', category: 'play' });
   const [category, setCategory] = useState<ColoringCategory>('animals');
   const [page, setPage] = useState<ColoringPage | null>(null);
-  const [color, setColor] = useState(COLORS[0]);
+  const [color, setColor] = useState(COLORS[0].value);
   const [history, setHistory] = useState<Fills[]>([{}]);
   const [cursor, setCursor] = useState(0);
   const [showReward, setShowReward] = useState(true);
@@ -57,7 +76,7 @@ export default function ColoringGamePage() {
     <div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-2"><button className="rounded-xl bg-white px-3 py-2 text-sm font-bold text-teal-700" aria-label="다른 그림 선택" onClick={back}>← 다른 그림</button><h1 className="text-xl font-extrabold text-slate-800">{page.name}</h1></div><UndoRedoControls canUndo={cursor > 0} canRedo={cursor < history.length - 1} onUndo={() => setCursor(cursor - 1)} onRedo={() => setCursor(cursor + 1)} /></div>
     <div className="flex items-center gap-3"><progress aria-label="색칠 진행" value={filled} max={page.regions.length} className="h-2 flex-1 accent-teal-600" /><span className="text-sm font-bold text-teal-700">{filled}/{page.regions.length}</span></div>
     <div className="painting-stage"><div className="art-reference"><img src={page.source} alt={`${page.name} 완성 예시`} /><span>이렇게 칠해도 좋아요</span></div><ColoringArtwork page={page} fills={fills} onFill={paint} className="coloring-canvas" /></div>
-    <div className="paint-toolbox"><p className="mb-3 text-center text-sm font-bold text-slate-600">색을 고르고 그림을 톡!</p><div className="flex flex-wrap justify-center gap-3">{COLORS.map((item) => <button key={item} className={`paint-color ${item === color ? 'paint-color-selected' : ''}`} style={{ background: item }} onClick={() => setColor(item)} aria-label={`색상 ${item}`} aria-pressed={item === color} />)}</div></div>
+    <div className="paint-toolbox"><p className="mb-3 text-center text-sm font-bold text-slate-600">원하는 색을 골라 그림을 톡!</p><div className="paint-color-grid">{COLORS.map((item) => <button key={item.value} className={`paint-color ${item.value === color ? 'paint-color-selected' : ''}`} style={{ background: item.value }} onClick={() => setColor(item.value)} aria-label={`색상 ${item.name}`} aria-pressed={item.value === color}><span className="sr-only">{item.name}</span></button>)}</div><p className="mt-3 text-center text-xs font-semibold text-slate-400">파스텔부터 진한 색까지 {COLORS.length}가지</p></div>
     <div className="flex flex-wrap justify-center gap-2" role="group" aria-label="작은 영역 칠하기">{page.regions.map((region) => <button key={region.id} onClick={() => paint(region.id)} className="region-chip" aria-label={`${region.label} 색 채우기`}><span style={{ background: fills[region.id] ?? '#E7E5E4' }} />{region.label}{fills[region.id] && ' ✓'}</button>)}</div>
     <Button variant="ghost" size="sm" onClick={() => { setHistory([{}]); setCursor(0); }}>다시 칠하기</Button>
   </div>;

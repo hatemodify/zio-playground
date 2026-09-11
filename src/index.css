@@ -197,8 +197,10 @@ body {
 .art-reference { position: absolute; top: 12px; right: 14px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 16px; background: #f1ede4; }
 .art-reference img { width: 42px; height: 42px; }.art-reference span { font-size: 11px; font-weight: 700; color: #84765e; }
 .paint-toolbox { border-radius: 22px; background: white; padding: 15px; box-shadow: 0 3px 0 #e7e2d8; }
+.paint-color-grid { display: grid; grid-template-columns: repeat(9, minmax(28px, 1fr)); justify-items: center; gap: 10px 8px; max-width: 620px; margin: 0 auto; }
 .paint-color { width: 42px; height: 42px; border: 4px solid white; border-radius: 50%; box-shadow: 0 2px 5px #0002, inset 0 -4px 0 #0001; touch-action: manipulation; }
 .paint-color-selected { outline: 3px solid #376e65; outline-offset: 2px; }
+.paint-color[style*="#FFFFFF"] { border-color: #d9e0e8; }
 .region-chip { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 7px 12px; border-radius: 12px; background: white; font-size: 12px; font-weight: 700; color: #625e55; }
 .region-chip span { width: 14px; height: 14px; border-radius: 50%; }
 .finished-art { width: min(100%, 400px); padding: 25px; border: 12px solid #ecd5b5; border-radius: 8px; background: #fffdf8; box-shadow: 0 12px 35px #66513620, inset 0 0 0 1px #e2d8c8; }
@@ -228,6 +230,7 @@ body {
 .festival-balloon::after { position: absolute; content: ''; bottom: -15px; width: 2px; height: 15px; background: #fff7; }
 .festival-note { display: flex; width: 52px; height: 62px; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; color: white; font-size: 24px; }.festival-note small { font-size: 11px; font-weight: 800; }
 @media (min-width: 640px) { .painting-stage { padding-top: 45px; }.studio-badge { position: absolute; top: 24px; right: 24px; }.festival-screen { padding: 26px; }.festival-controls { gap: 25px; } }
+@media (max-width: 639px) { .paint-color-grid { grid-template-columns: repeat(6, minmax(34px, 1fr)); gap: 9px 8px; }.paint-color { width: 39px; height: 39px; } }
 @media (prefers-reduced-motion: reduce) { .celebration-rays { animation: none; }.art-studio *, .festival-cabinet * { scroll-behavior: auto; transition: none !important; } }
 @media (max-width: 639px) {
   .adventure-page:has(.festival-cabinet) { gap: 12px; }

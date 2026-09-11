@@ -35,7 +35,7 @@ test.describe('Coloring (tap-to-fill) Flow', () => {
     expect(await thumbnails.count()).toBeGreaterThan(0);
   });
 
-  test('starts a coloring page with fillable regions and 8 colors', async ({ page }) => {
+  test('starts a coloring page with fillable regions and a rich palette', async ({ page }) => {
     await openFirstPage(page);
 
     await expect(page.getByRole('button', { name: '다른 그림 선택' })).toBeVisible();
@@ -48,7 +48,7 @@ test.describe('Coloring (tap-to-fill) Flow', () => {
     await expect(page.getByText(/^0\/\d+$/)).toBeVisible();
 
     const colors = page.locator('button[aria-label^="색상"]');
-    expect(await colors.count()).toBe(8);
+    expect(await colors.count()).toBeGreaterThanOrEqual(18);
   });
 
   test('tapping a region fills it, and undo reverts it', async ({ page }) => {
