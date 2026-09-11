@@ -35,6 +35,8 @@ export const GAME_CONFIGS: GameConfig[] = [
     difficulties: { easy: { label: '처음 해요', questionCount: 6 }, normal: { label: '할 수 있어요', questionCount: 8 }, hard: { label: '자신 있어요', questionCount: 10 } },
     unlockThreshold: 0, rules: [...game.instructions],
   })),
+  { id: 'daruma', name: '톡! 톡! 달마치기', description: '망치로 블록을 쏙 빼고 달마의 균형을 지켜요!', icon: 'star', kind: 'play', focus: '타이밍 · 집중 · 균형', isNew: true, categories: [], difficulties: { easy: { label: '처음 해요', itemCount: 5 }, normal: { label: '할 수 있어요', itemCount: 7 }, hard: { label: '자신 있어요', itemCount: 9 } }, unlockThreshold: 0, rules: ['초록 구간일 때 망치를 눌러요.', '블록을 모두 빼내면 성공해요.'] },
+  { id: 'mini-festival', name: '팡팡! 미니게임 축제', description: '세 버튼으로 색깔 풍선·로켓 충전·무지개 암호에 도전!', icon: 'star', kind: 'play', focus: '순발력 · 순서 · 반응', isNew: true, categories: [], difficulties: { easy: { label: '느긋하게' }, normal: { label: '신나게' }, hard: { label: '빠르게' } }, unlockThreshold: 0, rules: ['세 버튼이나 A·S·D 키로 놀아요.', '세 가지 짧은 미션에 도전해요.'] },
   { id: 'rocket-ride', name: '반짝 우주 비행', description: '우주선을 움직여 별을 모으는 짜릿한 여행', icon: 'rocket', kind: 'play', focus: '반응 · 놀이', isNew: true, categories: [],
     difficulties: { easy: { label: '느긋하게' }, normal: { label: '신나게' }, hard: { label: '빠르게' } }, unlockThreshold: 0, rules: ['좌우 버튼이나 방향키로 이동해요.', '별을 모으고 운석을 피해요.'] },
   { id: 'animal-playground', name: '상상 마을 놀이터', description: '탈것과 동물로 도로와 공사장을 꾸며요', icon: 'excavator', kind: 'play', focus: '꾸미기 · 자유 놀이', isNew: true, categories: [],
@@ -80,7 +82,7 @@ export const GAME_CONFIGS: GameConfig[] = [
     id: 'coloring',
     kind: 'play',
     name: '색칠하기',
-    description: '예쁜 색으로 글자를 색칠해 보세요!',
+    description: '컬러 도안 40종으로 나만의 작품을 만들어요!',
     icon: 'palette',
     categories: ['numbers', 'hangul', 'english'],
     difficulties: {
@@ -91,8 +93,8 @@ export const GAME_CONFIGS: GameConfig[] = [
     unlockThreshold: 0,
     rules: [
       '아래에서 좋아하는 색을 골라요',
-      '글자 위를 터치하면 색이 칠해져요',
-      '완성하면 갤러리에 저장돼요!',
+      '그림이나 영역 이름을 누르면 색이 칠해져요',
+      '완성한 작품을 감상해요!',
     ],
   },
   {
@@ -440,8 +442,8 @@ export const GAME_CONFIGS: GameConfig[] = [
   },
   {
     id: 'food-stack',
-    name: '차곡차곡 햄버거 가게',
-    description: '주문서를 보고 아랫빵부터 재료를 쌓고 손님께 드려요!',
+    name: '맛있는 음식 만들기',
+    description: '피자·샌드위치·팬케이크·햄버거를 직접 만들어요!',
     kind: 'learning', focus: '순서 · 관찰 · 기억', isNew: true,
     icon: 'burger',
     categories: [],

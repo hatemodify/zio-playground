@@ -1,5 +1,5 @@
-import { useEffect, useCallback, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence, MotionConfig, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/cn';
 import { getStickerById } from '@/data/stickers';
 import CharacterDdori from './CharacterDdori';
@@ -51,33 +51,10 @@ const celebrationConfig: Record<CelebrationType, {
 
 function ConfettiParticle({ index }: { index: number }) {
   const colors = ['#FFD93D', '#FF6B81', '#4A90D9', '#2ED573', '#A29BFE', '#FF9FF3'];
-  const color = colors[index % colors.length];
-  const x = Math.random() * 300 - 150;
-  const delay = Math.random() * 0.5;
-  const rotation = Math.random() * 720 - 360;
-  const size = 6 + Math.random() * 6;
-
-  return (
-    <motion.div
-      className="absolute rounded-sm"
-      style={{
-        width: size,
-        height: size * 0.6,
-        backgroundColor: color,
-        left: '50%',
-        top: '40%',
-      }}
-      initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 0 }}
-      animate={{
-        x,
-        y: [0, -80, 200],
-        rotate: rotation,
-        opacity: [0, 1, 1, 0],
-        scale: [0, 1, 1, 0.5],
-      }}
-      transition={{ duration: 2.5, delay, ease: 'easeOut' }}
-    />
-  );
+  return <motion.div className="absolute rounded-sm" style={{ width: 8 + index % 7, height: 8 + index % 4, backgroundColor: colors[index % colors.length], left: `${(index * 37) % 100}%`, top: '-5%', borderRadius: index % 3 === 0 ? '50%' : 2 }}
+    initial={{ y: '-5vh', rotate: 0, opacity: 0 }}
+    animate={{ x: [0, (index % 2 ? 1 : -1) * 60, 0], y: '110vh', rotate: index * 43, opacity: [0, 1, 1, 0] }}
+    transition={{ duration: 2.8 + (index % 4) * 0.3, delay: (index % 12) * 0.06, ease: 'easeOut' }} />;
 }
 
 export default function RewardCelebration({
@@ -87,12 +64,17 @@ export default function RewardCelebration({
   message,
   open,
   onDismiss,
-  autoDismissMs = 3000,
+  autoDismissMs = 4500,
   newStickers,
 }: RewardCelebrationProps) {
-  const [confettiKeys] = useState(() =>
-    Array.from({ length: 30 }, (_, i) => i),
-  );
+  const reducedMotion = useReducedMotion();
+  const continueRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    continueRef.current?.focus();
+    return () => { if (previous?.isConnected) previous.focus(); };
+  }, [open]);
 
   const config = celebrationConfig[type];
   const displayStars = stars ?? config.starCount;
@@ -109,35 +91,42 @@ export default function RewardCelebration({
   }, [open, handleAutoDismiss]);
 
   return (
-    <AnimatePresence>
+    <MotionConfig reducedMotion="user"><AnimatePresence>
       {open && (
         <motion.div
           className="fixed inset-0 z-[60] flex items-center justify-center p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          role="dialog" aria-modal="true" aria-label={config.title}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') onDismiss();
+            if (event.key === 'Tab') { event.preventDefault(); continueRef.current?.focus(); }
+          }}
           onClick={onDismiss}
         >
           {/* Overlay */}
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-slate-950/65 backdrop-blur-md" />
 
           {/* Confetti */}
-          {(type === 'tracing_complete' || type === 'level_up' || type === 'game_complete') && (
+          {!reducedMotion && (
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
-              {confettiKeys.map((i) => (
+              {Array.from({ length: 72 }, (_, i) => i).map((i) => (
                 <ConfettiParticle key={i} index={i} />
               ))}
             </div>
           )}
 
+          {!reducedMotion && <div className="celebration-rays" aria-hidden="true" />}
           {/* Content */}
           <motion.div
-            className="relative z-10 flex flex-col items-center gap-4"
+            className="relative z-10 flex max-h-[90dvh] flex-col items-center gap-4 overflow-y-auto rounded-[36px] border border-white/20 bg-white/10 px-7 py-6 shadow-2xl"
             initial={{ scale: 0.5, y: 50 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.5, y: 50 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           >
+            <span className="rounded-full bg-amber-300 px-4 py-1 text-xs font-extrabold tracking-widest text-amber-950">YOU DID IT!</span>
             {/* Character */}
             <CharacterDdori
               expression={config.expression}
@@ -235,16 +224,12 @@ export default function RewardCelebration({
             </motion.p>
 
             {/* Tap to continue */}
-            <motion.span
-              className="mt-2 text-sm text-white/60"
-              animate={{ opacity: [0.4, 0.8, 0.4] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
+            <button ref={continueRef} className="mt-2 min-h-12 rounded-2xl bg-white px-6 py-3 text-sm font-extrabold text-teal-800 shadow-lg" onClick={(event) => { event.stopPropagation(); onDismiss(); }}>
               탭하여 계속하기
-            </motion.span>
+            </button>
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence></MotionConfig>
   );
 }

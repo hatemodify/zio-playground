@@ -3,6 +3,8 @@ import type { Point } from '@/types/canvas';
 
 export interface DrawStroke {
   color: string;
+  /** Locally decoded illustration for a stamp action. */
+  stamp?: HTMLImageElement;
   /** Line width as a fraction of canvas width, so a stroke survives any resize. */
   widthRatio: number;
   alpha?: number;
@@ -30,6 +32,13 @@ function renderStroke(
   const lineWidth = widthRatio * width;
 
   ctx.save();
+  if (stroke.stamp) {
+    const size = widthRatio * width;
+    const ratio = stroke.stamp.naturalHeight / stroke.stamp.naturalWidth;
+    ctx.drawImage(stroke.stamp, points[0].x * width - size / 2, points[0].y * height - size * ratio / 2, size, size * ratio);
+    ctx.restore();
+    return;
+  }
   ctx.globalAlpha = alpha;
   ctx.strokeStyle = color;
   ctx.fillStyle = color;

@@ -12,7 +12,7 @@ async function gameState(page: Page) {
 test('catalog has illustrated additions and no audio-first games', async ({ page }) => {
   await page.goto('/games');
   await page.getByRole('button', { name: '새로운 탐험', exact: true }).click();
-  for (const title of ['꼬마 장보기', '동물 탐험대', '그림 단어 공방', '규칙 정원', '반짝 우주 비행', '상상 마을 놀이터', '출동! 탈것 마을', '차곡차곡 햄버거 가게']) {
+  for (const title of ['꼬마 장보기', '동물 탐험대', '그림 단어 공방', '규칙 정원', '반짝 우주 비행', '상상 마을 놀이터', '출동! 탈것 마을', '맛있는 음식 만들기']) {
     await expect(page.getByRole('button', { name: title, exact: true })).toBeVisible();
   }
   await expect(page.getByRole('button', { name: '풍선 터뜨리기', exact: true })).toHaveCount(0);

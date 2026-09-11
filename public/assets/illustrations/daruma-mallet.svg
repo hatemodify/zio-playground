@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+ <defs><linearGradient id="wood" x2="1" y2="1"><stop stop-color="#ffdc94"/><stop offset="1" stop-color="#bc793f"/></linearGradient></defs>
+ <rect x="51" y="36" width="19" height="80" rx="8" fill="url(#wood)" stroke="#976139" stroke-width="3"/>
+ <path d="M58 62v41" stroke="#f1c282" stroke-width="3" stroke-linecap="round"/>
+ <rect x="14" y="9" width="89" height="47" rx="15" fill="url(#wood)" stroke="#976139" stroke-width="3"/>
+ <ellipse cx="22" cy="32" rx="12" ry="23" fill="#ffe5b1" stroke="#976139" stroke-width="3"/>
+ <ellipse cx="22" cy="32" rx="6" ry="14" fill="none" stroke="#ddb47e" stroke-width="2"/>
+ <path d="M43 19h43M43 26h23" stroke="#ffebc4" stroke-width="3" stroke-linecap="round"/>
+</svg>

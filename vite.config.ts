@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/*.svg', 'assets/kenney/**/*.png', 'assets/illustrations/*.svg'],
+      includeAssets: ['icons/*.svg', 'assets/kenney/**/*.png', 'assets/illustrations/*.svg', 'assets/twemoji/*.svg', 'assets/twemoji/CREDITS.md', 'assets/twemoji/LICENSE-GRAPHICS'],
       manifest: {
         name: '키즈에듀 - 유아 학습',
         short_name: '키즈에듀',

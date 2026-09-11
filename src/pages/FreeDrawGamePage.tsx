@@ -22,6 +22,8 @@ const COLORS = [
   { name: '흰색', value: '#FFFFFF' },
 ];
 
+const STAMPS = [{ id: 'cat', name: '고양이' }, { id: 'butterfly', name: '나비' }, { id: 'turtle', name: '거북이' }, { id: 'rocket', name: '로켓' }, { id: 'sunflower', name: '해바라기' }, { id: 'rainbow', name: '무지개' }];
+
 const BRUSH_SIZES = [4, 8, 16, 24];
 
 /** Backing-store pixels per CSS pixel, and a ceiling so huge screens stay sane. */
@@ -42,6 +44,16 @@ export default function FreeDrawGamePage() {
   const [selectedColor, setSelectedColor] = useState(COLORS[4].value);
   const [brushSize, setBrushSize] = useState(8);
   const [showReward, setShowReward] = useState(false);
+  const [stamp, setStamp] = useState<string | null>(null);
+  const [stampImages, setStampImages] = useState<Record<string, HTMLImageElement>>({});
+  useEffect(() => {
+    let active = true;
+    STAMPS.forEach(({ id }) => {
+      const image = new Image(); image.src = `/assets/twemoji/${id}.svg`;
+      image.decode().then(() => { if (active) setStampImages((old) => ({ ...old, [id]: image })); }).catch(() => {});
+    });
+    return () => { active = false; };
+  }, []);
 
   // The canvas takes the whole stage — every pixel the toolbars don't need.
   const displayWidth = Math.max(0, Math.floor(stage.width));
@@ -83,6 +95,11 @@ export default function FreeDrawGamePage() {
 
   const startDraw = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
+    if (showReward) return;
+    if (stamp && stampImages[stamp]) {
+      commit({ color: selectedColor, stamp: stampImages[stamp], widthRatio: Math.min(displayWidth, displayHeight) * 0.26 / displayWidth, points: [getPoint(e)] });
+      play('drag_drop'); return;
+    }
     e.currentTarget.setPointerCapture(e.pointerId);
     strokeRef.current = {
       color: selectedColor,
@@ -91,7 +108,7 @@ export default function FreeDrawGamePage() {
       points: [getPoint(e)],
     };
     preview(strokeRef.current);
-  }, [getPoint, preview, selectedColor, brushSize, displayWidth]);
+  }, [getPoint, preview, selectedColor, brushSize, displayWidth, displayHeight, stamp, stampImages, commit, play, showReward]);
 
   const draw = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const stroke = strokeRef.current;
@@ -138,6 +155,11 @@ export default function FreeDrawGamePage() {
         </div>
       </div>
 
+      <div className="flex shrink-0 items-center gap-2 overflow-x-auto rounded-2xl bg-white p-2" role="group" aria-label="그리기 도구">
+        <button className="shrink-0 rounded-xl px-3 py-2 text-sm font-bold text-teal-700" aria-pressed={!stamp} onClick={() => setStamp(null)}>연필 ✎</button>
+        {STAMPS.map((item) => <button key={item.id} disabled={!stampImages[item.id]} aria-label={`${item.name} 스탬프`} aria-pressed={stamp === item.id} onClick={() => setStamp(item.id)} className={`shrink-0 rounded-xl border-2 p-1 ${stamp === item.id ? 'border-teal-500 bg-teal-50' : 'border-transparent'}`}><img src={`/assets/twemoji/${item.id}.svg`} alt="" className="h-9 w-9" /></button>)}
+        <span className="shrink-0 text-xs text-slate-500">{stamp ? '도화지를 톡 눌러요!' : '그림 스탬프도 찍어봐요'}</span>
+      </div>
       {/* Canvas — fills every pixel the toolbars leave behind */}
       <div ref={stageRef} className="min-h-0 flex-1">
         {/* Always mounted: the init effect needs the element, and unmounting on a
@@ -164,7 +186,7 @@ export default function FreeDrawGamePage() {
                 selectedColor === color.value ? 'scale-125 border-text-dark' : 'border-gray-200',
               )}
               style={{ backgroundColor: color.value }}
-              onClick={() => setSelectedColor(color.value)}
+              onClick={() => { setSelectedColor(color.value); setStamp(null); }}
               aria-label={color.name}
             />
           ))}

@@ -8,6 +8,7 @@ test.beforeEach(async ({ page }) => {
 for (const [difficulty, rounds] of [['처음 해요', 3], ['할 수 있어요', 4], ['자신 있어요', 5]] as const) {
   test(`burger orders build bottom-up, recover errors and save once: ${difficulty}`, async ({ page }) => {
     await page.goto('/games/food-stack');
+    await page.getByRole('button', { name: '햄버거', exact: true }).click();
     await page.getByRole('button', { name: difficulty }).click();
     await page.getByRole('button', { name: '같이 시작하기' }).click();
     for (let round = 0; round < rounds; round++) {
@@ -44,15 +45,16 @@ for (const [difficulty, rounds] of [['처음 해요', 3], ['할 수 있어요', 
 
 test('creative burger supports any recipe, undo and the ten-layer limit', async ({ page }) => {
   await page.goto('/games/food-stack');
+    await page.getByRole('button', { name: '햄버거', exact: true }).click();
   await page.getByRole('button', { name: '내 마음대로 만들기' }).click();
   await page.getByRole('button', { name: '같이 시작하기' }).click();
-  await expect(page.getByRole('button', { name: '내 버거 완성' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '내 음식 완성' })).toBeDisabled();
   for (let i = 0; i < 10; i++) await page.getByRole('button', { name: '치즈 놓기', exact: true }).click();
   await expect(page.getByRole('button', { name: '치즈 놓기', exact: true })).toBeDisabled();
   await page.getByRole('button', { name: '한 칸 되돌리기' }).click();
   await page.getByRole('button', { name: '윗빵 놓기' }).click();
-  await page.getByRole('button', { name: '내 버거 완성' }).click();
-  await expect(page.getByRole('heading', { name: '나만의 버거가 완성됐어요!' })).toBeVisible();
+  await page.getByRole('button', { name: '내 음식 완성' }).click();
+  await expect(page.getByRole('heading', { name: '나만의 음식이 완성됐어요!' })).toBeVisible();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('kidsedu-gamification')!).state);
   expect(saved.gameRecords).toHaveLength(1);
   expect(saved.gameRecords[0]).toMatchObject({ gameId: 'food-stack', score: 1, category: 'play', stars: 3 });

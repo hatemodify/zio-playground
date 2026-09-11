@@ -25,6 +25,8 @@ export type GameId =
   | 'number-order'
   | 'vehicle-missions'
   | 'food-stack'
+  | 'mini-festival'
+  | 'daruma'
   | 'little-market'
   | 'animal-families'
   | 'picture-words'

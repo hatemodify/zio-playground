@@ -2,3 +2,8 @@ Original vector illustrations authored for KidsEdu.
 Vehicle and burger SVG source: scripts/generate-play-assets.mjs
 No external fonts, emoji glyphs, remote images or paid assets required.
 Existing animal and space art: ../kenney/CREDITS.txt
+
+food-*.svg: original food ingredient illustrations for KidsEdu; fruit and mushroom variants reuse existing local vector illustrations.
+Twemoji menu and coloring artwork is separately credited in ../twemoji/CREDITS.md (CC BY 4.0).
+
+daruma.svg and daruma-mallet.svg: original vector toy illustrations authored for KidsEdu.

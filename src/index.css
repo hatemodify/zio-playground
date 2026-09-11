@@ -184,3 +184,92 @@ body {
 @media (min-width: 640px) { .burger-layer { margin-top: -22px; } .burger-stage { min-height: 275px; } }
 .scene-town { background: linear-gradient(180deg, #cce7ec 0 28%, #dee8d7 28% 35%, #e9d5b1 35% 62%, #809499 62% 68%, #f8ecc5 68% 70%, #809499 70% 76%, #e9d5b1 76%); }
 .scene-construction { background: linear-gradient(180deg, #d4e9e9 0 30%, #ead4a8 30% 66%, #dab981 66%); }
+
+/* Art studio: paper, framed artwork and tactile painting tools. */
+.art-studio { background: #f7f4ed; }
+.studio-heading { position: relative; padding: 22px; border-radius: 24px; background: linear-gradient(115deg, #e5efea, #f4ecd9); }
+.studio-badge { display: inline-block; margin-top: 12px; padding: 6px 12px; border-radius: 20px; background: #fff9; color: #42796b; font-size: 11px; font-weight: 800; }
+.art-card { overflow: hidden; display: flex; flex-direction: column; align-items: center; border: 1px solid #e9e4d9; border-radius: 22px; background: white; box-shadow: 0 5px 0 #e5dfd4; touch-action: manipulation; }
+.art-thumbnail { display: flex; width: 100%; justify-content: center; padding: 16px; }
+.art-tone-0 { background: #e7f0ee; }.art-tone-1 { background: #f9ebd7; }.art-tone-2 { background: #eee9f6; }.art-tone-3 { background: #eaf0df; }
+.painting-stage { position: relative; display: flex; justify-content: center; padding: 82px 18px 24px; border: 1px solid #e9e2d6; border-radius: 28px; background: radial-gradient(circle at 50% 65%, #fff 15%, #fffcf4 75%); box-shadow: inset 0 0 0 7px #fff8, 0 5px 0 #e6dfd3; }
+.coloring-canvas { width: min(100%, 370px); height: auto; overflow: visible; filter: drop-shadow(0 7px 3px #55432215); touch-action: manipulation; }
+.art-reference { position: absolute; top: 12px; right: 14px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 16px; background: #f1ede4; }
+.art-reference img { width: 42px; height: 42px; }.art-reference span { font-size: 11px; font-weight: 700; color: #84765e; }
+.paint-toolbox { border-radius: 22px; background: white; padding: 15px; box-shadow: 0 3px 0 #e7e2d8; }
+.paint-color { width: 42px; height: 42px; border: 4px solid white; border-radius: 50%; box-shadow: 0 2px 5px #0002, inset 0 -4px 0 #0001; touch-action: manipulation; }
+.paint-color-selected { outline: 3px solid #376e65; outline-offset: 2px; }
+.region-chip { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 7px 12px; border-radius: 12px; background: white; font-size: 12px; font-weight: 700; color: #625e55; }
+.region-chip span { width: 14px; height: 14px; border-radius: 50%; }
+.finished-art { width: min(100%, 400px); padding: 25px; border: 12px solid #ecd5b5; border-radius: 8px; background: #fffdf8; box-shadow: 0 12px 35px #66513620, inset 0 0 0 1px #e2d8c8; }
+.studio-pill { border-radius: 20px; background: #e0ebe4; padding: 6px 14px; color: #42796b; font-size: 11px; font-weight: 800; letter-spacing: 2px; }
+.celebration-rays { pointer-events: none; position: absolute; width: 140vmax; height: 140vmax; border-radius: 50%; background: repeating-conic-gradient(from 0deg, #ffda6b22 0deg 12deg, transparent 12deg 30deg); mask-image: radial-gradient(circle, #000, transparent 68%); animation: celebration-spin 24s linear infinite; }
+@keyframes celebration-spin { to { transform: rotate(360deg); } }
+.food-menu-card { display: flex; min-height: 135px; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 2px solid #ece8de; border-radius: 20px; background: #fffaf0; color: #79552d; font-size: 14px; font-weight: 800; }
+.food-menu-selected { border-color: #318778; background: #ebf5ef; box-shadow: 0 3px 0 #318778; }
+.pizza-stage { position: relative; width: 100%; aspect-ratio: 1; max-width: 310px; margin: auto; }
+.pizza-plate { position: absolute; inset: 7%; border: 8px solid #e5eae6; border-radius: 50%; background: #fffef5; box-shadow: 0 8px 0 #d3c8b2; }
+.pizza-layer { position: absolute; inset: 12%; }
+.pizza-dough { position: absolute; inset: 0; border: 8px solid #e0a351; border-radius: 50%; background: #ffdc91; box-shadow: 0 3px 0 #b17a3e; }
+.pizza-sauce { position: absolute; inset: 7%; border-radius: 47% 50% 45% 48%; background: #db5b3e; }
+.pizza-cheese { position: absolute; inset: 10%; border-radius: 47% 43% 49% 44%; background: #fbd66f; box-shadow: inset 0 0 15px #f9af3a; }
+.pizza-toppings { position: absolute; inset: 4%; }
+.pizza-topping { position: absolute; width: 35%; height: 28%; object-fit: contain; filter: drop-shadow(0 2px 1px #5c2d1833); }
+.pizza-spot-0 { left: 12%; top: 15%; transform: rotate(-15deg); }.pizza-spot-1 { right: 9%; top: 19%; transform: rotate(24deg); }.pizza-spot-2 { left: 32%; top: 39%; }.pizza-spot-3 { left: 12%; bottom: 9%; transform: rotate(-30deg); }.pizza-spot-4 { right: 8%; bottom: 9%; transform: rotate(15deg); }
+.pizza-herb { width: 24%; height: 15%; margin-left: 8%; margin-top: 8%; }
+.festival-cabinet { overflow: hidden; border: 4px solid #4a447b; border-radius: 30px; background: #655d9a; box-shadow: 0 8px 0 #3d365e; }
+.festival-marquee { display: flex; justify-content: space-between; gap: 12px; padding: 18px; background: #41385f; color: #ffe2a2; font-size: 12px; font-weight: 900; letter-spacing: 2px; }
+.festival-screen { margin: 14px; padding: 18px; overflow: hidden; border: 5px solid #3a3457; border-radius: 24px; background: radial-gradient(ellipse at top, #313c72, #151a36); }
+.festival-start { min-height: 48px; padding: 12px 25px; border-radius: 16px; background: #ffda83; box-shadow: 0 4px 0 #c29649; color: #564027; font-weight: 900; }
+.festival-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 440px; margin: 20px auto; padding: 0 20px; }
+.festival-button { display: flex; aspect-ratio: 1; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 4px solid #fff4; border-radius: 50%; color: #fff; font-size: 13px; font-weight: 900; box-shadow: 0 7px 0 #29213b, inset 0 -7px 0 #0002, inset 0 3px 0 #fff5; touch-action: manipulation; user-select: none; }
+.festival-button:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 2px 0 #29213b, inset 0 3px 0 #0002; }.festival-button:disabled { opacity: .4; }.festival-button kbd { font-size: 11px; opacity: .8; }
+.festival-balloon { position: relative; display: flex; width: 116px; height: 140px; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border-radius: 50% 50% 47% 47%; color: white; font-size: 45px; font-weight: 900; box-shadow: inset -12px -10px 0 #0001, inset 10px 7px 0 #fff2, 0 10px 30px #0003; }
+.festival-balloon::after { position: absolute; content: ''; bottom: -15px; width: 2px; height: 15px; background: #fff7; }
+.festival-note { display: flex; width: 52px; height: 62px; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; color: white; font-size: 24px; }.festival-note small { font-size: 11px; font-weight: 800; }
+@media (min-width: 640px) { .painting-stage { padding-top: 45px; }.studio-badge { position: absolute; top: 24px; right: 24px; }.festival-screen { padding: 26px; }.festival-controls { gap: 25px; } }
+@media (prefers-reduced-motion: reduce) { .celebration-rays { animation: none; }.art-studio *, .festival-cabinet * { scroll-behavior: auto; transition: none !important; } }
+@media (max-width: 639px) {
+  .adventure-page:has(.festival-cabinet) { gap: 12px; }
+  .festival-marquee { padding: 12px 16px; }
+  .festival-screen { margin: 10px; padding: 12px; border-width: 4px; }
+  .festival-screen .min-h-52 { min-height: 174px; }
+  .festival-screen .min-h-60 { min-height: 205px; }
+  .festival-balloon { width: 100px; height: 118px; }
+  .festival-controls { margin: 14px auto; }
+}
+.art-studio progress { appearance: none; overflow: hidden; border: 0; border-radius: 10px; background: #e5e2d8; }
+.art-studio progress::-webkit-progress-bar { border-radius: 10px; background: #e5e2d8; }
+.art-studio progress::-webkit-progress-value { border-radius: 10px; background: #398776; }
+.art-studio progress::-moz-progress-bar { border-radius: 10px; background: #398776; }
+
+/* Wooden daruma toy, with a fixed floor and a falling stack. */
+.daruma-intro-art { position: relative; display: flex; width: 220px; margin: 10px auto; flex-direction: column; align-items: center; padding: 10px; }
+.daruma-intro-art > img:first-child { width: 108px; height: 108px; }
+.daruma-mini-block { width: 90px; height: 18px; border-radius: 8px; background: #71b6db; box-shadow: inset 0 -4px 0 #0001; }
+.daruma-mini-block + .daruma-mini-block { background: #ef9d54; }.daruma-intro-mallet { position: absolute; right: 0; bottom: 8px; width: 72px; height: 72px; transform: rotate(-35deg); }
+.daruma-workshop { overflow: hidden; border: 2px solid #e7d3b7; border-radius: 28px; background: #fffaf0; box-shadow: 0 6px 0 #dcc4a3; }
+.daruma-scoreboard { display: flex; min-height: 48px; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px; background: #f2e3cd; color: #6c5035; font-size: 12px; font-weight: 800; }
+.daruma-scoreboard [aria-label] { color: #d65059; font-size: 21px; letter-spacing: 2px; }
+.daruma-stage { position: relative; height: 330px; overflow: hidden; background: radial-gradient(ellipse at 20% 100%, #cedfc4 0 25%, transparent 26%), radial-gradient(ellipse at 95% 110%, #b7d3bc 0 32%, transparent 33%), linear-gradient(#eaf3ee, #f8efd9); }
+.daruma-sun { position: absolute; top: 30px; right: 12%; width: 65px; height: 65px; border-radius: 50%; background: #f8d992; box-shadow: 0 0 0 12px #f8d99225; }
+.daruma-cloud { position: absolute; left: 10%; top: 48px; width: 78px; height: 23px; border-radius: 30px; background: #fff9; }.daruma-cloud::after { content: ''; position: absolute; bottom: 6px; left: 16px; width: 38px; height: 34px; border-radius: 50%; background: #fff9; }
+.daruma-platform { position: absolute; bottom: 16px; left: 12%; width: 76%; height: 22px; border: 2px solid #c5a072; border-radius: 50%; background: #e9c99a; box-shadow: 0 7px 0 #ba925f; }
+.daruma-tower { position: absolute; bottom: 35px; left: calc(50% - 48px); width: 96px; transform-origin: bottom center; }
+.daruma-doll { display: block; width: 104px; height: 104px; max-width: none; margin: 0 -4px -5px; }
+.daruma-block { position: relative; width: 96px; height: 21px; border: 1px solid #71492b33; border-radius: 8px / 7px; box-shadow: inset 0 3px 0 #fff4, inset 0 -4px 0 #0001, 0 1px 0 #76503344; }
+.daruma-block::after { position: absolute; content: ''; left: 12%; right: 12%; top: 5px; border-top: 1px solid #fff3; }
+.daruma-block span { display: block; text-align: center; font-size: 11px; line-height: 19px; font-weight: 900; color: #302817; }
+.daruma-block-target { outline: 2px solid #fffbdd; outline-offset: 2px; }
+.daruma-block-target::before { content: '◀'; position: absolute; left: -22px; top: 1px; color: #1b7c69; font-size: 16px; }
+.daruma-ejected { position: absolute; bottom: 35px; left: calc(50% - 48px); z-index: 3; }
+.daruma-mallet { position: absolute; bottom: 12px; left: calc(50% - 133px); width: 88px; height: 88px; transform-origin: 60% 85%; }
+.daruma-mallet-right { left: auto; right: calc(50% - 133px); scale: -1 1; }
+.daruma-burst { position: absolute; bottom: 100px; left: calc(50% + 58px); padding: 5px 12px; border: 2px solid #d79b38; border-radius: 12px; background: #ffe7a8; color: #92532d; font-size: 25px; font-weight: 900; rotate: 12deg; }
+.daruma-pause { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; background: #edf3eaeF; color: #326e60; }
+.daruma-feedback { display: grid; min-height: 46px; align-items: center; padding: 9px 14px; text-align: center; font-size: 13px; font-weight: 800; color: #765233; }
+.daruma-controls { padding: 8px 18px 16px; }.daruma-meter { position: relative; height: 30px; border: 3px solid #e0c5a3; border-radius: 12px; background: #f4dcae; }
+.daruma-sweet-spot { position: absolute; inset-block: 0; display: grid; place-items: center; background: #5eab8c; color: white; font-weight: 900; }
+.daruma-needle { position: absolute; top: -7px; bottom: -7px; width: 5px; border: 1px solid white; border-radius: 5px; background: #633b39; transform: translateX(-50%); box-shadow: 0 2px 3px #0002; }
+.daruma-hit-button { min-height: 52px; border: 2px solid #b88149; border-radius: 16px; background: linear-gradient(#f8d69b, #e8b777); box-shadow: 0 4px 0 #ac7843; color: #603b24; font-size: 13px; font-weight: 900; touch-action: manipulation; }.daruma-hit-button:disabled { opacity: .45; box-shadow: none; }.daruma-hit-button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #ac7843; }
+@media (min-width: 640px) { .daruma-stage { height: 410px; }.daruma-tower { left: calc(50% - 62px); width: 124px; }.daruma-doll { width: 132px; height: 132px; }.daruma-block { width: 124px; height: 26px; }.daruma-block span { line-height: 24px; }.daruma-ejected { left: calc(50% - 62px); }.daruma-mallet { left: calc(50% - 170px); width: 108px; height: 108px; }.daruma-mallet-right { left: auto; right: calc(50% - 170px); }.daruma-controls { max-width: 620px; margin: auto; padding-bottom: 22px; } }

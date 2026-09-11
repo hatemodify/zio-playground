@@ -20,14 +20,16 @@ test.describe('Coloring (tap-to-fill) Flow', () => {
     await expect(page.locator('svg path[role="button"]').first()).toBeVisible();
   }
 
-  test('shows the four category tabs and page thumbnails', async ({ page }) => {
+  test('shows the five category tabs and page thumbnails', async ({ page }) => {
     await page.goto('/games/coloring');
     await expect(page.getByText('그림을 골라봐!')).toBeVisible();
 
     await expect(page.getByRole('button', { name: /동물 카테고리/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /탈것 카테고리/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /자연 카테고리/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /기타 카테고리/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /장난감 카테고리/ })).toBeVisible();
+
+    await expect(page.getByRole('button', { name: /음식 카테고리/ })).toBeVisible();
 
     const thumbnails = page.locator('button[aria-label$="색칠하기"]');
     expect(await thumbnails.count()).toBeGreaterThan(0);
@@ -55,7 +57,7 @@ test.describe('Coloring (tap-to-fill) Flow', () => {
     const firstRegion = page.locator('svg path[role="button"]').first();
     const fillBefore = await firstRegion.getAttribute('fill');
 
-    await firstRegion.click();
+    await firstRegion.press('Enter');
     const fillAfter = await firstRegion.getAttribute('fill');
     expect(fillAfter).not.toBe(fillBefore);
     // Progress advanced past 0.
@@ -70,7 +72,7 @@ test.describe('Coloring (tap-to-fill) Flow', () => {
   test('filling every region completes the picture', async ({ page }) => {
     await openFirstPage(page);
 
-    const regions = page.locator('svg path[role="button"]');
+    const regions = page.getByRole('group', { name: '작은 영역 칠하기' }).getByRole('button');
     const count = await regions.count();
     for (let i = 0; i < count; i += 1) {
       await regions.nth(i).click();

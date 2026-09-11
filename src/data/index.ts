@@ -30,7 +30,7 @@ export {
 export type { StrokePoint, CharacterStroke, StrokeData } from './stroke-paths';
 
 export { COLORING_PAGES, COLORING_CATEGORIES, pagesByCategory } from './coloring-pages';
-export type { ColoringPage, ColoringCategory, ColoringRegion, ColoringDetail } from './coloring-pages';
+export type { ColoringPage, ColoringCategory, ColoringRegion } from './coloring-pages';
 
 export { INGREDIENTS, RECIPES, paletteFor } from './recipes';
 export type { Ingredient, Recipe } from './recipes';
