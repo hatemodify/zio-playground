@@ -13,7 +13,7 @@ export interface ProgressItem {
 
 export const CATEGORY_TOTALS: Record<LearningCategory, number> = {
   numbers: 50,
-  hangul: 24,
+  hangul: 164, // 14 consonants + 10 vowels + 140 basic syllables
   english: 26,
 } as const;
 

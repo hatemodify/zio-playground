@@ -253,6 +253,17 @@ body {
 .art-studio progress::-moz-progress-bar { border-radius: 10px; background: #398776; }
 
 /* Wooden daruma toy, with a fixed floor and a falling stack. */
+.daruma-stage-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 12px 16px; background: #46786b; color: white; font-size: 14px; }
+.daruma-stage.daruma-scene-beach { background: radial-gradient(ellipse at 50% 125%, #f4dca5 0 45%, transparent 46%), linear-gradient(#c5e8f4 50%, #72c3c7 51%); }
+.daruma-stage.daruma-scene-night { background: radial-gradient(circle at 15% 25%, #fff5ba 0 2px, transparent 3px), radial-gradient(circle at 72% 40%, #fff5ba 0 2px, transparent 3px), linear-gradient(#303c65, #7d87ae); }
+.daruma-scene-night .daruma-sun { background: #fff3bd; box-shadow: 0 0 25px #fff3bd66; }
+.daruma-scene-night .daruma-cloud { opacity: .3; }
+.hangul-composer { padding: 16px; border-radius: 22px; background: #f2ecfb; width: 100%; }
+.hangul-equation { display: flex; align-items: center; justify-content: center; gap: 10px; color: #74648b; font-size: 22px; font-weight: 800; }
+.hangul-equation span, .hangul-equation strong { padding: 8px 14px; border-radius: 14px; background: #f2ecfb; color: #70509a; }
+.hangul-part { min-height: 44px; border-radius: 10px; background: white; color: #70509a; font-size: 20px; font-weight: 800; }
+.hangul-part[aria-pressed=true] { background: #70509a; color: white; }
+@media (min-width: 640px) { .daruma-stage .daruma-mallet { left: calc(50% - 170px); width: 108px; height: 108px; } }
 .daruma-intro-art { position: relative; display: flex; width: 220px; margin: 10px auto; flex-direction: column; align-items: center; padding: 10px; }
 .daruma-intro-art > img:first-child { width: 108px; height: 108px; }
 .daruma-mini-block { width: 90px; height: 18px; border-radius: 8px; background: #71b6db; box-shadow: inset 0 -4px 0 #0001; }

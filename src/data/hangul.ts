@@ -1,6 +1,6 @@
 import type { LearningCategory } from '@/types/learning';
 
-export type HangulType = 'consonant' | 'vowel';
+export type HangulType = 'consonant' | 'vowel' | 'syllable';
 
 export interface HangulItem {
   id: string;
@@ -10,6 +10,8 @@ export interface HangulItem {
   representativeWord: string;
   wordImage: string;
   category: LearningCategory;
+  consonant?: string;
+  vowel?: string;
 }
 
 export const HANGUL_CONSONANTS: HangulItem[] = [
@@ -42,7 +44,21 @@ export const HANGUL_VOWELS: HangulItem[] = [
   { id: 'hangul-ㅣ', character: 'ㅣ', name: '이', type: 'vowel', representativeWord: '이빨', wordImage: 'tooth', category: 'hangul' },
 ];
 
-export const HANGUL_DATA: HangulItem[] = [...HANGUL_CONSONANTS, ...HANGUL_VOWELS];
+// Unicode uses 19 initial consonants and 21 vowels, including doubled/compound forms.
+const INITIALS = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+const MEDIALS = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ';
+export const HANGUL_SYLLABLES: HangulItem[] = HANGUL_VOWELS.flatMap((vowel) =>
+  HANGUL_CONSONANTS.map((consonant) => {
+    const character = String.fromCharCode(0xAC00 + (INITIALS.indexOf(consonant.character) * 21 + MEDIALS.indexOf(vowel.character)) * 28);
+    return {
+      id: `hangul-${character}`, character, name: character, type: 'syllable',
+      consonant: consonant.character, vowel: vowel.character,
+      representativeWord: `${consonant.character} + ${vowel.character}`, wordImage: '', category: 'hangul',
+    };
+  }),
+);
+
+export const HANGUL_DATA: HangulItem[] = [...HANGUL_CONSONANTS, ...HANGUL_VOWELS, ...HANGUL_SYLLABLES];
 
 export function getHangulById(id: string): HangulItem | undefined {
   return HANGUL_DATA.find((item) => item.id === id);

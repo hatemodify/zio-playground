@@ -4,6 +4,7 @@ import { AdventureFrame, AdventureIntro, type Difficulty } from '@/components/ga
 import { RewardCelebration } from '@/components/features';
 import { useGameLogic } from '@/hooks/use-game-logic';
 import { useSound } from '@/hooks/use-sound';
+import { shuffled } from '@/data/picture-content';
 
 const LEVELS = {
   easy: { blocks: 5 },
@@ -21,18 +22,28 @@ const COLORS = [
 type ColorId = typeof COLORS[number]['id'];
 interface Block { id: number; color: ColorId }
 interface Hit { id: number; color: ColorId; good: boolean }
-const COLOR_PATTERN: ColorId[] = ['red', 'blue', 'green', 'yellow', 'purple', 'pink', 'green', 'red', 'yellow'];
+const STAGES = [
+  { id: 'garden', name: '무지개 정원' },
+  { id: 'beach', name: '조개빛 바닷가' },
+  { id: 'night', name: '별빛 밤하늘' },
+];
+type Stage = typeof STAGES[number] & { blocks: Block[] };
 
 function colorInfo(id: ColorId) {
   return COLORS.find((color) => color.id === id) ?? COLORS[0];
 }
 function buildBlocks(count: number): Block[] {
-  return Array.from({ length: count }, (_, id) => ({ id, color: COLOR_PATTERN[id % COLOR_PATTERN.length] }));
+  const colors = shuffled(COLORS);
+  return shuffled(Array.from({ length: count }, (_, id) => ({ id, color: colors[id % colors.length].id })));
 }
 
 export default function DarumaGamePage() {
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [stages, setStages] = useState<Stage[]>([]);
+  const [stageIndex, setStageIndex] = useState(0);
+  const [stageCleared, setStageCleared] = useState(false);
+  const [totalMisses, setTotalMisses] = useState(0);
   const [misses, setMisses] = useState(0);
   const [hit, setHit] = useState<Hit | null>(null);
   const [paused, setPaused] = useState(false);
@@ -47,17 +58,19 @@ export default function DarumaGamePage() {
   const { play } = useSound();
   const reducedMotion = useReducedMotion();
   const level = LEVELS[difficulty];
+  const stage = stages[stageIndex];
+  const totalBlocks = stages.reduce((total, item) => total + item.blocks.length, 0);
   const finished = game.state === 'success' || game.state === 'reward';
   const target = blocks[0];
-  const active = game.state === 'playing' && !paused && !fallen && !hit && !!target;
+  const active = game.state === 'playing' && !stageCleared && !paused && !fallen && !hit && !!target;
 
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
   useEffect(() => {
-    if (!active) return;
+    if (game.state !== 'playing' || stageCleared || fallen) return;
     const hide = () => { if (document.hidden) setPaused(true); };
     document.addEventListener('visibilitychange', hide);
     return () => document.removeEventListener('visibilitychange', hide);
-  }, [active]);
+  }, [game.state, stageCleared, fallen]);
 
   const chooseColor = useCallback((color: ColorId) => {
     if (!active || lock.current || !target) return;
@@ -72,15 +85,19 @@ export default function DarumaGamePage() {
     } else {
       const nextMisses = misses + 1;
       setMisses(nextMisses);
+      setTotalMisses((value) => value + 1);
       play('wrong');
       setMessage(`${colorInfo(color).label}은(는) 아니에요. 달마 아래 블록과 같은 색을 찾아요.`);
       if (nextMisses >= 3) { setFallen(true); setMessage('색을 세 번 놓쳤어요. 달마가 넘어졌어요!'); }
     }
     timer.current = setTimeout(() => {
       setHit(null); lock.current = false;
-      if (good && nextBlocks.length === 0) finish(Math.max(1, level.blocks - misses));
+      if (good && nextBlocks.length === 0) {
+        if (stageIndex + 1 === stages.length) finish(Math.max(1, totalBlocks - totalMisses));
+        else { setStageCleared(true); play('confetti'); }
+      }
     }, reducedMotion ? 120 : 520);
-  }, [active, blocks, finish, level.blocks, misses, play, reducedMotion, target]);
+  }, [active, blocks, finish, misses, play, reducedMotion, target, stageIndex, stages.length, totalBlocks, totalMisses]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -95,30 +112,42 @@ export default function DarumaGamePage() {
   function start() {
     if (timer.current) clearTimeout(timer.current);
     lock.current = false;
-    setBlocks(buildBlocks(level.blocks)); setMisses(0); setHit(null); setPaused(false); setFallen(false); setShowReward(true);
+    const nextStages = shuffled(STAGES).map((item, index) => ({ ...item, blocks: buildBlocks(Math.min(9, level.blocks + index)) }));
+    setStages(nextStages); setStageIndex(0); setStageCleared(false); setTotalMisses(0);
+    setBlocks(nextStages[0].blocks); setMisses(0); setHit(null); setPaused(false); setFallen(false); setShowReward(true);
     setMessage('달마 아래 블록과 같은 색 버튼을 눌러요!');
-    game.start(level.blocks);
+    game.start(nextStages.reduce((total, item) => total + item.blocks.length, 0));
+  }
+
+  function nextStage() {
+    if (!stageCleared || stageIndex + 1 >= stages.length) return;
+    setBlocks(stages[stageIndex + 1].blocks); setStageIndex(stageIndex + 1);
+    setMisses(0); setPaused(false); setStageCleared(false);
+    setMessage('새로운 스테이지! 맨 아래 블록과 같은 색을 눌러요.');
   }
 
   return <AdventureFrame title="톡! 톡! 달마치기" subtitle="같은 색 버튼을 찾아 달마의 블록을 하나씩 쏙 빼요.">
     {game.state === 'ready' ? <AdventureIntro picture="star" title="같은 색을 찾아 달마를 지켜요!" difficulty={difficulty} onDifficulty={setDifficulty} onStart={start}
-      instructions={['달마 아래쪽 블록의 색을 확인해요.', '같은 색 버튼을 누르면 블록이 하나씩 사라져요.', '색을 세 번 잘못 누르면 달마가 넘어져요.']}>
+      instructions={['맨 아래 블록과 같은 색을 누르면 망치가 쳐내요.', '세 스테이지의 순서와 블록 색이 매번 달라져요.', '스테이지마다 기회는 세 번! 모두 통과하면 성공이에요.']}>
       <div className="daruma-intro-art" aria-hidden="true"><img src="/assets/illustrations/daruma.svg" alt="" /><div className="daruma-mini-block" /><div className="daruma-mini-block" /><div className="daruma-mini-block" /></div>
-      <p className="text-center text-sm font-bold text-amber-800">{level.blocks}개 블록 · 시간 제한 없음 · 숫자 1~6 키도 사용 가능</p>
+      <p className="text-center text-sm font-bold text-amber-800">랜덤 3스테이지 · {level.blocks}개 블록부터 시작 · 시간 제한 없음</p>
     </AdventureIntro> : <section className="daruma-workshop">
-      <div className="daruma-scoreboard"><span>남은 블록 <strong>{blocks.length}</strong> / {level.blocks}</span><span aria-label={`남은 기회 ${3 - misses}번`}>{'♥'.repeat(3 - misses)}{'♡'.repeat(misses)}</span>{!finished && !fallen && <button onClick={() => setPaused(!paused)} disabled={!!hit} className="rounded-xl bg-white/70 px-3 py-2 text-xs">{paused ? '계속하기' : '잠깐 쉬기'}</button>}</div>
-      <div className="daruma-stage" aria-label="색깔 블록이 쌓인 달마">
+      <div className="daruma-stage-heading" aria-label="스테이지 진행"><span>스테이지 {stageIndex + 1} / {stages.length}</span><strong>{stage?.name}</strong></div>
+      <div className="daruma-scoreboard"><span>남은 블록 <strong>{blocks.length}</strong> / {stage?.blocks.length}</span><span aria-label={`남은 기회 ${3 - misses}번`}>{'♥'.repeat(3 - misses)}{'♡'.repeat(misses)}</span>{!finished && !fallen && !stageCleared && <button onClick={() => setPaused(!paused)} disabled={!!hit} className="rounded-xl bg-white/70 px-3 py-2 text-xs">{paused ? '계속하기' : '잠깐 쉬기'}</button>}</div>
+      <div className={`daruma-stage daruma-scene-${stage?.id}`} aria-label="색깔 블록이 쌓인 달마">
         <div className="daruma-sun" aria-hidden="true" /><div className="daruma-cloud" aria-hidden="true" /><div className="daruma-platform" aria-hidden="true" />
         <motion.div className="daruma-tower" animate={reducedMotion ? { rotate: 0, x: 0 } : fallen ? { rotate: 65, x: 65, y: 30 } : hit && !hit.good ? { rotate: [0, -8, 8, -5, 0] } : { rotate: 0, x: 0, y: 0 }} transition={{ duration: 0.5 }}>
           <motion.img layout={reducedMotion ? false : 'position'} src="/assets/illustrations/daruma.svg" alt="달마" className="daruma-doll" transition={{ type: 'spring', stiffness: 280, damping: 18 }} />
           <div role="list" aria-label="남은 블록" className="flex flex-col">{blocks.slice().reverse().map((block) => { const color = colorInfo(block.color); const isTarget = block.id === target?.id; return <motion.div layout={reducedMotion ? false : 'position'} key={block.id} role="listitem" aria-label={`${color.label} 블록${isTarget ? ', 지금 제거할 블록' : ''}`} data-color={color.label} className={`daruma-block ${isTarget && !fallen ? 'daruma-block-target' : ''}`} style={{ backgroundColor: color.value }}><span>{color.label}</span></motion.div>; })}</div>
         </motion.div>
-        <AnimatePresence>{hit?.good && !reducedMotion && <motion.div key={hit.id} className="daruma-block daruma-ejected" style={{ backgroundColor: colorInfo(hit.color).value }} initial={{ x: 0, y: 0, opacity: 1 }} animate={{ x: 250, y: -55, rotate: 24, opacity: 0 }} transition={{ duration: 0.5 }} />}</AnimatePresence>
+        <AnimatePresence>{hit?.good && !reducedMotion && <motion.div key={hit.id} className="daruma-block daruma-ejected" style={{ backgroundColor: colorInfo(hit.color).value }} initial={{ x: 0, y: 0, opacity: 1 }} animate={{ x: 250, y: -55, rotate: 24, opacity: 0 }} transition={{ delay: 0.1, duration: 0.4 }} />}</AnimatePresence>
+        {!finished && !stageCleared && <motion.img key={hit?.id ?? 'rest'} src="/assets/illustrations/daruma-mallet.svg" alt="달마 망치" className="daruma-mallet" data-striking={!!hit} initial={{ rotate: -25, x: 0 }} animate={hit && !reducedMotion ? { rotate: [-35, 25, -25], x: [0, 28, 0] } : { rotate: -25, x: 0 }} transition={{ duration: reducedMotion ? 0 : 0.32 }} />}
         {hit?.good && <motion.span key={`burst-${hit.id}`} className="daruma-burst" initial={reducedMotion ? false : { scale: 0.6 }} animate={{ scale: 1 }}>쏙!</motion.span>}
         {paused && !finished && <div className="daruma-pause"><strong>달마도 잠깐 쉬는 중</strong><button className="adventure-primary" onClick={() => setPaused(false)}>이어서 하기</button></div>}
       </div>
       <p className="daruma-feedback" role="status">{message}</p>
-      {finished ? <div className="p-4 text-center"><h2 className="text-2xl font-extrabold text-amber-950">달마치기 성공!</h2><p className="my-2 text-sm text-amber-900">{level.blocks}개 블록을 모두 같은 색으로 제거했어요.</p><button className="adventure-primary mt-2" onClick={game.reset}>다시 놀기</button><RewardCelebration type="game_complete" stars={game.calculateStars(game.score)} newStickers={game.earnedStickers} open={showReward} onDismiss={() => setShowReward(false)} message="달마를 끝까지 지켜냈어요!" /></div>
+      {finished ? <div className="p-4 text-center"><h2 className="text-2xl font-extrabold text-amber-950">달마치기 성공!</h2><p className="my-2 text-sm text-amber-900">3스테이지, {totalBlocks}개 블록을 모두 쳐냈어요!</p><button className="adventure-primary mt-2" onClick={game.reset}>다시 놀기</button><RewardCelebration type="game_complete" stars={game.calculateStars(game.score)} newStickers={game.earnedStickers} open={showReward} onDismiss={() => setShowReward(false)} message="세 스테이지의 달마를 모두 지켜냈어요!" /></div>
+      : stageCleared ? <div className="p-5 text-center"><h2 className="text-xl font-extrabold text-teal-800">스테이지 {stageIndex + 1} 성공!</h2><p className="my-3 text-sm">다음은 {stages[stageIndex + 1]?.name}! 기회가 다시 세 번 생겨요.</p><button className="adventure-primary" onClick={nextStage}>다음 스테이지</button></div>
       : fallen ? <div className="px-4 pb-5 text-center"><h2 className="mb-3 text-xl font-extrabold text-amber-950">다시 쌓으면 괜찮아요!</h2><button className="adventure-primary" onClick={start}>다시 쌓기</button><button className="adventure-secondary ml-2" onClick={game.reset}>난이도 바꾸기</button></div>
       : <div className="daruma-controls">
         <p className="daruma-target-label">지금 제거할 색 <strong style={{ color: target ? colorInfo(target.color).value : undefined }}>{target ? colorInfo(target.color).label : '완료'}</strong></p>

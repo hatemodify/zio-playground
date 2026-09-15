@@ -35,7 +35,7 @@ export const GAME_CONFIGS: GameConfig[] = [
     difficulties: { easy: { label: '처음 해요', questionCount: 6 }, normal: { label: '할 수 있어요', questionCount: 8 }, hard: { label: '자신 있어요', questionCount: 10 } },
     unlockThreshold: 0, rules: [...game.instructions],
   })),
-  { id: 'daruma', name: '톡! 톡! 달마치기', description: '같은 색 버튼을 눌러 달마의 블록을 하나씩 쏙 빼요!', icon: 'star', kind: 'play', focus: '색깔 · 집중 · 순서', isNew: true, categories: [], difficulties: { easy: { label: '처음 해요', itemCount: 5 }, normal: { label: '할 수 있어요', itemCount: 7 }, hard: { label: '자신 있어요', itemCount: 9 } }, unlockThreshold: 0, rules: ['달마 아래 블록의 색을 확인해요.', '같은 색 버튼을 눌러 블록을 하나씩 빼내요.'] },
+  { id: 'daruma', name: '톡! 톡! 달마치기', description: '같은 색을 눌러 망치로 톡! 매번 달라지는 3스테이지에 도전해요.', icon: 'star', kind: 'play', focus: '색깔 · 집중 · 순서', isNew: true, categories: [], difficulties: { easy: { label: '처음 해요', itemCount: 5 }, normal: { label: '할 수 있어요', itemCount: 7 }, hard: { label: '자신 있어요', itemCount: 9 } }, unlockThreshold: 0, rules: ['맨 아래 블록과 같은 색 버튼을 눌러요.', '랜덤으로 만나는 세 스테이지를 모두 통과해요.'] },
   { id: 'mini-festival', name: '팡팡! 미니게임 축제', description: '세 버튼으로 색깔 풍선·로켓 충전·무지개 암호에 도전!', icon: 'star', kind: 'play', focus: '순발력 · 순서 · 반응', isNew: true, categories: [], difficulties: { easy: { label: '느긋하게' }, normal: { label: '신나게' }, hard: { label: '빠르게' } }, unlockThreshold: 0, rules: ['세 버튼이나 A·S·D 키로 놀아요.', '세 가지 짧은 미션에 도전해요.'] },
   { id: 'rocket-ride', name: '반짝 우주 비행', description: '우주선을 움직여 별을 모으는 짜릿한 여행', icon: 'rocket', kind: 'play', focus: '반응 · 놀이', isNew: true, categories: [],
     difficulties: { easy: { label: '느긋하게' }, normal: { label: '신나게' }, hard: { label: '빠르게' } }, unlockThreshold: 0, rules: ['좌우 버튼이나 방향키로 이동해요.', '별을 모으고 운석을 피해요.'] },
