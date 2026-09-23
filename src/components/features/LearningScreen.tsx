@@ -8,7 +8,36 @@ import { useProgressStore } from '@/stores/progress-store';
 import { useGamificationStore } from '@/stores/gamification-store';
 import { useSound } from '@/hooks/use-sound';
 import { useLandscapeTablet } from '@/hooks/use-media-query';
+import { useElementSize } from '@/hooks/use-element-size';
 import type { LearningCategory } from '@/types/learning';
+
+/** Padding of the white card the canvas sits in (p-3 on both sides). */
+const CARD_PADDING = 24;
+/** Never shrink past this, even on the narrowest phone. */
+const MIN_CANVAS = 240;
+/** A square much wider than this stops being comfortable to trace on. */
+const MAX_CANVAS = 560;
+
+/**
+ * Viewport height, tracked so a square canvas sized purely from the available
+ * width can't grow taller than the screen (a phone held in landscape).
+ */
+function useViewportHeight(): number {
+  const [height, setHeight] = useState(() =>
+    typeof window === 'undefined' ? 0 : window.innerHeight,
+  );
+  useEffect(() => {
+    const update = () => setHeight(window.innerHeight);
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+    };
+  }, []);
+  return height;
+}
 
 interface LearningScreenProps {
   id: string;
@@ -35,6 +64,16 @@ export default function LearningScreen({
   const { addStars, addSticker, checkAndGrantStickers } = useGamificationStore();
   const { play } = useSound();
   const isLandscape = useLandscapeTablet();
+
+  // The tracing sheet takes whatever width the writing column leaves it, capped
+  // so the square still fits on screen without scrolling.
+  const { ref: writingColumnRef, size: writingColumn } = useElementSize<HTMLDivElement>();
+  const viewportHeight = useViewportHeight();
+  const widthLimit = writingColumn.width > 0 ? writingColumn.width - CARD_PADDING : MAX_CANVAS;
+  const heightLimit = Math.max(MIN_CANVAS, Math.round(viewportHeight * 0.62));
+  const canvasSize = Math.round(
+    Math.max(MIN_CANVAS, Math.min(widthLimit, heightLimit, MAX_CANVAS)),
+  );
 
   useEffect(() => {
     initializeItem({ id, category, character, tracingStage: 0, completed: false,
@@ -93,7 +132,7 @@ export default function LearningScreen({
       </div>
 
       {/* Right panel: canvas + navigation */}
-      <div className={cn('flex flex-col items-center gap-4', isLandscape ? 'w-1/2' : 'w-full')}>
+      <div ref={writingColumnRef} className={cn('flex flex-col items-center gap-4', isLandscape ? 'w-1/2' : 'w-full')}>
         {/* Writing label */}
         <div className="flex items-center gap-2">
           <div className="rounded-full bg-primary px-4 py-1.5 text-sm font-bold text-white">
@@ -113,7 +152,7 @@ export default function LearningScreen({
         <div className="rounded-3xl bg-white p-3 pb-16 shadow-card">
           <WritingCanvas
             character={character}
-            canvasSize={320}
+            canvasSize={canvasSize}
             onComplete={handleWritingComplete}
           />
         </div>

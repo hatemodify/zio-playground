@@ -258,6 +258,15 @@ body {
 .daruma-stage.daruma-scene-night { background: radial-gradient(circle at 15% 25%, #fff5ba 0 2px, transparent 3px), radial-gradient(circle at 72% 40%, #fff5ba 0 2px, transparent 3px), linear-gradient(#303c65, #7d87ae); }
 .daruma-scene-night .daruma-sun { background: #fff3bd; box-shadow: 0 0 25px #fff3bd66; }
 .daruma-scene-night .daruma-cloud { opacity: .3; }
+.daruma-stage.daruma-scene-forest { background: radial-gradient(ellipse at 16% 108%, #9ccd97 0 30%, transparent 31%), radial-gradient(ellipse at 90% 112%, #83bc85 0 34%, transparent 35%), linear-gradient(#dcf1d7, #a7d6a2); }
+.daruma-stage.daruma-scene-snow { background: radial-gradient(circle at 22% 22%, #ffffffcc 0 3px, transparent 4px), radial-gradient(circle at 64% 15%, #ffffffcc 0 3px, transparent 4px), radial-gradient(circle at 40% 33%, #ffffffaa 0 2px, transparent 3px), radial-gradient(ellipse at 50% 122%, #f6fafe 0 46%, transparent 47%), linear-gradient(#dcebf8, #b7d3ea); }
+.daruma-scene-snow .daruma-sun { background: #fdf3d6; box-shadow: 0 0 0 12px #fdf3d633; }
+.daruma-stage.daruma-scene-sunset { background: radial-gradient(ellipse at 50% 120%, #efab84 0 44%, transparent 45%), linear-gradient(#ffd9a0, #f5a37e 55%, #e0817f); }
+.daruma-scene-sunset .daruma-sun { background: #ffb765; box-shadow: 0 0 30px #ff9d4d88; }
+.daruma-scene-sunset .daruma-cloud, .daruma-scene-sunset .daruma-cloud::after { background: #ffe3c9cc; }
+.daruma-stage.daruma-scene-space { background: radial-gradient(circle at 20% 30%, #fff 0 2px, transparent 3px), radial-gradient(circle at 80% 20%, #fff 0 2px, transparent 3px), radial-gradient(circle at 46% 12%, #ffe9a8 0 2px, transparent 3px), linear-gradient(#2b2450, #5b4b87); }
+.daruma-scene-space .daruma-sun { background: #d3dbff; box-shadow: 0 0 25px #d3dbff66; }
+.daruma-scene-space .daruma-cloud { opacity: .18; }
 .hangul-composer { padding: 16px; border-radius: 22px; background: #f2ecfb; width: 100%; }
 .hangul-equation { display: flex; align-items: center; justify-content: center; gap: 10px; color: #74648b; font-size: 22px; font-weight: 800; }
 .hangul-equation span, .hangul-equation strong { padding: 8px 14px; border-radius: 14px; background: #f2ecfb; color: #70509a; }

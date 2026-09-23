@@ -56,7 +56,9 @@ export default function WritingCanvas({
     ctx.restore();
   }, [character, canvasSize, dpr]);
 
-  // Initialize canvases
+  // Initialize canvases. Also runs when the character or the available size
+  // changes: resizing a canvas wipes its pixels, so the stroke state has to go
+  // back to empty along with it.
   useEffect(() => {
     const setupCanvas = (canvas: HTMLCanvasElement | null) => {
       if (!canvas) return;
@@ -64,23 +66,14 @@ export default function WritingCanvas({
       canvas.height = canvasSize * dpr;
       canvas.style.width = `${canvasSize}px`;
       canvas.style.height = `${canvasSize}px`;
+      canvas.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);
     };
 
     setupCanvas(canvasRef.current);
     setupCanvas(overlayRef.current);
+    setHasDrawn(false);
     drawGuide();
   }, [canvasSize, dpr, drawGuide]);
-
-  // Reset when character changes
-  useEffect(() => {
-    setHasDrawn(false);
-    const overlay = overlayRef.current;
-    if (overlay) {
-      const ctx = overlay.getContext('2d');
-      if (ctx) ctx.clearRect(0, 0, overlay.width, overlay.height);
-    }
-    drawGuide();
-  }, [character, drawGuide]);
 
   // Drawing handlers — only manages strokes, never auto-advances
   const getPoint = useCallback(
@@ -114,7 +107,8 @@ export default function WritingCanvas({
 
       const point = getPoint(e);
       ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 12 * dpr;
+      // Scale the nib with the canvas so a bigger sheet keeps the same look.
+      ctx.lineWidth = Math.max(10, canvasSize * 0.0375) * dpr;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
@@ -126,7 +120,7 @@ export default function WritingCanvas({
       lastPointRef.current = point;
       if (!hasDrawn) setHasDrawn(true);
     },
-    [getPoint, strokeColor, dpr, hasDrawn],
+    [getPoint, strokeColor, dpr, hasDrawn, canvasSize],
   );
 
   // End of stroke — just stops drawing, does NOT advance

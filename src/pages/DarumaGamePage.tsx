@@ -22,11 +22,17 @@ const COLORS = [
 type ColorId = typeof COLORS[number]['id'];
 interface Block { id: number; color: ColorId }
 interface Hit { id: number; color: ColorId; good: boolean }
+/** A run draws STAGES_PER_RUN scenes out of this pool, so the trio differs each time. */
 const STAGES = [
   { id: 'garden', name: '무지개 정원' },
   { id: 'beach', name: '조개빛 바닷가' },
   { id: 'night', name: '별빛 밤하늘' },
+  { id: 'forest', name: '초록 숲속 오솔길' },
+  { id: 'snow', name: '소복소복 눈마을' },
+  { id: 'sunset', name: '노을빛 언덕' },
+  { id: 'space', name: '두둥실 우주 정거장' },
 ];
+const STAGES_PER_RUN = 3;
 type Stage = typeof STAGES[number] & { blocks: Block[] };
 
 function colorInfo(id: ColorId) {
@@ -112,7 +118,7 @@ export default function DarumaGamePage() {
   function start() {
     if (timer.current) clearTimeout(timer.current);
     lock.current = false;
-    const nextStages = shuffled(STAGES).map((item, index) => ({ ...item, blocks: buildBlocks(Math.min(9, level.blocks + index)) }));
+    const nextStages = shuffled(STAGES).slice(0, STAGES_PER_RUN).map((item, index) => ({ ...item, blocks: buildBlocks(Math.min(9, level.blocks + index)) }));
     setStages(nextStages); setStageIndex(0); setStageCleared(false); setTotalMisses(0);
     setBlocks(nextStages[0].blocks); setMisses(0); setHit(null); setPaused(false); setFallen(false); setShowReward(true);
     setMessage('달마 아래 블록과 같은 색 버튼을 눌러요!');
@@ -128,9 +134,9 @@ export default function DarumaGamePage() {
 
   return <AdventureFrame title="톡! 톡! 달마치기" subtitle="같은 색 버튼을 찾아 달마의 블록을 하나씩 쏙 빼요.">
     {game.state === 'ready' ? <AdventureIntro picture="star" title="같은 색을 찾아 달마를 지켜요!" difficulty={difficulty} onDifficulty={setDifficulty} onStart={start}
-      instructions={['맨 아래 블록과 같은 색을 누르면 망치가 쳐내요.', '세 스테이지의 순서와 블록 색이 매번 달라져요.', '스테이지마다 기회는 세 번! 모두 통과하면 성공이에요.']}>
+      instructions={['맨 아래 블록과 같은 색을 누르면 망치가 쳐내요.', `${STAGES.length}곳 중 ${STAGES_PER_RUN}곳이 매번 새로 뽑혀요. 순서와 블록 색도 달라져요.`, '스테이지마다 기회는 세 번! 모두 통과하면 성공이에요.']}>
       <div className="daruma-intro-art" aria-hidden="true"><img src="/assets/illustrations/daruma.svg" alt="" /><div className="daruma-mini-block" /><div className="daruma-mini-block" /><div className="daruma-mini-block" /></div>
-      <p className="text-center text-sm font-bold text-amber-800">랜덤 3스테이지 · {level.blocks}개 블록부터 시작 · 시간 제한 없음</p>
+      <p className="text-center text-sm font-bold text-amber-800">{STAGES.length}곳 중 랜덤 {STAGES_PER_RUN}스테이지 · {level.blocks}개 블록부터 시작 · 시간 제한 없음</p>
     </AdventureIntro> : <section className="daruma-workshop">
       <div className="daruma-stage-heading" aria-label="스테이지 진행"><span>스테이지 {stageIndex + 1} / {stages.length}</span><strong>{stage?.name}</strong></div>
       <div className="daruma-scoreboard"><span>남은 블록 <strong>{blocks.length}</strong> / {stage?.blocks.length}</span><span aria-label={`남은 기회 ${3 - misses}번`}>{'♥'.repeat(3 - misses)}{'♡'.repeat(misses)}</span>{!finished && !fallen && !stageCleared && <button onClick={() => setPaused(!paused)} disabled={!!hit} className="rounded-xl bg-white/70 px-3 py-2 text-xs">{paused ? '계속하기' : '잠깐 쉬기'}</button>}</div>
