@@ -169,18 +169,3 @@ test('settings removes study limits and resets playground together with learning
   const scene = await page.evaluate(() => JSON.parse(localStorage.getItem('kidsedu-playground')!).state.scene);
   expect(scene.cells.every((cell: unknown) => cell === null)).toBe(true);
 });
-
-test('counting the minimum quantity never hangs and the last point is rewarded', async ({ page }) => {
-  await page.clock.install();
-  await page.addInitScript(() => { Math.random = () => 0; });
-  await page.goto('/games/counting');
-  for (let i = 1; i <= 8; i++) {
-    await expect(page.getByText(`${i} / 8`, { exact: true })).toBeVisible();
-    await page.getByRole('button', { name: '1', exact: true }).click();
-    await page.clock.runFor(900);
-  }
-  const saved = await gameState(page);
-  expect(saved.gameRecords).toHaveLength(1);
-  expect(saved.gameRecords[0]).toMatchObject({ gameId: 'counting', score: 8, stars: 3 });
-  expect(saved.totalStars).toBe(3);
-});

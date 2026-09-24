@@ -98,25 +98,7 @@ export const GAME_CONFIGS: GameConfig[] = [
       '완성한 작품을 감상해요!',
     ],
   },
-  {
-    id: 'bubble',
-    name: '버블 매칭',
-    description: '같은 글자 버블을 찾아 터뜨려 보세요!',
-    icon: 'bubbles',
-    categories: ['numbers', 'hangul', 'english'],
-    difficulties: {
-      easy: { label: '쉬움', pairCount: 3 },
-      normal: { label: '보통', pairCount: 5 },
-      hard: { label: '어려움', pairCount: 7 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '같은 글자가 적힌 버블 2개를 찾아요',
-      '연속으로 터치하면 버블이 합쳐져요',
-      '힌트 버튼을 누르면 같은 짝이 반짝여요',
-    ],
-  },
-  {
+{
     id: 'shadow',
     name: '그림자 맞추기',
     description: '그림에 맞는 그림자를 찾아보세요!',
@@ -206,25 +188,7 @@ export const GAME_CONFIGS: GameConfig[] = [
       '잘 보고 터치해 보세요!',
     ],
   },
-  {
-    id: 'pattern',
-    name: '패턴 찾기',
-    description: '규칙을 찾아 다음에 올 것을 맞춰보세요!',
-    icon: 'pattern',
-    categories: ['numbers', 'hangul', 'english'],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 5 },
-      normal: { label: '보통', questionCount: 8 },
-      hard: { label: '어려움', questionCount: 10 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '순서를 잘 살펴보세요',
-      '규칙을 찾아 다음에 올 것을 골라요',
-      '3개 중에서 맞는 것을 찾아보세요!',
-    ],
-  },
-  {
+{
     id: 'memory-sequence',
     name: '순서 기억하기',
     description: '순서를 기억하고 따라해 보세요!',
@@ -261,43 +225,7 @@ export const GAME_CONFIGS: GameConfig[] = [
       '완성하면 별을 받아요!',
     ],
   },
-  {
-    id: 'counting',
-    name: '숫자 세기',
-    description: '그림을 세어 맞는 숫자를 골라보세요!',
-    icon: 'hash',
-    categories: ['numbers'],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 5 },
-      normal: { label: '보통', questionCount: 8 },
-      hard: { label: '어려움', questionCount: 12 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '화면에 나타난 그림을 세어보세요',
-      '맞는 숫자를 골라요',
-      '빨리 맞출수록 별을 많이 받아요!',
-    ],
-  },
-  {
-    id: 'tracing-race',
-    name: '따라쓰기 경주',
-    description: '시간 안에 글자를 빠르게 따라 써보세요!',
-    icon: 'pen',
-    categories: ['numbers', 'hangul', 'english'],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 3 },
-      normal: { label: '보통', questionCount: 5 },
-      hard: { label: '어려움', questionCount: 8 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '화면에 나타난 글자를 따라 써요',
-      '제한 시간 안에 완성하세요',
-      '정확하게 쓸수록 별을 많이 받아요!',
-    ],
-  },
-  {
+{
     id: 'puzzle',
     name: '퍼즐 맞추기',
     description: '조각을 맞춰 그림을 완성해보세요!',
@@ -351,61 +279,7 @@ export const GAME_CONFIGS: GameConfig[] = [
       '폭탄은 피하세요!',
     ],
   },
-  {
-    id: 'catch-falling',
-    name: '별 잡기',
-    description: '하늘에서 떨어지는 별을 바구니로 받아보세요!',
-    icon: 'star',
-    categories: [],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 15 },
-      normal: { label: '보통', questionCount: 25 },
-      hard: { label: '어려움', questionCount: 40 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '바구니를 좌우로 움직여요',
-      '별과 하트를 받으면 점수를 받아요',
-      '폭탄은 피하세요!',
-    ],
-  },
-  {
-    id: 'tap-speed',
-    name: '빠른 손',
-    description: '10초 안에 최대한 많이 터치하세요!',
-    icon: 'hand',
-    categories: [],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 20 },
-      normal: { label: '보통', questionCount: 30 },
-      hard: { label: '어려움', questionCount: 40 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '큰 버튼을 빠르게 터치해요',
-      '10초 안에 최대한 많이!',
-      '이전 기록에 도전해 보세요!',
-    ],
-  },
-  {
-    id: 'addition',
-    name: '더하기 놀이',
-    description: '두 수를 더하면 얼마일까요?',
-    icon: 'plus',
-    categories: ['numbers'],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 8 },
-      normal: { label: '보통', questionCount: 10 },
-      hard: { label: '어려움', questionCount: 12 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '그림을 보고 두 수를 더해요',
-      '3개 중에서 답을 골라요',
-      '점점 더 큰 수가 나와요!',
-    ],
-  },
-  {
+{
     id: 'number-compare',
     name: '큰 수 찾기',
     description: '어느 숫자가 더 클까요?',
@@ -423,25 +297,7 @@ export const GAME_CONFIGS: GameConfig[] = [
       '문제를 잘 읽어보세요!',
     ],
   },
-  {
-    id: 'number-order',
-    name: '숫자 이어세기',
-    description: '빈칸에 들어갈 숫자를 찾아보세요!',
-    icon: 'sequence',
-    categories: ['numbers'],
-    difficulties: {
-      easy: { label: '쉬움', questionCount: 8 },
-      normal: { label: '보통', questionCount: 10 },
-      hard: { label: '어려움', questionCount: 12 },
-    },
-    unlockThreshold: 0,
-    rules: [
-      '숫자가 순서대로 늘어서 있어요',
-      '빈칸에 들어갈 숫자를 골라요',
-      '2씩, 5씩 뛰어 세기도 나와요!',
-    ],
-  },
-  {
+{
     id: 'food-stack',
     name: '맛있는 음식 만들기',
     description: '피자·샌드위치·팬케이크·햄버거를 직접 만들어요!',

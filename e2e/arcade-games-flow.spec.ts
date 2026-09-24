@@ -22,8 +22,7 @@ test.describe('Arcade Games Flow', () => {
   test('should display arcade games in games list', async ({ page }) => {
     await page.goto('/games');
     await expect(page.getByText('두더지 잡기')).toBeVisible();
-    await expect(page.getByText('별 잡기')).toBeVisible();
-    await expect(page.getByText('빠른 손')).toBeVisible();
+    await expect(page.getByText('반짝 우주 비행')).toBeVisible();
   });
 
   test('should start whack-a-mole game and show game UI', async ({ page }) => {
@@ -38,39 +37,20 @@ test.describe('Arcade Games Flow', () => {
     await expect(page.getByRole('button', { name: '구멍 9' })).toBeVisible();
   });
 
-  test('should start catch-falling game and show game UI', async ({ page }) => {
-    await page.goto('/games/catch-falling');
-    await expect(page.getByText('별 잡기')).toBeVisible();
-    // Score display
-    await expect(page.getByText('0점')).toBeVisible();
-    // Timer display
-    await expect(page.getByText(/\d+초/)).toBeVisible();
-  });
-
-  test('should start tap-speed game and show game UI', async ({ page }) => {
-    await page.goto('/games/tap-speed');
-    await expect(page.getByText('빠른 손')).toBeVisible();
-    // Timer display
-    await expect(page.getByText(/\d+초/)).toBeVisible();
-    // Big tap button
-    await expect(page.getByRole('button', { name: '터치 버튼' })).toBeVisible();
-  });
-
   test('should navigate from games list to whack-a-mole', async ({ page }) => {
     await page.goto('/games');
     await page.getByText('두더지 잡기').click();
     await expect(page).toHaveURL('/games/whack-a-mole');
   });
 
-  test('should navigate from games list to catch-falling', async ({ page }) => {
-    await page.goto('/games');
-    await page.getByText('별 잡기').click();
-    await expect(page).toHaveURL('/games/catch-falling');
-  });
-
-  test('should navigate from games list to tap-speed', async ({ page }) => {
-    await page.goto('/games');
-    await page.getByText('빠른 손').click();
-    await expect(page).toHaveURL('/games/tap-speed');
-  });
+  // Retired games keep their paths so cached shells and old links still land
+  // somewhere useful instead of on a blank route.
+  for (const retired of ['tap-speed', 'tracing-race', 'addition', 'bubble',
+    'pattern', 'number-order', 'counting', 'catch-falling']) {
+    test(`retired game /games/${retired} redirects to the catalog`, async ({ page }) => {
+      await page.goto(`/games/${retired}`);
+      await expect(page).toHaveURL('/games');
+      await expect(page.getByRole('heading', { name: '미니 게임' })).toBeVisible();
+    });
+  }
 });

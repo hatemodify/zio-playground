@@ -25,6 +25,14 @@ export const router = createBrowserRouter([
       { path: '/games/speak', element: <Navigate to="/games" replace /> },
       { path: '/games/balloon', element: <Navigate to="/games" replace /> },
       { path: '/games/speed-quiz', element: <Navigate to="/games" replace /> },
+      { path: '/games/tap-speed', element: <Navigate to="/games" replace /> },
+      { path: '/games/tracing-race', element: <Navigate to="/games" replace /> },
+      { path: '/games/addition', element: <Navigate to="/games" replace /> },
+      { path: '/games/bubble', element: <Navigate to="/games" replace /> },
+      { path: '/games/pattern', element: <Navigate to="/games" replace /> },
+      { path: '/games/number-order', element: <Navigate to="/games" replace /> },
+      { path: '/games/counting', element: <Navigate to="/games" replace /> },
+      { path: '/games/catch-falling', element: <Navigate to="/games" replace /> },
       {
         path: '/',
         element: lazyPage(() => import('./pages/HomePage')),
@@ -80,10 +88,6 @@ export const router = createBrowserRouter([
         element: lazyPage(() => import('./pages/ColoringGamePage')),
       },
       {
-        path: '/games/bubble',
-        element: lazyPage(() => import('./pages/BubbleGamePage')),
-      },
-      {
         path: '/games/shadow',
         element: lazyPage(() => import('./pages/ShadowGamePage')),
       },
@@ -104,24 +108,12 @@ export const router = createBrowserRouter([
         element: lazyPage(() => import('./pages/OddOneOutGamePage')),
       },
       {
-        path: '/games/pattern',
-        element: lazyPage(() => import('./pages/PatternGamePage')),
-      },
-      {
         path: '/games/memory-sequence',
         element: lazyPage(() => import('./pages/MemorySequenceGamePage')),
       },
       {
         path: '/games/free-draw',
         element: lazyPage(() => import('./pages/FreeDrawGamePage')),
-      },
-      {
-        path: '/games/counting',
-        element: lazyPage(() => import('./pages/CountingGamePage')),
-      },
-      {
-        path: '/games/tracing-race',
-        element: lazyPage(() => import('./pages/TracingRaceGamePage')),
       },
       {
         path: '/games/puzzle',
@@ -136,24 +128,8 @@ export const router = createBrowserRouter([
         element: lazyPage(() => import('./pages/WhackAMoleGamePage')),
       },
       {
-        path: '/games/catch-falling',
-        element: lazyPage(() => import('./pages/CatchFallingGamePage')),
-      },
-      {
-        path: '/games/tap-speed',
-        element: lazyPage(() => import('./pages/TapSpeedGamePage')),
-      },
-      {
-        path: '/games/addition',
-        element: lazyPage(() => import('./pages/AdditionGamePage')),
-      },
-      {
         path: '/games/number-compare',
         element: lazyPage(() => import('./pages/NumberCompareGamePage')),
-      },
-      {
-        path: '/games/number-order',
-        element: lazyPage(() => import('./pages/NumberOrderGamePage')),
       },
       {
         path: '/games/food-stack',
