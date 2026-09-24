@@ -1,5 +1,7 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
+import { useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/cn';
+import { getStrokesForCharacter } from '@/data';
 
 interface WritingCanvasProps {
   character: string;
@@ -14,10 +16,19 @@ interface DrawPoint {
   y: number;
 }
 
+/** How long one stroke takes to draw itself, in milliseconds. */
+const STROKE_MS = 600;
+const GUIDE_COLOR = '#9AC4EA';
+const BADGE_COLOR = '#4A90D9';
+
 /**
  * Simple writing canvas for character practice.
  * Shows a faint reference character, lets the user draw freely,
  * and only advances when the confirm button is explicitly tapped.
+ *
+ * Characters with stroke data (numbers, Hangul jamo, uppercase English) also
+ * get a stroke-order guide: the strokes draw themselves in order, each tagged
+ * with its number. Composed syllables have no data, so they simply omit it.
  */
 export default function WritingCanvas({
   character,
@@ -30,12 +41,17 @@ export default function WritingCanvas({
   const overlayRef = useRef<HTMLCanvasElement>(null);
   const isDrawingRef = useRef(false);
   const lastPointRef = useRef<DrawPoint | null>(null);
+  const frameRef = useRef<number | null>(null);
   const [hasDrawn, setHasDrawn] = useState(false);
+  // Null while the order is hidden; otherwise how many strokes' worth is drawn.
+  const [revealed, setRevealed] = useState<number | null>(null);
 
   const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+  const reducedMotion = useReducedMotion();
+  const strokes = getStrokesForCharacter(character);
 
-  // Draw faint reference character on background canvas
-  const drawGuide = useCallback(() => {
+  // Draw faint reference character, and the stroke order over it when revealed
+  const drawGuide = useCallback((progress: number | null) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -44,17 +60,68 @@ export default function WritingCanvas({
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.scale(dpr, dpr);
-
-    // Very faint reference character (just enough to know what to write)
-    ctx.globalAlpha = 0.08;
-    ctx.font = `bold ${canvasSize * 0.6}px "Nunito", "Pretendard Variable", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#999';
-    ctx.fillText(character, canvasSize / 2, canvasSize / 2);
+
+    // The glyph and the stroke paths are drawn from different sources and do not
+    // line up, so the revealed stroke order stands in as the reference instead.
+    if (progress === null) {
+      ctx.globalAlpha = 0.08;
+      ctx.font = `bold ${canvasSize * 0.6}px "Nunito", "Pretendard Variable", sans-serif`;
+      ctx.fillStyle = '#999';
+      ctx.fillText(character, canvasSize / 2, canvasSize / 2);
+      ctx.globalAlpha = 1;
+    }
+
+    if (strokes && progress !== null) {
+      const badge = Math.max(9, canvasSize * 0.045);
+      const started = strokes
+        .map((stroke, order) => ({ order, share: Math.min(1, Math.max(0, progress - order)), stroke }))
+        .filter((entry) => entry.share > 0);
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = GUIDE_COLOR;
+      ctx.lineWidth = Math.max(8, canvasSize * 0.03);
+      const origins: DrawPoint[] = [];
+      for (const { share, stroke } of started) {
+        const points = stroke.points.map((point) => ({ x: point.x * canvasSize, y: point.y * canvasSize }));
+        const drawn = 1 + (points.length - 1) * share;
+        origins.push(points[0]);
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let index = 1; index < drawn; index += 1) {
+          const next = points[index];
+          const previous = points[index - 1];
+          // The final segment stops part-way so the line grows smoothly.
+          const partial = Math.min(1, drawn - index);
+          ctx.lineTo(previous.x + (next.x - previous.x) * partial, previous.y + (next.y - previous.y) * partial);
+        }
+        ctx.stroke();
+      }
+
+      // Badges go on last, over every line. Strokes often share a start point
+      // (ㄷ, 4), so a badge landing on a taken spot slides clear of it.
+      const placed: DrawPoint[] = [];
+      ctx.font = `bold ${badge * 1.3}px "Nunito", "Pretendard Variable", sans-serif`;
+      started.forEach(({ order }, position) => {
+        const spot = { ...origins[position] };
+        while (placed.some((taken) => Math.hypot(taken.x - spot.x, taken.y - spot.y) < badge * 2.4)) {
+          spot.y += badge * 2.5;
+        }
+        spot.y = Math.min(spot.y, canvasSize - badge);
+        placed.push(spot);
+        ctx.beginPath();
+        ctx.fillStyle = BADGE_COLOR;
+        ctx.arc(spot.x, spot.y, badge, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.fillText(String(order + 1), spot.x, spot.y + badge * 0.05);
+      });
+    }
 
     ctx.restore();
-  }, [character, canvasSize, dpr]);
+  }, [character, canvasSize, dpr, strokes]);
 
   // Initialize canvases. Also runs when the character or the available size
   // changes: resizing a canvas wipes its pixels, so the stroke state has to go
@@ -72,8 +139,29 @@ export default function WritingCanvas({
     setupCanvas(canvasRef.current);
     setupCanvas(overlayRef.current);
     setHasDrawn(false);
-    drawGuide();
+    setRevealed(null);
+    drawGuide(null);
   }, [canvasSize, dpr, drawGuide]);
+
+  // Repaint whenever the reveal advances, and stop any run-off animation frame.
+  useEffect(() => { drawGuide(revealed); }, [revealed, drawGuide]);
+  useEffect(() => () => { if (frameRef.current) cancelAnimationFrame(frameRef.current); }, []);
+
+  const playStrokeOrder = useCallback(() => {
+    if (!strokes) return;
+    if (frameRef.current) cancelAnimationFrame(frameRef.current);
+    if (revealed !== null) { setRevealed(null); return; }
+    if (reducedMotion) { setRevealed(strokes.length); return; }
+
+    const startedAt = performance.now();
+    const step = (now: number) => {
+      const progress = Math.min(strokes.length, (now - startedAt) / STROKE_MS);
+      setRevealed(progress);
+      if (progress < strokes.length) frameRef.current = requestAnimationFrame(step);
+      else frameRef.current = null;
+    };
+    frameRef.current = requestAnimationFrame(step);
+  }, [strokes, revealed, reducedMotion]);
 
   // Drawing handlers — only manages strokes, never auto-advances
   const getPoint = useCallback(
@@ -174,6 +262,17 @@ export default function WritingCanvas({
         >
           다시 쓰기
         </button>
+        {strokes && (
+          <button
+            type="button"
+            onClick={playStrokeOrder}
+            className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-primary shadow-card active:scale-95 transition-transform"
+            aria-label={revealed === null ? '획순 보기' : '획순 숨기기'}
+            aria-pressed={revealed !== null}
+          >
+            {revealed === null ? '획순 ▶' : '획순 ✕'}
+          </button>
+        )}
         {hasDrawn && (
           <button
             type="button"
