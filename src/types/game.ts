@@ -21,6 +21,7 @@ export type GameId =
   | 'catch-falling'
   | 'tap-speed'
   | 'addition'
+  | 'juice-math'
   | 'number-compare'
   | 'number-order'
   | 'vehicle-missions'

@@ -63,6 +63,7 @@ export const router = createBrowserRouter([
       { path: '/games/picture-words', element: lazyPage(() => import('./pages/DiscoveryGamePage')) },
       { path: '/games/pattern-garden', element: lazyPage(() => import('./pages/DiscoveryGamePage')) },
       { path: '/games/daruma', element: lazyPage(() => import('./pages/DarumaGamePage')) },
+      { path: '/games/juice-math', element: lazyPage(() => import('./pages/JuiceMathGamePage')) },
       { path: '/games/mini-festival', element: lazyPage(() => import('./pages/MiniFestivalGamePage')) },
       { path: '/games/rocket-ride', element: lazyPage(() => import('./pages/RocketRideGamePage')) },
       { path: '/games/animal-playground', element: lazyPage(() => import('./pages/AnimalPlaygroundPage')) },

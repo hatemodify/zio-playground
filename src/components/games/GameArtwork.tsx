@@ -30,6 +30,7 @@ const ART: Record<string, { picture: PictureId; friend?: PictureId; text?: strin
   'catch-falling': { picture: 'star', friend: 'rocket-blue', background: '#e5e2f5' },
   'tap-speed': { picture: 'race-car', text: 'GO!', background: '#f4e7d6' },
   addition: { picture: 'apple', friend: 'apple', text: '+', background: '#e7efd9' },
+  'juice-math': { picture: 'strawberry', friend: 'orange', text: '3 + 4', background: '#ffe4e6' },
   'number-compare': { picture: 'elephant', friend: 'pig', text: '>', background: '#e4eff4' },
   'number-order': { picture: 'police-car', text: '3 4 5', background: '#ece6f3' },
   'food-stack': { picture: 'burger', friend: 'cheese', background: '#fff0ce' },
