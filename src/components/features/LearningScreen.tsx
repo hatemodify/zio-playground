@@ -15,8 +15,6 @@ import type { LearningCategory } from '@/types/learning';
 const CARD_PADDING = 24;
 /** Never shrink past this, even on the narrowest phone. */
 const MIN_CANVAS = 240;
-/** A square much wider than this stops being comfortable to trace on. */
-const MAX_CANVAS = 560;
 
 /**
  * Viewport height, tracked so a square canvas sized purely from the available
@@ -65,15 +63,13 @@ export default function LearningScreen({
   const { play } = useSound();
   const isLandscape = useLandscapeTablet();
 
-  // The tracing sheet takes whatever width the writing column leaves it, capped
-  // so the square still fits on screen without scrolling.
+  // The tracing sheet fills its half of the split exactly, so the writing side
+  // matches the content side; only the viewport height holds the square back.
   const { ref: writingColumnRef, size: writingColumn } = useElementSize<HTMLDivElement>();
   const viewportHeight = useViewportHeight();
-  const widthLimit = writingColumn.width > 0 ? writingColumn.width - CARD_PADDING : MAX_CANVAS;
+  const widthLimit = writingColumn.width > 0 ? writingColumn.width - CARD_PADDING : MIN_CANVAS;
   const heightLimit = Math.max(MIN_CANVAS, Math.round(viewportHeight * 0.62));
-  const canvasSize = Math.round(
-    Math.max(MIN_CANVAS, Math.min(widthLimit, heightLimit, MAX_CANVAS)),
-  );
+  const canvasSize = Math.round(Math.max(MIN_CANVAS, Math.min(widthLimit, heightLimit)));
 
   useEffect(() => {
     initializeItem({ id, category, character, tracingStage: 0, completed: false,
@@ -149,7 +145,7 @@ export default function LearningScreen({
         </div>
 
         {/* Writing canvas */}
-        <div className="rounded-3xl bg-white p-3 pb-16 shadow-card">
+        <div className="flex w-full justify-center rounded-3xl bg-white p-3 pb-16 shadow-card">
           <WritingCanvas
             character={character}
             canvasSize={canvasSize}
