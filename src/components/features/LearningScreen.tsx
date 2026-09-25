@@ -76,6 +76,10 @@ export default function LearningScreen({
       attempts: 0, bestScore: 0, lastPracticedAt: null });
   }, [id, category, character, initializeItem]);
   const completedId = useRef<string | null>(null);
+  // The praise timer fires later; read the current onNext through a ref so the
+  // completion callback does not have to be rebuilt whenever navigation changes.
+  const onNextRef = useRef(onNext);
+  onNextRef.current = onNext;
   const celebrationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (celebrationTimer.current) clearTimeout(celebrationTimer.current); }, []);
 
@@ -105,8 +109,17 @@ export default function LearningScreen({
 
     setShowCelebration(true);
     if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
-    celebrationTimer.current = setTimeout(() => setShowCelebration(false), 3000);
+    celebrationTimer.current = setTimeout(() => { setShowCelebration(false); onNextRef.current?.(); }, 3000);
   }, [id, getItem, completeTracingStage, addStars, addSticker, checkAndGrantStickers, play]);
+
+  // Closing the praise carries on to the next character, so 확인 reads as
+  // "done, what's next" rather than leaving the child on a finished letter.
+  // The last character has no onNext, so there the praise just closes.
+  const dismissCelebration = useCallback(() => {
+    if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
+    setShowCelebration(false);
+    onNext?.();
+  }, [onNext]);
 
   // Reset writingDone when character changes
   const [prevId, setPrevId] = useState(id);
@@ -178,7 +191,7 @@ export default function LearningScreen({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowCelebration(false)}
+            onClick={dismissCelebration}
           >
             <motion.div
               className="flex flex-col items-center gap-4 rounded-3xl bg-white p-8 shadow-modal"

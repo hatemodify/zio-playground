@@ -49,8 +49,8 @@ test('syllable writing saves completion, resets on next letter and preserves ear
   await page.mouse.move(box.x + 180, box.y + 200, { steps: 5 });
   await page.mouse.up();
   await page.getByRole('button', { name: '확인', exact: true }).click();
+  // Closing the praise carries straight on to the next syllable.
   await page.getByText('잘했어!', { exact: true }).click();
-  await page.getByRole('button', { name: '다음', exact: true }).click();
   await expect(page.getByLabel('글자 조합')).toHaveText('ㄴ + ㅏ = 나');
   await expect(page.getByRole('button', { name: '확인', exact: true })).toHaveCount(0);
   const items = await page.evaluate(() => JSON.parse(localStorage.getItem('kidsedu-progress')!).state.items);

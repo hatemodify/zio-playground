@@ -1,5 +1,5 @@
 import { memo, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/cn';
 import { useGamificationStore } from '@/stores/gamification-store';
 import Badge from './Badge';
@@ -31,9 +31,19 @@ function TopBar({
   compact = false,
 }: TopBarProps) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const totalStars = useGamificationStore((s) => s.totalStars);
   const level = useGamificationStore((s) => s.level);
   const streak = useGamificationStore((s) => s.streak);
+
+  // Opened straight from a link or the installed shell, there is nothing to pop
+  // — going "back" then has to mean the section this page belongs to.
+  const goBack = () => {
+    const entry = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+    if (entry > 0) return navigate(-1);
+    const segments = pathname.split('/').filter(Boolean);
+    navigate(segments.length > 1 ? `/${segments[0]}` : '/', { replace: true });
+  };
 
   return (
     <header
@@ -49,7 +59,7 @@ function TopBar({
       <div className="flex items-center gap-3">
         {showBack ? (
           <button
-            onClick={() => navigate(-1)}
+            onClick={goBack}
             className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-bg-warm transition-colors touch-manipulation"
             aria-label="뒤로 가기"
           >

@@ -17,6 +17,9 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
+/** Destinations the bottom nav already reaches; everything else is a page to come back from. */
+const TAB_PATHS = ['/', '/numbers', '/hangul', '/english', '/games'];
+
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -52,6 +55,7 @@ export default function AppLayout() {
   useSession();
   const { pathname } = useLocation();
   const isLandscape = useLandscapeTablet();
+  const showBack = !TAB_PATHS.includes(pathname.replace(/(.)\/$/, '$1'));
 
   // iOS Safari and Android WebViews keep the AudioContext muted until it's
   // resumed from a real user gesture. Spend the app's first tap on it.
@@ -89,10 +93,10 @@ export default function AppLayout() {
         isLandscape ? 'max-w-none flex-row' : 'max-w-[1024px] flex-col',
       )}
     >
-      {!isLandscape && <TopBar />}
+      {!isLandscape && <TopBar showBack={showBack} />}
       {isLandscape && <BottomNav landscape />}
       <main className="flex flex-1 flex-col overflow-y-auto">
-        {isLandscape && <TopBar compact />}
+        {isLandscape && <TopBar compact showBack={showBack} />}
         <ErrorBoundary key={pathname}>
           <Outlet />
         </ErrorBoundary>
