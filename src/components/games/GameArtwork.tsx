@@ -35,6 +35,7 @@ const ART: Record<string, { picture: PictureId; friend?: PictureId; text?: strin
   'number-bonds': { picture: 'rabbit', friend: 'rabbit', text: '3 + ?', background: '#e7f3e1' },
   'shape-explorer': { picture: 'kite', friend: 'soccer-ball', text: '○ △ □', background: '#fde8e6' },
   maze: { picture: 'rabbit', friend: 'carrot', text: '⌐ ¬', background: '#e9f0d8' },
+  clock: { picture: 'alarm-clock', text: '3:30', background: '#e3eefb' },
 };
 export default function GameArtwork({ gameId }: { gameId: string }) {
   if (gameId === 'daruma') return <div aria-hidden="true" className="relative flex h-36 flex-col items-center justify-center bg-[#f4e5cc] sm:h-40"><img src="/assets/illustrations/daruma.svg" alt="" className="h-24 w-24" /><div className="h-3 w-20 rounded-full bg-[#71b6db]" /><div className="h-3 w-20 rounded-full bg-[#ef9d54]" /><img src="/assets/illustrations/daruma-mallet.svg" alt="" className="absolute bottom-4 right-[12%] h-16 w-16 -rotate-45" /></div>;

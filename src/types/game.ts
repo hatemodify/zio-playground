@@ -34,7 +34,8 @@ export type GameId =
   | 'number-bonds'
   | 'shape-explorer'
   | 'maze'
-  | 'listen-find';
+  | 'listen-find'
+  | 'clock';
 
 export type GameState = 'ready' | 'playing' | 'success' | 'fail' | 'reward';
 

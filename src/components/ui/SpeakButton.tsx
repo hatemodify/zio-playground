@@ -4,8 +4,8 @@ import { cn } from '@/lib/cn';
 import { useVoice } from '@/hooks/use-voice';
 
 interface SpeakButtonProps {
-  /** Voice clip id from `voiceId` in data/voice-lines. */
-  clip: string;
+  /** Voice clip id from `voiceId` in data/voice-lines — or a few ids played back to back. */
+  clip: string | string[];
   label?: string;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
@@ -24,7 +24,7 @@ export default function SpeakButton({ clip, label = '소리 듣기', size = 'md'
     <motion.button
       type="button"
       aria-label={label}
-      data-voice-clip={clip}
+      data-voice-clip={Array.isArray(clip) ? clip.join(' ') : clip}
       className={cn('speak-button', SIZES[size], playing && 'speak-button-playing', className)}
       whileTap={{ scale: 0.9 }}
       onClick={async (event) => {

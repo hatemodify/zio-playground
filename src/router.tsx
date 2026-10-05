@@ -87,6 +87,7 @@ export const router = createBrowserRouter([
       { path: '/games/tens-ones', element: lazyPage(() => import('./pages/TensOnesGamePage')) },
       { path: '/games/number-bonds', element: lazyPage(() => import('./pages/NumberBondsGamePage')) },
       { path: '/games/listen-find', element: lazyPage(() => import('./pages/ListenFindGamePage')) },
+      { path: '/games/clock', element: lazyPage(() => import('./pages/ClockGamePage')) },
       { path: '/games/daruma', element: lazyPage(() => import('./pages/DarumaGamePage')) },
       { path: '/games/juice-math', element: lazyPage(() => import('./pages/JuiceMathGamePage')) },
       { path: '/games/mini-festival', element: lazyPage(() => import('./pages/MiniFestivalGamePage')) },

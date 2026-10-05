@@ -33,12 +33,24 @@ export const voiceId = {
   shape: (lang: VoiceLang, slug: string) => `${lang}-shape-${slug}`,
   /** A fixed phrase such as a position word or a short prompt. */
   phrase: (key: string) => `ko-phrase-${key}`,
+  /** An hour on the clock, 1–12, read the Korean way (세 시). */
+  clockHour: (hour: number) => `ko-clock-hour-${hour}`,
+  /** Minutes past the hour in steps of five (삼십 분). */
+  clockMinute: (minute: number) => `ko-clock-minute-${minute}`,
 };
+
+/** Native-Korean hour words as they are read on a clock, indexed by hour 1–12. */
+export const CLOCK_HOUR_WORDS = ['', '한', '두', '세', '네', '다섯', '여섯', '일곱', '여덟', '아홉', '열', '열한', '열두'];
+const SINO_ONES = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+const SINO_TENS = ['', '십', '이십', '삼십', '사십', '오십'];
+/** Sino-Korean minute words: 5 → 오, 30 → 삼십, 45 → 사십오. */
+export const clockMinuteWord = (minute: number) => `${SINO_TENS[Math.floor(minute / 10)]}${SINO_ONES[minute % 10]}`;
 
 export const VOICE_PHRASES: Record<string, string> = {
   above: '위', below: '아래', inside: '안', outside: '밖', front: '앞', behind: '뒤', beside: '옆',
   'listen-char': '잘 듣고 글자를 찾아요', 'listen-word': '잘 듣고 그림을 찾아요', 'listen-first': '첫 글자를 찾아요',
   'well-done': '참 잘했어요', 'try-again': '다시 한번 해 볼까요',
+  sharp: '정각', 'clock-set': '시계를 맞춰 보세요', 'clock-read': '몇 시일까요', 'clock-free': '바늘을 돌려 보세요',
 };
 
 export function buildVoiceLines(): VoiceLine[] {
@@ -64,6 +76,8 @@ export function buildVoiceLines(): VoiceLine[] {
     lines.push({ id: voiceId.word('en', id), lang: 'en', text: item.english });
   }
   for (const [key, text] of Object.entries(VOICE_PHRASES)) lines.push({ id: voiceId.phrase(key), lang: 'ko', text });
+  for (let hour = 1; hour <= 12; hour++) lines.push({ id: voiceId.clockHour(hour), lang: 'ko', text: `${CLOCK_HOUR_WORDS[hour]} 시` });
+  for (let minute = 5; minute < 60; minute += 5) lines.push({ id: voiceId.clockMinute(minute), lang: 'ko', text: `${clockMinuteWord(minute)} 분` });
   return lines;
 }
 

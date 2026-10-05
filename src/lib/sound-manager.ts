@@ -72,7 +72,7 @@ class SoundManager {
   private volume = 0.8;
   private unlocked = false;
   private clips = new Map<string, Promise<AudioBuffer | null>>();
-  private voiceSource: AudioBufferSourceNode | null = null;
+  private voiceSources: AudioBufferSourceNode[] = [];
 
   private getContext(): AudioContext | null {
     if (!this.ctx) {
@@ -137,25 +137,40 @@ class SoundManager {
    * once the clip has started (or could not), never when it has finished.
    */
   async playClip(url: string): Promise<boolean> {
+    return this.playClips([url]);
+  }
+
+  /**
+   * Plays several clips back to back as one utterance ("세 시" + "삼십 분"), so
+   * phrases can be assembled from a few shared recordings. Stopping the voice
+   * cuts the whole sequence, not just the clip that is sounding.
+   */
+  async playClips(urls: string[]): Promise<boolean> {
     const ctx = this.getContext();
-    if (!ctx) return false;
-    // Decoding works on a suspended context too, so the clip is warm for the next try.
-    const [buffer] = await Promise.all([
-      this.loadClip(url),
+    if (!ctx || urls.length === 0) return false;
+    // Decoding works on a suspended context too, so the clips are warm for the next try.
+    const [buffers] = await Promise.all([
+      Promise.all(urls.map((url) => this.loadClip(url))),
       ctx.state === 'suspended' ? ctx.resume().catch(() => {}) : Promise.resolve(),
     ]);
-    if (!buffer || ctx.state !== 'running') return false;
+    const ready = buffers.filter((buffer): buffer is AudioBuffer => buffer !== null);
+    if (ready.length === 0 || ctx.state !== 'running') return false;
     this.stopVoice();
     try {
-      const source = ctx.createBufferSource();
       const gain = ctx.createGain();
-      source.buffer = buffer;
       gain.gain.value = this.volume;
-      source.connect(gain);
       gain.connect(ctx.destination);
-      source.onended = () => { if (this.voiceSource === source) this.voiceSource = null; };
-      source.start();
-      this.voiceSource = source;
+      let at = ctx.currentTime;
+      const sources = ready.map((buffer) => {
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(gain);
+        source.start(at);
+        at += buffer.duration + 0.12;
+        return source;
+      });
+      this.voiceSources = sources;
+      sources[sources.length - 1].onended = () => { if (this.voiceSources === sources) this.voiceSources = []; };
       return true;
     } catch {
       return false;
@@ -163,8 +178,10 @@ class SoundManager {
   }
 
   stopVoice(): void {
-    try { this.voiceSource?.stop(); } catch { /* already stopped */ }
-    this.voiceSource = null;
+    for (const source of this.voiceSources) {
+      try { source.stop(); } catch { /* already stopped */ }
+    }
+    this.voiceSources = [];
   }
 
   async play(soundId: SoundId): Promise<void> {
