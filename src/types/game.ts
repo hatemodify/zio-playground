@@ -25,7 +25,16 @@ export type GameId =
   | 'picture-words'
   | 'pattern-garden'
   | 'rocket-ride'
-  | 'animal-playground';
+  | 'animal-playground'
+  | 'word-pictures'
+  | 'first-sound'
+  | 'position-words'
+  | 'daily-routine'
+  | 'tens-ones'
+  | 'number-bonds'
+  | 'shape-explorer'
+  | 'maze'
+  | 'listen-find';
 
 export type GameState = 'ready' | 'playing' | 'success' | 'fail' | 'reward';
 

@@ -45,6 +45,8 @@ interface LearningScreenProps {
   bottomContent?: React.ReactNode;
   onNext?: () => void;
   onPrev?: () => void;
+  /** Passed straight to the writing sheet; shapes trace a dashed outline instead of a glyph. */
+  guideStyle?: 'glyph' | 'outline';
   className?: string;
 }
 
@@ -56,6 +58,7 @@ export default function LearningScreen({
   bottomContent,
   onNext,
   onPrev,
+  guideStyle,
   className,
 }: LearningScreenProps) {
   const { completeTracingStage, getItem, initializeItem } = useProgressStore();
@@ -162,6 +165,7 @@ export default function LearningScreen({
           <WritingCanvas
             character={character}
             canvasSize={canvasSize}
+            guideStyle={guideStyle}
             onComplete={handleWritingComplete}
           />
         </div>

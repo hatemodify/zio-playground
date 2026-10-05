@@ -96,6 +96,20 @@ const navItems: NavItem[] = [
     ),
   },
   {
+    path: '/shapes',
+    label: '도형',
+    activeColor: 'text-shapes',
+    activeBg: 'bg-shapes/10',
+    icon: (active) => (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <circle cx="9" cy="9" r="5.5" stroke="currentColor" strokeWidth="2" fill={active ? 'currentColor' : 'none'} fillOpacity={active ? 0.2 : 0} />
+        <rect x="15" y="15" width="10" height="10" rx="2" stroke="currentColor" strokeWidth="2" fill={active ? 'currentColor' : 'none'} fillOpacity={active ? 0.2 : 0} />
+        <path d="M9 15.5 L14 24.5 H4 Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" fill={active ? 'currentColor' : 'none'} fillOpacity={active ? 0.2 : 0} />
+        <path d="M20 3.5 L21.6 7.2 L25.5 7.5 L22.5 10.1 L23.4 14 L20 12 L16.6 14 L17.5 10.1 L14.5 7.5 L18.4 7.2 Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" fill={active ? 'currentColor' : 'none'} fillOpacity={active ? 0.2 : 0} />
+      </svg>
+    ),
+  },
+  {
     path: '/games',
     label: '게임',
     activeColor: 'text-games',

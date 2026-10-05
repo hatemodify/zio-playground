@@ -46,7 +46,7 @@ test('the last character has nowhere to advance, so the praise just closes', asy
 
 const BACK = { name: '뒤로 가기' };
 
-for (const tab of ['/', '/numbers', '/hangul', '/english', '/games']) {
+for (const tab of ['/', '/numbers', '/hangul', '/english', '/shapes', '/games']) {
   test(`the bottom-nav tab ${tab} needs no back button`, async ({ page }) => {
     await page.goto(tab);
     await expect(page.getByRole('button', BACK)).toHaveCount(0);
@@ -57,6 +57,7 @@ for (const [label, path, parent] of [
   ['한글 낱글자', '/hangul/ㄱ', '/hangul'],
   ['숫자 낱장', '/numbers/3', '/numbers'],
   ['영어 낱글자', '/english/B', '/english'],
+  ['도형 낱장', '/shapes/circle', '/shapes'],
   ['게임', '/games/daruma', '/games'],
   ['스티커북', '/stickers', '/'],
   ['설정', '/settings', '/'],

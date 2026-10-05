@@ -1,10 +1,11 @@
 import { useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { CategoryCard, StreakBanner, DailyRecommendation, CharacterDdori } from '@/components/features';
+import { CategoryCard, StreakBanner, DailyRecommendation, CharacterDdori, ReviewCard } from '@/components/features';
+import { buildReviewPlan } from '@/lib/review-plan';
 import { useProgressStore } from '@/stores/progress-store';
 import { useGamificationStore } from '@/stores/gamification-store';
-import { NUMBERS_DATA, HANGUL_DATA, ENGLISH_DATA } from '@/data';
+import { NUMBERS_DATA, HANGUL_DATA, ENGLISH_DATA, SHAPES_DATA } from '@/data';
 import type { LearningCategory } from '@/types/learning';
 
 function getGreeting(): string {
@@ -18,11 +19,14 @@ export default function HomePage() {
   const navigate = useNavigate();
   const progressItems = useProgressStore((s) => s.items);
   const { streak } = useGamificationStore();
+  const gameRecords = useGamificationStore((s) => s.gameRecords);
   const nickname = useProgressStore((s) => s.nickname);
+  const review = useMemo(() => buildReviewPlan(progressItems, gameRecords), [progressItems, gameRecords]);
 
   const numbersProgress = Object.values(progressItems).filter((item) => item.category === 'numbers' && item.completed).length;
   const hangulProgress = Object.values(progressItems).filter((item) => item.category === 'hangul' && item.completed).length;
   const englishProgress = Object.values(progressItems).filter((item) => item.category === 'english' && item.completed).length;
+  const shapesProgress = Object.values(progressItems).filter((item) => item.category === 'shapes' && item.completed).length;
 
   const recommendations = useMemo(() => {
     const items: { id: string; character: string; category: LearningCategory; label?: string }[] = [];
@@ -42,6 +46,11 @@ export default function HomePage() {
         items.push({ id: e.id, character: e.character, category: 'english', label: e.word });
       }
     }
+    for (const s of SHAPES_DATA) {
+      if (!progressItems[s.id]?.completed) {
+        items.push({ id: s.id, character: s.character, category: 'shapes', label: s.name });
+      }
+    }
 
     // Shuffle and take up to 5
     const shuffled = items.sort(() => Math.random() - 0.5);
@@ -57,6 +66,7 @@ export default function HomePage() {
       numbers: '/numbers',
       hangul: '/hangul',
       english: '/english',
+      shapes: '/shapes',
     };
     const charId = item.id.split('-').slice(1).join('-');
     navigate(`${routeMap[item.category]}/${charId}`);
@@ -83,9 +93,9 @@ export default function HomePage() {
       {/* Streak Banner */}
       <StreakBanner streak={streak} />
 
-      {/* Category Cards - 2x2 Grid, landscape 4-col */}
+      {/* Category Cards - 2-col grid (games spans the last row), landscape 5-col */}
       <motion.div
-        className="grid grid-cols-2 gap-3 landscape-tablet:grid-cols-4"
+        className="grid grid-cols-2 gap-3 landscape-tablet:grid-cols-5"
         initial="hidden"
         animate="visible"
         variants={{
@@ -97,10 +107,12 @@ export default function HomePage() {
           { category: 'numbers' as const, progress: numbersProgress, route: '/numbers' },
           { category: 'hangul' as const, progress: hangulProgress, route: '/hangul' },
           { category: 'english' as const, progress: englishProgress, route: '/english' },
+          { category: 'shapes' as const, progress: shapesProgress, route: '/shapes' },
           { category: 'games' as const, progress: 0, route: '/games' },
         ].map((item) => (
           <motion.div
             key={item.category}
+            className={item.category === 'games' ? 'col-span-2 landscape-tablet:col-span-1' : undefined}
             variants={{
               hidden: { opacity: 0, y: 20 },
               visible: { opacity: 1, y: 0 },
@@ -133,6 +145,13 @@ export default function HomePage() {
           <polyline points="9 18 15 12 9 6" />
         </svg>
       </motion.button>
+
+      {/* Yesterday's learning, back for a second look */}
+      <ReviewCard
+        plan={review}
+        onItemClick={handleRecommendationClick}
+        onGameClick={(game) => navigate(`/games/${game.id}`)}
+      />
 
       {/* Daily Recommendation */}
       {recommendations.length > 0 && (

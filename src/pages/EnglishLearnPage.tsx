@@ -1,5 +1,8 @@
 import Picture from '@/components/games/Picture';
-import { PICTURE_WORDS } from '@/data/picture-content';
+import SpeakButton from '@/components/ui/SpeakButton';
+import { hasPicture, pictureName } from '@/data/picture-content';
+import { voiceId } from '@/data/voice-lines';
+import { useAutoSpeak } from '@/hooks/use-voice';
 import { useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -15,7 +18,8 @@ export default function EnglishLearnPage() {
     return getEnglishByCharacter(id);
   }, [id]);
 
-  const picture = PICTURE_WORDS.find((word) => word.id === item?.wordImage);
+  const picture = item && hasPicture(item.wordImage) ? item.wordImage : null;
+  useAutoSpeak(item ? voiceId.letter(item.uppercase) : null);
 
   const currentIndex = useMemo(() => {
     if (!item) return -1;
@@ -68,17 +72,19 @@ export default function EnglishLearnPage() {
                 {item.lowercase}
               </span>
             </motion.div>
+            <SpeakButton clip={voiceId.letter(item.uppercase)} label={`${item.uppercase} 듣기`} size="sm" />
           </div>
         }
         bottomContent={
           <div className="flex w-full items-center gap-4 rounded-2xl bg-bg-soft p-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-english/15 text-2xl font-bold text-english">
-              {picture ? <Picture id={picture.id} label={picture.name} className="h-16 w-16" /> : item.uppercase}
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-english/15 text-2xl font-bold text-english">
+              {picture ? <Picture id={picture} label={pictureName(picture)} className="h-14 w-14" /> : item.uppercase}
             </div>
-            <div className="flex flex-col text-left">
+            <div className="flex min-w-0 flex-1 flex-col text-left">
               <span className="font-display text-lg font-bold text-text-dark">{item.word}</span>
               <span className="text-sm text-text-medium">{item.wordKorean}</span>
             </div>
+            {picture && <SpeakButton clip={voiceId.word('en', picture)} label={`${item.word} 듣기`} />}
           </div>
         }
       />

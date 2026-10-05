@@ -20,12 +20,14 @@ const categoryBarColor: Record<LearningCategory, string> = {
   numbers: 'bg-numbers',
   hangul: 'bg-hangul',
   english: 'bg-english',
+  shapes: 'bg-shapes',
 };
 
 const categoryLabel: Record<LearningCategory, string> = {
   numbers: '숫자',
   hangul: '한글',
   english: '영어',
+  shapes: '도형',
 };
 
 function DailyRecommendation({

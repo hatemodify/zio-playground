@@ -22,7 +22,7 @@ test('syllable lists change with the vowel and open composed writing lessons', a
   await page.getByRole('button', { name: '글자 (가나다)' }).click();
   for (const char of ['가', '나', '다', '라', '마', '바', '사']) await expect(page.getByRole('button', { name: new RegExp(`^${char} -`) })).toBeVisible();
   await page.getByRole('button', { name: 'ㅗ 모음 글자' }).click();
-  await page.getByRole('button', { name: '고 - ㄱ + ㅗ', exact: true }).click();
+  await page.getByRole('button', { name: '고 - 고양이', exact: true }).click();
   await expect(page.getByLabel('글자 조합')).toHaveText('ㄱ + ㅗ = 고');
   await expect(page.getByText('따라 쓰기', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: '자음 ㄴ', exact: true }).click();

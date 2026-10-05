@@ -26,6 +26,15 @@ const ART: Record<string, { picture: PictureId; friend?: PictureId; text?: strin
   'juice-math': { picture: 'strawberry', friend: 'orange', text: '3 + 4', background: '#ffe4e6' },
   'number-compare': { picture: 'elephant', friend: 'pig', text: '>', background: '#e4eff4' },
   'food-stack': { picture: 'burger', friend: 'cheese', background: '#fff0ce' },
+  'word-pictures': { picture: 'rabbit', friend: 'apple', text: '토끼', background: '#fdf0d5' },
+  'first-sound': { picture: 'giraffe', text: 'ㄱ', background: '#e2f4ea' },
+  'position-words': { picture: 'bear', friend: 'gift', text: '위 · 아래', background: '#e7eef9' },
+  'daily-routine': { picture: 'toothbrush', friend: 'soap', text: '1 → 2 → 3', background: '#e3f6f5' },
+  'listen-find': { picture: 'parrot', text: '🔊', background: '#f4e6f8' },
+  'tens-ones': { picture: 'egg', friend: 'egg', text: '10 + 3', background: '#fff3d6' },
+  'number-bonds': { picture: 'rabbit', friend: 'rabbit', text: '3 + ?', background: '#e7f3e1' },
+  'shape-explorer': { picture: 'kite', friend: 'soccer-ball', text: '○ △ □', background: '#fde8e6' },
+  maze: { picture: 'rabbit', friend: 'carrot', text: '⌐ ¬', background: '#e9f0d8' },
 };
 export default function GameArtwork({ gameId }: { gameId: string }) {
   if (gameId === 'daruma') return <div aria-hidden="true" className="relative flex h-36 flex-col items-center justify-center bg-[#f4e5cc] sm:h-40"><img src="/assets/illustrations/daruma.svg" alt="" className="h-24 w-24" /><div className="h-3 w-20 rounded-full bg-[#71b6db]" /><div className="h-3 w-20 rounded-full bg-[#ef9d54]" /><img src="/assets/illustrations/daruma-mallet.svg" alt="" className="absolute bottom-4 right-[12%] h-16 w-16 -rotate-45" /></div>;

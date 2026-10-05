@@ -2,8 +2,14 @@ import { useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import LearningScreen from '@/components/features/LearningScreen';
+import SpeakButton from '@/components/ui/SpeakButton';
 import { getNumberByValue, NUMBERS_MAX } from '@/data';
+import { voiceId } from '@/data/voice-lines';
+import { useAutoSpeak } from '@/hooks/use-voice';
 import { cn } from '@/lib/cn';
+
+/** A ten-frame holds two rows of five, so "10" becomes a shape the eye can read at a glance. */
+const FRAME_SIZE = 10;
 
 export default function NumberLearnPage() {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +17,7 @@ export default function NumberLearnPage() {
 
   const numId = Number(id);
   const item = useMemo(() => getNumberByValue(numId), [numId]);
+  useAutoSpeak(item ? voiceId.number('ko', item.number) : null);
 
   const handleNext = useCallback(() => {
     if (numId < NUMBERS_MAX) {
@@ -53,9 +60,17 @@ export default function NumberLearnPage() {
             >
               {item.character}
             </motion.span>
-            <span className="text-lg font-medium text-text-medium">
-              {item.koreanName} / {item.englishName}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5 text-lg font-medium text-text-medium">
+                {item.koreanName}
+                <SpeakButton clip={voiceId.number('ko', item.number)} label={`${item.koreanName} 듣기`} size="sm" />
+              </span>
+              <span className="text-text-light">/</span>
+              <span className="flex items-center gap-1.5 text-lg font-medium text-text-medium">
+                {item.englishName}
+                <SpeakButton clip={voiceId.number('en', item.number)} label={`${item.englishName} 듣기`} size="sm" />
+              </span>
+            </div>
           </div>
         }
         bottomContent={
@@ -69,7 +84,7 @@ export default function NumberLearnPage() {
   );
 }
 
-/* Counting Interaction - Touch objects one by one */
+/* Counting Interaction - Touch objects one by one, laid out in ten-frames */
 interface CountingProps {
   count: number;
   objectLabel: string;
@@ -79,6 +94,9 @@ interface CountingProps {
 function CountingInteraction({ count, objectLabel, onComplete }: CountingProps) {
   const [touched, setTouched] = useState<boolean[]>(Array(count).fill(false));
   const touchedCount = touched.filter(Boolean).length;
+  const frames = Math.ceil(count / FRAME_SIZE);
+  const tens = Math.floor(count / FRAME_SIZE);
+  const ones = count % FRAME_SIZE;
 
   const handleTouch = useCallback((index: number) => {
     if (touched[index]) return;
@@ -97,33 +115,66 @@ function CountingInteraction({ count, objectLabel, onComplete }: CountingProps) 
       <span className="text-sm font-medium text-text-medium">
         {objectLabel}을(를) 하나씩 터치해 보세요!
       </span>
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        {Array.from({ length: count }, (_, i) => (
-          <motion.button
-            key={i}
-            className={cn(
-              'flex items-center justify-center rounded-full text-2xl',
-              'touch-manipulation select-none transition-colors',
-              // Past 20 objects a full-size grid no longer fits a phone screen.
-              count > 20 ? 'h-9 w-9' : 'h-12 w-12',
-              touched[i]
-                ? 'bg-success/20 text-success'
-                : 'bg-numbers/15 text-numbers',
-            )}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => handleTouch(i)}
-            aria-label={`${objectLabel} ${i + 1}`}
-          >
-            {touched[i] ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            ) : (
-              <span className="text-lg font-bold">{i + 1}</span>
-            )}
-          </motion.button>
-        ))}
+      <div className="flex flex-wrap items-start justify-center gap-3" data-ten-frames={frames}>
+        {Array.from({ length: frames }, (_, frame) => {
+          const start = frame * FRAME_SIZE;
+          const size = Math.min(FRAME_SIZE, count - start);
+          const full = size === FRAME_SIZE;
+          const frameDone = touched.slice(start, start + size).every(Boolean);
+          return (
+            <div
+              key={frame}
+              className={cn(
+                'relative grid grid-cols-5 gap-1.5 rounded-xl border-2 p-1.5 transition-colors',
+                full ? 'border-numbers/40' : 'border-dashed border-numbers/25',
+                frameDone && 'border-success/60 bg-success/5',
+              )}
+              role="group"
+              aria-label={full ? `10개 묶음 ${frame + 1}` : `낱개 ${size}개`}
+            >
+              {full && (
+                <span className={cn(
+                  'absolute -top-2.5 left-2 rounded-full px-1.5 text-[11px] font-bold leading-4 text-white',
+                  frameDone ? 'bg-success' : 'bg-numbers',
+                )}>10</span>
+              )}
+              {Array.from({ length: size }, (_, k) => {
+                const i = start + k;
+                return (
+                  <motion.button
+                    key={i}
+                    className={cn(
+                      'flex items-center justify-center rounded-full text-2xl',
+                      'touch-manipulation select-none transition-colors',
+                      // Past 20 objects a full-size grid no longer fits a phone screen.
+                      count > 20 ? 'h-9 w-9' : 'h-12 w-12',
+                      touched[i]
+                        ? 'bg-success/20 text-success'
+                        : 'bg-numbers/15 text-numbers',
+                    )}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => handleTouch(i)}
+                    aria-label={`${objectLabel} ${i + 1}`}
+                  >
+                    {touched[i] ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : (
+                      <span className="text-lg font-bold">{i + 1}</span>
+                    )}
+                  </motion.button>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
+      {count > FRAME_SIZE && (
+        <span className="text-sm font-semibold text-numbers">
+          10개 묶음 {tens}개{ones > 0 ? ` + 낱개 ${ones}개` : ''} = {count}
+        </span>
+      )}
       <span className="font-display text-xl font-bold text-text-dark">
         {touchedCount} / {count}
       </span>

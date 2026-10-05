@@ -7,6 +7,12 @@ interface WritingCanvasProps {
   character: string;
   canvasSize?: number;
   strokeColor?: string;
+  /**
+   * How the faint reference is drawn before the stroke order is revealed:
+   * the character's glyph (text), or its stroke paths as a thin outline — for
+   * shapes, whose Unicode glyphs are small and sit badly in a font.
+   */
+  guideStyle?: 'glyph' | 'outline';
   onComplete?: () => void;
   className?: string;
 }
@@ -34,6 +40,7 @@ export default function WritingCanvas({
   character,
   canvasSize = 320,
   strokeColor = '#4A90D9',
+  guideStyle = 'glyph',
   onComplete,
   className,
 }: WritingCanvasProps) {
@@ -65,7 +72,24 @@ export default function WritingCanvas({
 
     // The glyph and the stroke paths are drawn from different sources and do not
     // line up, so the revealed stroke order stands in as the reference instead.
-    if (progress === null) {
+    if (progress === null && guideStyle === 'outline' && strokes) {
+      ctx.globalAlpha = 0.22;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#999';
+      ctx.lineWidth = Math.max(4, canvasSize * 0.015);
+      ctx.setLineDash([canvasSize * 0.03, canvasSize * 0.02]);
+      for (const stroke of strokes) {
+        ctx.beginPath();
+        stroke.points.forEach((point, index) => {
+          if (index === 0) ctx.moveTo(point.x * canvasSize, point.y * canvasSize);
+          else ctx.lineTo(point.x * canvasSize, point.y * canvasSize);
+        });
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    } else if (progress === null) {
       ctx.globalAlpha = 0.08;
       ctx.font = `bold ${canvasSize * 0.6}px "Nunito", "Pretendard Variable", sans-serif`;
       ctx.fillStyle = '#999';
@@ -121,7 +145,7 @@ export default function WritingCanvas({
     }
 
     ctx.restore();
-  }, [character, canvasSize, dpr, strokes]);
+  }, [character, canvasSize, dpr, strokes, guideStyle]);
 
   // Initialize canvases. Also runs when the character or the available size
   // changes: resizing a canvas wipes its pixels, so the stroke state has to go

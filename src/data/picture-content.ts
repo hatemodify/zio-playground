@@ -65,12 +65,73 @@ export const VEHICLES = [
 
 export const PICTURE_WORDS = [...ANIMALS, ...FOODS, ...VEHICLES];
 export const COLLECTIBLE_PICTURES = ['high-speed-train', 'monorail', 'tram', 'submarine', 'submersible', 'speedboat', 'hovercraft', 'cruise-ship', 'cable-car', 'motorcycle', 'scooter', 'hot-air-balloon', 'hang-glider', 'zipline', 'snowmobile', 'ufo', 'light-plane', 'fighter', 'shuttle', 'trophy'] as const;
-export type PictureId = typeof COLLECTIBLE_PICTURES[number] | typeof PICTURE_WORDS[number]['id'] | 'rocket' | 'rocket-blue' | 'meteor' | 'star' | 'burger' | 'donut' | 'fish' | 'car-red' | 'car-blue' | 'car-green';
+/**
+ * Twemoji SVGs under public/assets/twemoji (CC BY 4.0, see CREDITS.md there).
+ * Only ids that no illustration or Kenney asset already claims live here, so a
+ * PictureId always resolves to exactly one file.
+ */
+export const TWEMOJI_PICTURES = {
+  // animals & nature
+  cat: { name: '고양이', english: 'Cat' }, lion: { name: '사자', english: 'Lion' }, octopus: { name: '문어', english: 'Octopus' },
+  butterfly: { name: '나비', english: 'Butterfly' }, turtle: { name: '거북이', english: 'Turtle' }, squirrel: { name: '다람쥐', english: 'Squirrel' },
+  fox: { name: '여우', english: 'Fox' }, unicorn: { name: '유니콘', english: 'Unicorn' }, jellyfish: { name: '해파리', english: 'Jellyfish' },
+  koala: { name: '코알라', english: 'Koala' }, tiger: { name: '호랑이', english: 'Tiger' }, raccoon: { name: '너구리', english: 'Raccoon' },
+  shell: { name: '조개', english: 'Shell' }, nest: { name: '둥지', english: 'Nest' }, seedling: { name: '새싹', english: 'Seedling' },
+  sunflower: { name: '해바라기', english: 'Sunflower' }, tulip: { name: '튤립', english: 'Tulip' }, cactus: { name: '선인장', english: 'Cactus' },
+  'cherry-blossom': { name: '벚꽃', english: 'Cherry blossom' }, 'maple-leaf': { name: '단풍잎', english: 'Maple leaf' }, 'palm-tree': { name: '야자나무', english: 'Palm tree' },
+  'christmas-tree': { name: '크리스마스트리', english: 'Christmas tree' }, earth: { name: '지구', english: 'Earth' },
+  // sky & weather
+  rainbow: { name: '무지개', english: 'Rainbow' }, sun: { name: '해', english: 'Sun' }, moon: { name: '달', english: 'Moon' },
+  cloud: { name: '구름', english: 'Cloud' }, 'rain-cloud': { name: '비', english: 'Rain' }, 'snow-cloud': { name: '눈', english: 'Snow' },
+  snowman: { name: '눈사람', english: 'Snowman' }, 'glowing-star': { name: '반짝별', english: 'Glowing star' }, sparkles: { name: '반짝이', english: 'Sparkles' },
+  // food
+  'ice-cream': { name: '아이스크림', english: 'Ice cream' }, pizza: { name: '피자', english: 'Pizza' }, sandwich: { name: '샌드위치', english: 'Sandwich' },
+  pancakes: { name: '팬케이크', english: 'Pancakes' }, cupcake: { name: '머핀', english: 'Cupcake' }, doughnut: { name: '도넛', english: 'Doughnut' },
+  cookie: { name: '쿠키', english: 'Cookie' }, watermelon: { name: '수박', english: 'Watermelon' }, cherries: { name: '체리', english: 'Cherries' },
+  'birthday-cake': { name: '생일 케이크', english: 'Birthday cake' }, pineapple: { name: '파인애플', english: 'Pineapple' }, lemon: { name: '레몬', english: 'Lemon' },
+  kiwi: { name: '키위', english: 'Kiwi' }, chocolate: { name: '초콜릿', english: 'Chocolate' }, juice: { name: '주스', english: 'Juice' },
+  coffee: { name: '커피', english: 'Coffee' }, bowl: { name: '시리얼', english: 'Cereal' }, beans: { name: '콩', english: 'Beans' },
+  // things
+  robot: { name: '로봇', english: 'Robot' }, kite: { name: '연', english: 'Kite' }, balloon: { name: '풍선', english: 'Balloon' },
+  'teddy-bear': { name: '곰인형', english: 'Teddy bear' }, 'soccer-ball': { name: '축구공', english: 'Soccer ball' }, baseball: { name: '야구공', english: 'Baseball' },
+  football: { name: '럭비공', english: 'Football' }, gift: { name: '선물', english: 'Gift' }, castle: { name: '성', english: 'Castle' },
+  umbrella: { name: '우산', english: 'Umbrella' }, 'umbrella-rain': { name: '우산', english: 'Umbrella' }, hat: { name: '모자', english: 'Hat' },
+  violin: { name: '바이올린', english: 'Violin' }, xylophone: { name: '실로폰', english: 'Xylophone' }, tooth: { name: '이빨', english: 'Tooth' },
+  tongue: { name: '혀', english: 'Tongue' }, chef: { name: '요리사', english: 'Chef' }, child: { name: '어린이', english: 'Child' },
+  queen: { name: '여왕', english: 'Queen' }, grin: { name: '웃는 얼굴', english: 'Grin' },
+  faucet: { name: '수도꼭지', english: 'Faucet' }, soap: { name: '비누', english: 'Soap' }, bubbles: { name: '거품', english: 'Bubbles' },
+  droplet: { name: '물방울', english: 'Water drop' }, 'toilet-paper': { name: '휴지', english: 'Tissue' }, toothbrush: { name: '칫솔', english: 'Toothbrush' },
+  bathtub: { name: '욕조', english: 'Bathtub' }, shower: { name: '샤워기', english: 'Shower' }, 't-shirt': { name: '티셔츠', english: 'T-shirt' },
+  book: { name: '책', english: 'Book' }, 'blue-book': { name: '공책', english: 'Notebook' }, bed: { name: '침대', english: 'Bed' },
+  'alarm-clock': { name: '시계', english: 'Clock' }, backpack: { name: '가방', english: 'Backpack' }, school: { name: '학교', english: 'School' },
+  'white-circle': { name: '눈뭉치', english: 'Snowball' }, tent: { name: '텐트', english: 'Tent' }, 'triangle-ruler': { name: '삼각자', english: 'Triangle ruler' },
+  dice: { name: '주사위', english: 'Dice' }, window: { name: '창문', english: 'Window' }, door: { name: '문', english: 'Door' },
+  phone: { name: '휴대폰', english: 'Phone' }, 'red-heart': { name: '하트', english: 'Heart' }, 'heart-ribbon': { name: '리본 하트', english: 'Heart with ribbon' },
+  gem: { name: '보석', english: 'Gem' }, 'orange-diamond': { name: '마름모', english: 'Diamond' }, radio: { name: '라디오', english: 'Radio' },
+  microphone: { name: '마이크', english: 'Microphone' }, camera: { name: '카메라', english: 'Camera' }, circus: { name: '서커스', english: 'Circus' },
+  'music-note': { name: '노래', english: 'Music note' }, ribbon: { name: '리본', english: 'Ribbon' }, ski: { name: '스키', english: 'Ski' },
+  crayon: { name: '크레파스', english: 'Crayon' }, sailboat: { name: '요트', english: 'Yacht' },
+} as const;
+export type TwemojiId = keyof typeof TWEMOJI_PICTURES;
+export type PictureId = typeof COLLECTIBLE_PICTURES[number] | typeof PICTURE_WORDS[number]['id'] | 'rocket' | 'rocket-blue' | 'meteor' | 'star' | 'burger' | 'donut' | 'fish' | 'car-red' | 'car-blue' | 'car-green' | TwemojiId;
+const EXTRA_PICTURES = ['rocket', 'rocket-blue', 'meteor', 'star', 'burger', 'donut', 'fish', 'car-red', 'car-blue', 'car-green'];
+/** Whether a free-form id (a data file's wordImage, say) names a picture we ship. */
+export function hasPicture(id: string | undefined | null): id is PictureId {
+  if (!id) return false;
+  return (COLLECTIBLE_PICTURES as readonly string[]).includes(id) || PICTURE_WORDS.some((w) => w.id === id)
+    || EXTRA_PICTURES.includes(id) || id in TWEMOJI_PICTURES;
+}
+/** Korean display name for any picture, whichever asset set it comes from. */
+export function pictureName(id: PictureId): string {
+  return PICTURE_WORDS.find((w) => w.id === id)?.name ?? (TWEMOJI_PICTURES as Record<string, { name: string }>)[id]?.name ?? id;
+}
 export const picturePath = (id: PictureId): string => {
   if (id === 'burger') return '/assets/illustrations/burger.svg';
   if ((COLLECTIBLE_PICTURES as readonly string[]).includes(id)) return `/assets/illustrations/${id}.svg`;
   if (FOODS.some((food) => food.id === id) || VEHICLES.some((vehicle) => vehicle.id === id)) return `/assets/illustrations/${id}.svg`;
-  const folder = ANIMALS.some((animal) => animal.id === id) ? 'animals'
+  const isAnimal = ANIMALS.some((animal) => animal.id === id);
+  if (!isAnimal && id in TWEMOJI_PICTURES) return `/assets/twemoji/${id}.svg`;
+  const folder = isAnimal ? 'animals'
     : ['rocket', 'rocket-blue', 'meteor', 'star'].includes(id) ? 'space'
     : id.startsWith('car-') ? 'cars' : 'food';
   return `/assets/kenney/${folder}/${id}.png`;

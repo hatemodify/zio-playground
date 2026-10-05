@@ -34,6 +34,12 @@ const categoryConfig: Record<string, { bg: string; color: string; ringColor: str
     ringColor: 'var(--color-english)',
     gradient: 'from-english/20 to-english/5',
   },
+  shapes: {
+    bg: 'bg-shapes/12',
+    color: 'text-shapes',
+    ringColor: 'var(--color-shapes)',
+    gradient: 'from-shapes/20 to-shapes/5',
+  },
   games: {
     bg: 'bg-games/12',
     color: 'text-games',
@@ -65,6 +71,15 @@ const defaultIcons: Record<string, React.ReactNode> = {
       <text x="24" y="32" textAnchor="middle" fontFamily="Nunito, sans-serif" fontWeight="800" fontSize="22" fill="currentColor">
         ABC
       </text>
+    </svg>
+  ),
+  shapes: (
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="20" fill="currentColor" fillOpacity="0.15" />
+      <circle cx="18" cy="18" r="6" stroke="currentColor" strokeWidth="2.5" />
+      <rect x="25" y="25" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="2.5" />
+      <path d="M18 25 L24 36 H12 Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M30.5 11 L32.3 15.1 L36.8 15.5 L33.4 18.4 L34.4 22.8 L30.5 20.5 L26.6 22.8 L27.6 18.4 L24.2 15.5 L28.7 15.1 Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
     </svg>
   ),
   games: (

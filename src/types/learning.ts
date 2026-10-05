@@ -1,7 +1,7 @@
-export type LearningCategory = 'numbers' | 'hangul' | 'english';
+export type LearningCategory = 'numbers' | 'hangul' | 'english' | 'shapes';
 
 export interface ProgressItem {
-  id: string;                    // "number-1", "hangul-ㄱ", "english-A"
+  id: string;                    // "number-1", "hangul-ㄱ", "english-A", "shape-circle"
   category: LearningCategory;
   character: string;             // "1", "ㄱ", "A"
   tracingStage: 0 | 1 | 2 | 3;  // 0=미시작, 1=따라가기, 2=점잇기, 3=자유쓰기
@@ -15,16 +15,19 @@ export const CATEGORY_TOTALS: Record<LearningCategory, number> = {
   numbers: 50,
   hangul: 164, // 14 consonants + 10 vowels + 140 basic syllables
   english: 26,
+  shapes: 8,
 } as const;
 
 export const CATEGORY_LABELS: Record<LearningCategory, string> = {
   numbers: '숫자',
   hangul: '한글',
   english: '영어',
+  shapes: '도형',
 } as const;
 
 export const CATEGORY_COLORS: Record<LearningCategory, string> = {
   numbers: 'var(--color-numbers)',
   hangul: 'var(--color-hangul)',
   english: 'var(--color-english)',
+  shapes: 'var(--color-shapes)',
 } as const;

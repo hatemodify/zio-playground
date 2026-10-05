@@ -11,6 +11,8 @@
  * - Stage 3 (Free Write): faint background reference only
  */
 
+import { SHAPE_STROKES } from './shape-strokes';
+
 export interface StrokePoint {
   x: number;
   y: number;
@@ -286,6 +288,7 @@ export function getStrokesForCharacter(character: string): CharacterStroke[] | u
     NUMBER_STROKES[character] ??
     HANGUL_CONSONANT_STROKES[character] ??
     HANGUL_VOWEL_STROKES[character] ??
-    ENGLISH_UPPERCASE_STROKES[character]
+    ENGLISH_UPPERCASE_STROKES[character] ??
+    SHAPE_STROKES[character]
   );
 }

@@ -2,11 +2,16 @@ import { PICTURE_THEMES, type PictureTheme } from '@/data/picture-content';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Picture from '@/components/games/Picture';
+import PositionScene from '@/components/games/PositionScene';
+import { cn } from '@/lib/cn';
 import { AdventureFrame, AdventureIntro, RoundProgress, type Difficulty } from '@/components/games/AdventureFrame';
 import { DISCOVERY_GAMES, createDiscoveryQuestions, type DiscoveryId, type DiscoveryQuestion } from '@/data/discovery-games';
 import { useGameLogic } from '@/hooks/use-game-logic';
 import RewardCelebration from '@/components/features/RewardCelebration';
 
+/** Games where the child reads Korean or English, so the language picks the reward category. */
+const READING_GAMES: DiscoveryId[] = ['picture-words', 'word-pictures', 'first-sound'];
+const OBSERVATION_GAMES: DiscoveryId[] = ['animal-families', 'vehicle-missions', 'position-words', 'daily-routine'];
 export default function DiscoveryGamePage() {
   const { pathname } = useLocation();
   const id = pathname.split('/').pop() as DiscoveryId;
@@ -25,11 +30,12 @@ function DiscoveryGame({ id }: { id: DiscoveryId }) {
   const [correct, setCorrect] = useState(false);
   const [hadError, setHadError] = useState(false);
   const [showReward, setShowReward] = useState(true);
-  const game = useGameLogic({ gameId: id, category: id === 'picture-words' ? language === 'ko' ? 'hangul' : 'english' : ['animal-families', 'vehicle-missions'].includes(id) ? 'discovery' : 'numbers' });
+  const [shaking, setShaking] = useState<number | null>(null);
+  const game = useGameLogic({ gameId: id, category: READING_GAMES.includes(id) ? language === 'ko' ? 'hangul' : 'english' : OBSERVATION_GAMES.includes(id) ? 'discovery' : 'numbers' });
   const q = questions[round];
   const answerWord = q?.tokens ? letters.map((index) => q.tokens!.find((token) => token.id === index)!.value).join('') : '';
 
-  function clearRound() { setBasket(0); setLetters([]); setFeedback(''); setCorrect(false); setHadError(false); }
+  function clearRound() { setBasket(0); setLetters([]); setFeedback(''); setCorrect(false); setHadError(false); setShaking(null); }
   function start() {
     const next = createDiscoveryQuestions(id, difficulty, language, theme);
     setQuestions(next); setRound(0); clearRound(); setShowReward(true); game.start(next.length);
@@ -44,9 +50,22 @@ function DiscoveryGame({ id }: { id: DiscoveryId }) {
       setFeedback(id === 'little-market' ? Number(value) < Number(q.answer) ? '조금 더 담아 볼까요? 주문서와 하나씩 짝지어 봐요.' : '조금 많아요. 바구니 속 물건을 눌러 빼 보세요.'
         : id === 'vehicle-missions' ? '탈것의 모양과 맡은 일을 다시 살펴봐요.'
         : id === 'animal-families' ? '다시 관찰해 봐요. 깃털, 비늘, 새끼에게 젖을 먹이는 특징을 찾아요.'
-        : id === 'picture-words' ? `그림의 이름은 ${q.word}예요. 한 칸씩 다시 이어 볼까요?` : '처음부터 같은 묶음이 다시 나오는 곳을 찾아봐요.');
+        : id === 'picture-words' ? `그림의 이름은 ${q.word}예요. 한 칸씩 다시 이어 볼까요?`
+        : id === 'word-pictures' ? `'${q.word}'를 한 글자씩 다시 읽어 봐요. 그림의 이름을 말해 보면 알 수 있어요.`
+        : id === 'first-sound' ? `그림의 이름을 소리 내어 말해 봐요. '${q.prompt}' 소리로 시작하는 그림이 있어요.`
+        : id === 'position-words' ? `상자를 기준으로 ${q.name}의 자리를 다시 살펴봐요. ${q.choices.map((choice) => choice.label).join(', ')} 중 하나예요.`
+        : id === 'daily-routine' ? `순서가 달라요. ${letters.length + 1}번째로 하는 일은 무엇일까요?` : '처음부터 같은 묶음이 다시 나오는 곳을 찾아봐요.');
     }
   }
+  // 생활 순서: cards are tapped first-to-last; the round is solved when the last one lands.
+  function tapStep(stepIndex: number) {
+    if (correct || game.state !== 'playing' || letters.includes(stepIndex)) return;
+    if (stepIndex !== letters.length) { setShaking(stepIndex); check('wrong'); return; }
+    const placed = [...letters, stepIndex];
+    setLetters(placed); setFeedback('');
+    if (placed.length === q.steps!.length) check(q.answer);
+  }
+  const choiceGrid = (count: number) => count <= 3 ? 'grid-cols-3' : count === 4 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3 sm:grid-cols-5';
   function next() {
     if (!correct) return;
     if (round + 1 === questions.length) game.finish();
@@ -57,7 +76,7 @@ function DiscoveryGame({ id }: { id: DiscoveryId }) {
     {game.state === 'ready' ? <AdventureIntro picture={config.picture} title={config.objective} instructions={[...config.instructions]}
       difficulty={difficulty} onDifficulty={setDifficulty} onStart={start}>
       {(id === 'picture-words' || id === 'pattern-garden') && <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="그림 주제">{PICTURE_THEMES.map((item) => <button key={item.id} className="adventure-secondary" aria-pressed={theme === item.id} onClick={() => setTheme(item.id)}>{item.label}</button>)}</div>}
-      {id === 'picture-words' && <div className="mt-4 flex gap-2" role="group" aria-label="단어 언어">
+      {READING_GAMES.includes(id) && <div className="mt-4 flex gap-2" role="group" aria-label="단어 언어">
         {(['ko', 'en'] as const).map((value) => <button className="adventure-secondary" aria-pressed={language === value} onClick={() => setLanguage(value)} key={value}>{value === 'ko' ? '한글 단어' : 'English 단어'}</button>)}
       </div>}
     </AdventureIntro> : finished ? <section className="adventure-intro text-center">
@@ -116,6 +135,50 @@ function DiscoveryGame({ id }: { id: DiscoveryId }) {
           {difficulty === 'easy' && <p className="mt-4 text-center text-sm">앞의 두 친구가 번갈아 나와요.</p>}
         </div>
         <div className="grid grid-cols-3 gap-3">{q.choices.map((choice) => <button key={choice.value} className="picture-choice" disabled={correct} onClick={() => check(choice.value)}><Picture id={choice.picture!} /><span>{choice.label}</span></button>)}</div>
+      </>}
+      {id === 'word-pictures' && <>
+        <div className="scene-meadow rounded-3xl p-5 text-center"><p className="text-sm font-bold text-teal-800">읽어 보세요</p>
+          <h2 className="reading-word mt-2" lang={language}>{q.prompt}</h2>
+          {difficulty === 'easy' && <p className="mt-2 text-sm text-slate-600">한 글자씩 천천히 읽고 맞는 그림을 골라요.</p>}
+        </div>
+        <div className={cn('grid gap-3', choiceGrid(q.choices.length))} aria-label="그림 고르기">{q.choices.map((choice, index) => <button key={choice.value} className="picture-choice" disabled={correct}
+          data-correct={choice.value === q.answer || undefined} aria-label={`${index + 1}번 그림`} onClick={() => check(choice.value)}>
+          <Picture id={choice.picture!} className="h-24 w-full" />{correct && <span className="text-sm">{choice.label}</span>}</button>)}</div>
+      </>}
+      {id === 'first-sound' && <>
+        <div className="scene-meadow rounded-3xl p-5 text-center"><p className="text-sm font-bold text-teal-800">이 소리로 시작하는 그림은?</p>
+          <div className="first-sound-badge" lang={language}>{q.prompt}</div>
+          <p className="mt-3 font-bold text-slate-700">{language === 'ko' ? `${q.prompt} (${q.hint})` : `${q.prompt} ${q.hint}`}</p>
+          {difficulty === 'easy' && <p className="mt-1 text-sm text-slate-600">그림의 이름을 소리 내어 말해 보고 골라요.</p>}
+        </div>
+        <div className={cn('grid gap-3', choiceGrid(q.choices.length))} aria-label="그림 고르기">{q.choices.map((choice, index) => <button key={choice.value} className="picture-choice" disabled={correct}
+          data-correct={choice.value === q.answer || undefined} aria-label={`${index + 1}번 그림`} onClick={() => check(choice.value)}>
+          <Picture id={choice.picture!} className="h-24 w-full" />{(difficulty === 'easy' || correct) && <span className="text-sm">{choice.label}</span>}</button>)}</div>
+      </>}
+      {id === 'position-words' && (difficulty === 'hard' ? <>
+        <div className="scene-room rounded-3xl p-5 text-center"><p className="text-sm font-bold text-teal-800">말을 읽고 그림을 찾아요</p>
+          <h2 className="mt-2 text-xl font-extrabold">{q.hint} <span className="reading-word">{q.prompt}</span>에 있어요.</h2></div>
+        <div className="grid grid-cols-3 gap-3" aria-label="그림 고르기">{q.choices.map((choice, index) => <button key={choice.value} className="picture-choice p-2" disabled={correct}
+          data-correct={choice.value === q.answer || undefined} aria-label={`${index + 1}번 그림`} onClick={() => check(choice.value)}>
+          <PositionScene animal={q.picture} place={choice.place!} label="" />{correct && <span className="text-sm">{choice.label}</span>}</button>)}</div>
+      </> : <>
+        <div className="scene-room rounded-3xl p-4 text-center"><PositionScene animal={q.picture} place={q.place!} className="mx-auto max-w-sm" />
+          <h2 className="mt-3 text-xl font-extrabold">{q.prompt}</h2>
+          {difficulty === 'easy' && <p className="mt-1 text-sm text-slate-600">상자를 기준으로 {q.name}의 자리를 찾아 말을 골라요.</p>}
+        </div>
+        <div className={cn('grid gap-3', choiceGrid(q.choices.length))} aria-label="자리 말 고르기">{q.choices.map((choice) => <button key={choice.value} className="adventure-secondary position-word" disabled={correct}
+          data-correct={choice.value === q.answer || undefined} onClick={() => check(choice.value)}>{choice.label}</button>)}</div>
+      </>)}
+      {id === 'daily-routine' && <>
+        <div className="scene-meadow rounded-3xl p-4 text-center"><h2 className="text-xl font-extrabold">{q.prompt}</h2>
+          <ol className="routine-slots" aria-label="놓은 순서">{q.steps!.map((_, index) => { const stepIndex = letters[index];
+            return <li key={index} className={cn('routine-slot', stepIndex !== undefined && 'routine-slot-filled')}>{stepIndex !== undefined ? <Picture id={q.steps![stepIndex].picture} className="h-9 w-9" /> : index + 1}</li>; })}</ol>
+          <p className="mt-3 text-sm text-slate-600">{correct ? '차례대로 모두 놓았어요!' : letters.length ? `${letters.length + 1}번째로 하는 일을 눌러요.` : '맨 먼저 하는 일을 눌러요.'}</p>
+        </div>
+        <div className={cn('grid gap-3', choiceGrid(q.steps!.length))} aria-label="순서 카드">{q.layout!.map((stepIndex) => { const step = q.steps![stepIndex]; const placed = letters.indexOf(stepIndex);
+          return <button key={stepIndex} className={cn('picture-choice routine-card', placed >= 0 && 'routine-card-placed', shaking === stepIndex && 'shake')} data-step-index={stepIndex}
+            disabled={correct || placed >= 0} onAnimationEnd={() => setShaking(null)} onClick={() => tapStep(stepIndex)}>
+            {placed >= 0 && <span className="routine-badge">{placed + 1}</span>}<Picture id={step.picture} className="h-20 w-20" /><span className="break-keep text-sm">{step.label}</span></button>; })}</div>
       </>}
       {feedback && <div className="feedback-card" role="status"><p className="font-bold">{correct ? '잘 찾았어요!' : '한 번 더 생각해 볼까요?'}</p><p className="mt-1 text-sm">{feedback}</p>
         {correct && <button className="adventure-primary mt-3" onClick={next}>{round + 1 === questions.length ? '탐험 마치기' : '다음 탐험'}</button>}</div>}

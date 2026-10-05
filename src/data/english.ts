@@ -20,7 +20,7 @@ export const ENGLISH_DATA: EnglishItem[] = [
   { id: 'english-F', uppercase: 'F', lowercase: 'f', character: 'F', word: 'Fish', wordKorean: '물고기', wordImage: 'fish', category: 'english' },
   { id: 'english-G', uppercase: 'G', lowercase: 'g', character: 'G', word: 'Giraffe', wordKorean: '기린', wordImage: 'giraffe', category: 'english' },
   { id: 'english-H', uppercase: 'H', lowercase: 'h', character: 'H', word: 'Hat', wordKorean: '모자', wordImage: 'hat', category: 'english' },
-  { id: 'english-I', uppercase: 'I', lowercase: 'i', character: 'I', word: 'Ice cream', wordKorean: '아이스크림', wordImage: 'icecream', category: 'english' },
+  { id: 'english-I', uppercase: 'I', lowercase: 'i', character: 'I', word: 'Ice cream', wordKorean: '아이스크림', wordImage: 'ice-cream', category: 'english' },
   { id: 'english-J', uppercase: 'J', lowercase: 'j', character: 'J', word: 'Jellyfish', wordKorean: '해파리', wordImage: 'jellyfish', category: 'english' },
   { id: 'english-K', uppercase: 'K', lowercase: 'k', character: 'K', word: 'Koala', wordKorean: '코알라', wordImage: 'koala', category: 'english' },
   { id: 'english-L', uppercase: 'L', lowercase: 'l', character: 'L', word: 'Lion', wordKorean: '사자', wordImage: 'lion', category: 'english' },
@@ -36,7 +36,7 @@ export const ENGLISH_DATA: EnglishItem[] = [
   { id: 'english-V', uppercase: 'V', lowercase: 'v', character: 'V', word: 'Violin', wordKorean: '바이올린', wordImage: 'violin', category: 'english' },
   { id: 'english-W', uppercase: 'W', lowercase: 'w', character: 'W', word: 'Whale', wordKorean: '고래', wordImage: 'whale', category: 'english' },
   { id: 'english-X', uppercase: 'X', lowercase: 'x', character: 'X', word: 'Xylophone', wordKorean: '실로폰', wordImage: 'xylophone', category: 'english' },
-  { id: 'english-Y', uppercase: 'Y', lowercase: 'y', character: 'Y', word: 'Yacht', wordKorean: '요트', wordImage: 'yacht', category: 'english' },
+  { id: 'english-Y', uppercase: 'Y', lowercase: 'y', character: 'Y', word: 'Yacht', wordKorean: '요트', wordImage: 'sailboat', category: 'english' },
   { id: 'english-Z', uppercase: 'Z', lowercase: 'z', character: 'Z', word: 'Zebra', wordKorean: '얼룩말', wordImage: 'zebra', category: 'english' },
 ];
 

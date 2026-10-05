@@ -17,6 +17,7 @@ const categoryFontConfig: Record<LearningCategory, string> = {
   numbers: 'font-display text-6xl font-extrabold',
   hangul: 'font-sans text-5xl font-bold',
   english: 'font-display text-5xl font-extrabold',
+  shapes: 'font-sans text-6xl font-bold',
 };
 
 const categoryColorConfig: Record<LearningCategory, { bg: string; text: string; completedRing: string }> = {
@@ -34,6 +35,11 @@ const categoryColorConfig: Record<LearningCategory, { bg: string; text: string; 
     bg: 'bg-english/10 hover:bg-english/20',
     text: 'text-english',
     completedRing: 'ring-english/40',
+  },
+  shapes: {
+    bg: 'bg-shapes/10 hover:bg-shapes/20',
+    text: 'text-shapes',
+    completedRing: 'ring-shapes/40',
   },
 };
 

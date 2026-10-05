@@ -71,6 +71,8 @@ class SoundManager {
   private ctx: AudioContext | null = null;
   private volume = 0.8;
   private unlocked = false;
+  private clips = new Map<string, Promise<AudioBuffer | null>>();
+  private voiceSource: AudioBufferSourceNode | null = null;
 
   private getContext(): AudioContext | null {
     if (!this.ctx) {
@@ -104,6 +106,65 @@ class SoundManager {
 
   setVolume(v: number): void {
     this.volume = Math.max(0, Math.min(1, v));
+  }
+
+  /** Whether playback can actually be heard yet (the context needs a user gesture first). */
+  get ready(): boolean {
+    return this.ctx?.state === 'running';
+  }
+
+  private loadClip(url: string): Promise<AudioBuffer | null> {
+    const cached = this.clips.get(url);
+    if (cached) return cached;
+    const ctx = this.getContext();
+    const loading = !ctx ? Promise.resolve(null)
+      : fetch(url)
+        .then((response) => (response.ok ? response.arrayBuffer() : Promise.reject(new Error(`${response.status} ${url}`))))
+        .then((bytes) => ctx.decodeAudioData(bytes))
+        .catch((error: unknown) => { console.warn('voice clip failed', url, error); this.clips.delete(url); return null; });
+    this.clips.set(url, loading);
+    return loading;
+  }
+
+  /** Fetches a clip ahead of time so the first tap plays without a pause. */
+  preloadClip(url: string): void {
+    void this.loadClip(url);
+  }
+
+  /**
+   * Plays a pre-rendered voice clip. Only one voice plays at a time: starting a
+   * new line cuts off the previous one, so rapid taps never pile up. Resolves
+   * once the clip has started (or could not), never when it has finished.
+   */
+  async playClip(url: string): Promise<boolean> {
+    const ctx = this.getContext();
+    if (!ctx) return false;
+    // Decoding works on a suspended context too, so the clip is warm for the next try.
+    const [buffer] = await Promise.all([
+      this.loadClip(url),
+      ctx.state === 'suspended' ? ctx.resume().catch(() => {}) : Promise.resolve(),
+    ]);
+    if (!buffer || ctx.state !== 'running') return false;
+    this.stopVoice();
+    try {
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      source.buffer = buffer;
+      gain.gain.value = this.volume;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.onended = () => { if (this.voiceSource === source) this.voiceSource = null; };
+      source.start();
+      this.voiceSource = source;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  stopVoice(): void {
+    try { this.voiceSource?.stop(); } catch { /* already stopped */ }
+    this.voiceSource = null;
   }
 
   async play(soundId: SoundId): Promise<void> {

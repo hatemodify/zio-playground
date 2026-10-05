@@ -1,0 +1,14 @@
+/* discovery — reading, position and routine games on the 발견 놀이터 frame. */
+.reading-word { font-size: clamp(2.25rem, 9vw, 3.75rem); font-weight: 900; letter-spacing: .04em; line-height: 1.1; color: #0f5c52; overflow-wrap: anywhere; }
+.first-sound-badge { margin: 8px auto 0; display: flex; height: 112px; width: 112px; align-items: center; justify-content: center; border-radius: 32px; background: white; box-shadow: 0 6px 0 #c3dcd6; font-size: 4rem; font-weight: 900; line-height: 1; color: #0f5c52; }
+.position-word { min-height: 64px; font-size: 1.75rem; font-weight: 900; color: #0f5c52; }
+.position-scene { display: block; width: 100%; height: auto; border-radius: 20px; }
+.scene-room { background: linear-gradient(#f3f8ff, #e6f0fb); }
+.routine-slots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+.routine-slot { display: flex; height: 48px; width: 48px; align-items: center; justify-content: center; border-radius: 14px; border: 2px dashed #7fb5a8; background: #ffffffb3; font-weight: 800; color: #177d70; }
+.routine-slot-filled { border-style: solid; border-color: #177d70; background: white; }
+.routine-card { position: relative; }
+.routine-card-placed:disabled { opacity: 1; border-color: #177d70; background: #e6f4f1; }
+.routine-badge { position: absolute; top: 8px; left: 8px; display: flex; height: 28px; width: 28px; align-items: center; justify-content: center; border-radius: 999px; background: #177d70; color: white; font-size: .875rem; }
+.shake { animation: shake .4s ease; border-color: #e76f51; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }

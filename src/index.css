@@ -3,6 +3,13 @@
 
 @import "tailwindcss";
 
+/* Per-feature stylesheets, one file per game family so they can grow independently. */
+@import "./styles/discovery.css";
+@import "./styles/maze.css";
+@import "./styles/shapes.css";
+@import "./styles/numbers-games.css";
+@import "./styles/voice.css";
+
 /* Tablet landscape custom variant */
 @custom-variant landscape-tablet (@media (orientation: landscape) and (min-width: 768px));
 
@@ -30,6 +37,7 @@
   --color-hangul: #55E6C1;
   --color-english: #FECA57;
   --color-games: #FF9FF3;
+  --color-shapes: #FF8A80;
 
   /* Text Colors */
   --color-text-dark: #2D3436;

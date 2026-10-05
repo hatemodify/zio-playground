@@ -14,12 +14,16 @@ export type { HangulItem, HangulType } from './hangul';
 export { ENGLISH_DATA, getEnglishById, getEnglishByCharacter } from './english';
 export type { EnglishItem } from './english';
 
+export { SHAPES_DATA, getShapeBySlug, getShapeByCharacter } from './shapes';
+export type { ShapeItem } from './shapes';
+
 export { GAME_CONFIGS, getGameConfig, getAvailableGamesForCategory } from './game-configs';
 export type { GameConfig, GameDifficultyConfig } from './game-configs';
 
 export { STICKERS, getStickerById, getStickersByCategory } from './stickers';
 export type { StickerInfo, StickerTheme } from './stickers';
 
+export { SHAPE_STROKES } from './shape-strokes';
 export {
   NUMBER_STROKES,
   HANGUL_CONSONANT_STROKES,

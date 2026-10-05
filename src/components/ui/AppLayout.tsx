@@ -18,7 +18,7 @@ interface ErrorBoundaryState {
 }
 
 /** Destinations the bottom nav already reaches; everything else is a page to come back from. */
-const TAB_PATHS = ['/', '/numbers', '/hangul', '/english', '/games'];
+const TAB_PATHS = ['/', '/numbers', '/hangul', '/english', '/shapes', '/games'];
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {

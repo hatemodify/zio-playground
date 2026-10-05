@@ -44,6 +44,17 @@ export default defineConfig({
             },
           },
           {
+            // 640 voice clips (~2.6 MB) are too many to precache up front; each one
+            // is kept once it has been heard, so a tablet offline still talks.
+            urlPattern: /\/assets\/audio\/.*\.mp3$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'voice-clips',
+              expiration: { maxEntries: 800, maxAgeSeconds: 365 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             urlPattern: /\.(?:woff2?|ttf|otf|eot)$/,
             handler: 'CacheFirst',
             options: {

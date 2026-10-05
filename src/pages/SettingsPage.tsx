@@ -22,6 +22,8 @@ export default function SettingsPage() {
   // Settings store
   const sfxEnabled = useSettingsStore((s) => s.sfxEnabled);
   const toggleSfx = useSettingsStore((s) => s.toggleSfx);
+  const voiceEnabled = useSettingsStore((s) => s.voiceEnabled);
+  const toggleVoice = useSettingsStore((s) => s.toggleVoice);
   const resetSettings = useSettingsStore((s) => s.resetSettings);
 
   // Progress store
@@ -236,9 +238,27 @@ export default function SettingsPage() {
           </div>
           <ToggleSwitch checked={sfxEnabled} onChange={toggleSfx} label="효과음 켜기/끄기" />
         </div>
+
+        {/* Voice Toggle */}
+        <div className="flex items-center justify-between border-t border-bg-soft py-3">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-warm text-primary">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" opacity={voiceEnabled ? 1 : 0.4}>
+                <rect x="7" y="3" width="6" height="9" rx="3" fill="currentColor" />
+                <path d="M5 10C5 12.8 7.2 15 10 15C12.8 15 15 12.8 15 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M10 15V18M7.5 18H12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </span>
+            <div>
+              <span className="block text-base font-medium text-text-dark">읽어주기</span>
+              <span className="block text-xs text-text-medium">글자·숫자·단어 소리를 들려줘요</span>
+            </div>
+          </div>
+          <ToggleSwitch checked={voiceEnabled} onChange={toggleVoice} label="읽어주기 켜기/끄기" />
+        </div>
       </section>
 
-      <p className="px-2 text-xs text-text-medium">그림 에셋: Kenney · CC0 <a className="underline" href="/assets/kenney/CREDITS.txt" target="_blank" rel="noreferrer">출처 보기</a></p>
+      <p className="px-2 text-xs text-text-medium">그림 에셋: Kenney · CC0 <a className="underline" href="/assets/kenney/CREDITS.txt" target="_blank" rel="noreferrer">출처 보기</a> · Twemoji · CC-BY 4.0 <a className="underline" href="/assets/twemoji/CREDITS.md" target="_blank" rel="noreferrer">출처 보기</a></p>
 
       {/* Data Reset */}
       <section className="rounded-radius-card bg-white p-5 shadow-card">

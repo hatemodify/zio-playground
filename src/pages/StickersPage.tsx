@@ -8,16 +8,18 @@ import { STICKERS, type StickerInfo } from '@/data/stickers';
 import { NUMBERS_DATA } from '@/data/numbers';
 import { HANGUL_DATA } from '@/data/hangul';
 import { ENGLISH_DATA } from '@/data/english';
+import { SHAPES_DATA } from '@/data/shapes';
 import { cn } from '@/lib/cn';
 import type { LearningCategory } from '@/types/learning';
 
-type StickerTab = 'all' | 'numbers' | 'hangul' | 'english' | 'special';
+type StickerTab = 'all' | 'numbers' | 'hangul' | 'english' | 'shapes' | 'special';
 
 const TAB_LABELS: Record<StickerTab, string> = {
   all: '전체',
   numbers: '숫자',
   hangul: '한글',
   english: '영어',
+  shapes: '도형',
   special: '특별',
 };
 
@@ -25,6 +27,7 @@ const CATEGORY_PICTURES: Record<LearningCategory, PictureId[]> = {
   numbers: ['car', 'suv', 'race-car', 'police-car', 'taxi', 'ambulance', 'fire-truck', 'pickup', 'truck', 'bus'],
   hangul: ['excavator', 'crane', 'dump-truck', 'bulldozer', 'cement-mixer', 'forklift', 'tractor', 'roller'],
   english: ['airplane', 'helicopter', 'light-plane', 'rocket', 'ufo', 'hot-air-balloon', 'hang-glider', 'shuttle'],
+  shapes: ['kite', 'gem', 'soccer-ball', 'dice', 'red-heart', 'glowing-star', 'egg', 'tent'],
 };
 const MILESTONE_PICTURES: Record<string, PictureId> = {
   'sticker-num-puppy': 'police-car',
@@ -104,6 +107,16 @@ function getCharacterStickers(): CharacterSticker[] {
       category: 'english',
       character: e.uppercase,
       picture: CATEGORY_PICTURES.english[i % CATEGORY_PICTURES.english.length],
+    });
+  });
+
+  SHAPES_DATA.forEach((s, i) => {
+    stickers.push({
+      id: `sticker-learn-${s.id}`,
+      name: s.name,
+      category: 'shapes',
+      character: s.character,
+      picture: CATEGORY_PICTURES.shapes[i % CATEGORY_PICTURES.shapes.length],
     });
   });
 

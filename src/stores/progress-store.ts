@@ -6,7 +6,7 @@ import { CATEGORY_TOTALS } from '@/types/learning';
 
 const ProgressItemSchema = z.object({
   id: z.string(),
-  category: z.enum(['numbers', 'hangul', 'english']),
+  category: z.enum(['numbers', 'hangul', 'english', 'shapes']),
   character: z.string(),
   tracingStage: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
   completed: z.boolean(),

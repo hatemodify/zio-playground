@@ -6,6 +6,7 @@ import { CharacterDdori, RewardCelebration } from '@/components/features';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
 import { NUMBERS_DATA, HANGUL_CONSONANTS, ENGLISH_DATA } from '@/data';
+import { SHAPES_DATA } from '@/data/shapes';
 import { cn } from '@/lib/cn';
 import type { LearningCategory } from '@/types/learning';
 
@@ -18,9 +19,10 @@ function generateQuestions(count: number): OddOneOutQuestion[] {
     numbers: NUMBERS_DATA.map((n) => n.character),
     hangul: HANGUL_CONSONANTS.map((h) => h.character),
     english: ENGLISH_DATA.map((e) => e.uppercase),
+    shapes: SHAPES_DATA.map((s) => s.character),
   };
 
-  const categories: LearningCategory[] = ['numbers', 'hangul', 'english'];
+  const categories: LearningCategory[] = ['numbers', 'hangul', 'english', 'shapes'];
   const questions: OddOneOutQuestion[] = [];
 
   for (let q = 0; q < count; q++) {
@@ -47,6 +49,7 @@ const CATEGORY_EMOJIS: Record<LearningCategory, string> = {
   numbers: '🔢',
   hangul: '가',
   english: '🔤',
+  shapes: '🔷',
 };
 
 export default function OddOneOutGamePage() {

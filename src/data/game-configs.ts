@@ -1,4 +1,4 @@
-import { DISCOVERY_GAMES } from './discovery-games';
+import { DISCOVERY_GAMES, type DiscoveryId } from './discovery-games';
 import type { GameId } from '@/types/game';
 import type { LearningCategory } from '@/types/learning';
 
@@ -27,15 +27,26 @@ export interface GameConfig {
   rules: string[];
 }
 
+/** Which learning sections each discovery mode supports (empty = general play). */
+const DISCOVERY_CATEGORIES: Record<DiscoveryId, LearningCategory[]> = {
+  'vehicle-missions': [], 'little-market': ['numbers'], 'animal-families': [], 'picture-words': ['hangul', 'english'], 'pattern-garden': ['numbers'],
+  'word-pictures': ['hangul', 'english'], 'first-sound': ['hangul', 'english'], 'position-words': [], 'daily-routine': [],
+};
+
 export const GAME_CONFIGS: GameConfig[] = [
   ...Object.entries(DISCOVERY_GAMES).map(([id, game]): GameConfig => ({
     id: id as GameId, name: game.title, description: game.subtitle, icon: game.picture,
     kind: 'learning', focus: game.objective, isNew: true,
-    categories: id === 'picture-words' ? ['hangul', 'english'] : ['animal-families', 'vehicle-missions'].includes(id) ? [] : ['numbers'],
+    categories: DISCOVERY_CATEGORIES[id as DiscoveryId],
     difficulties: { easy: { label: '처음 해요', questionCount: 6 }, normal: { label: '할 수 있어요', questionCount: 8 }, hard: { label: '자신 있어요', questionCount: 10 } },
     unlockThreshold: 0, rules: [...game.instructions],
   })),
   { id: 'juice-math', name: '또리의 주스 가게', description: '과일을 넣고 덜어 보며 덧셈과 뺄셈을 익혀요. 동물 친구 빙고도 있어요.', icon: 'strawberry', kind: 'learning', focus: '덧셈 · 뺄셈 · 수 세기', isNew: true, categories: ['numbers'], difficulties: { easy: { label: '처음 해요', questionCount: 5 }, normal: { label: '할 수 있어요', questionCount: 6 }, hard: { label: '자신 있어요', questionCount: 7 } }, unlockThreshold: 0, rules: ['주문서를 보고 과일을 하나씩 넣거나 덜어요.', '믹서 안의 과일을 세어 모두 몇 개인지 골라요.', '빙고에서는 식을 풀고 답이 적힌 칸을 눌러요.'] },
+  { id: 'listen-find', name: '듣고 찾기', description: '소리를 듣고 글자나 그림을 골라요. 한글·영어 모두 연습해요.', icon: 'parrot', kind: 'learning', focus: '듣기 · 소리 · 글자', isNew: true, categories: ['hangul', 'english'], difficulties: { easy: { label: '처음 해요', questionCount: 6 }, normal: { label: '할 수 있어요', questionCount: 8 }, hard: { label: '자신 있어요', questionCount: 10 } }, unlockThreshold: 0, rules: ['스피커를 눌러 소리를 들어요.', '들은 소리와 맞는 글자나 그림을 골라요.', '다시 듣고 싶으면 스피커를 또 눌러요.'] },
+  { id: 'tens-ones', name: '10개씩 묶기', description: '열 개씩 묶음과 낱개로 11부터 50까지 수를 읽고 만들어요.', icon: 'egg', kind: 'learning', focus: '자릿값 · 10 묶음', isNew: true, categories: ['numbers'], difficulties: { easy: { label: '11~20', questionCount: 6 }, normal: { label: '11~30', questionCount: 8 }, hard: { label: '11~50', questionCount: 10 } }, unlockThreshold: 0, rules: ['10개씩 묶음이 몇 개, 낱개가 몇 개인지 세어요.', '읽기에서는 묶음을 보고 수를 골라요.', '만들기에서는 묶음과 낱개를 눌러 수를 만들어요.'] },
+  { id: 'number-bonds', name: '수 가르기·모으기', description: '동물 친구를 두 집으로 나누고 모으며 수의 짝을 알아봐요.', icon: 'rabbit', kind: 'learning', focus: '가르기 · 모으기 · 수 감각', isNew: true, categories: ['numbers'], difficulties: { easy: { label: '5까지', questionCount: 6 }, normal: { label: '7까지', questionCount: 8 }, hard: { label: '10까지', questionCount: 10 } }, unlockThreshold: 0, rules: ['동물을 눌러 두 집 사이로 옮겨요.', '빈칸에 들어갈 수를 골라요.', '모으기에서는 두 집을 합친 수를 찾아요.'] },
+  { id: 'shape-explorer', name: '도형 탐험대', description: '동그라미·세모·네모를 찾고 생활 속 물건에서 도형을 발견해요.', icon: 'kite', kind: 'learning', focus: '도형 · 공간 감각', isNew: true, categories: ['shapes'], difficulties: { easy: { label: '처음 해요', questionCount: 6 }, normal: { label: '할 수 있어요', questionCount: 8 }, hard: { label: '자신 있어요', questionCount: 10 } }, unlockThreshold: 0, rules: ['이름을 듣고 맞는 도형을 골라요.', '물건이 어떤 도형과 닮았는지 찾아요.', '도형 조각으로 그림을 완성해요.'] },
+  { id: 'maze', name: '미로 찾기', description: '손가락으로 길을 따라 그려 친구를 집까지 데려다줘요.', icon: 'rabbit', kind: 'play', focus: '집중 · 공간 · 소근육', isNew: true, categories: [], difficulties: { easy: { label: '작은 미로', itemCount: 5 }, normal: { label: '보통 미로', itemCount: 7 }, hard: { label: '큰 미로', itemCount: 9 } }, unlockThreshold: 0, rules: ['출발점에서 손가락을 떼지 않고 길을 따라가요.', '벽에 닿으면 처음부터 다시 그려요.', '세 개의 미로를 모두 통과해요.'] },
   { id: 'daruma', name: '톡! 톡! 달마치기', description: '같은 색을 눌러 망치로 톡! 매번 달라지는 3스테이지에 도전해요.', icon: 'star', kind: 'play', focus: '색깔 · 집중 · 순서', isNew: true, categories: [], difficulties: { easy: { label: '처음 해요', itemCount: 5 }, normal: { label: '할 수 있어요', itemCount: 7 }, hard: { label: '자신 있어요', itemCount: 9 } }, unlockThreshold: 0, rules: ['맨 아래 블록과 같은 색 버튼을 눌러요.', '랜덤으로 만나는 세 스테이지를 모두 통과해요.'] },
   { id: 'mini-festival', name: '팡팡! 미니게임 축제', description: '세 버튼으로 색깔 풍선·로켓 충전·무지개 암호에 도전!', icon: 'star', kind: 'play', focus: '순발력 · 순서 · 반응', isNew: true, categories: [], difficulties: { easy: { label: '느긋하게' }, normal: { label: '신나게' }, hard: { label: '빠르게' } }, unlockThreshold: 0, rules: ['세 버튼이나 A·S·D 키로 놀아요.', '세 가지 짧은 미션에 도전해요.'] },
   { id: 'rocket-ride', name: '반짝 우주 비행', description: '우주선을 움직여 별을 모으는 짜릿한 여행', icon: 'rocket', kind: 'play', focus: '반응 · 놀이', isNew: true, categories: [],

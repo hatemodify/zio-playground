@@ -1,0 +1,23 @@
+/* maze — the finger-drawn maze board. */
+.maze-board { display: flex; flex-direction: column; gap: 12px; border-radius: 28px; background: white; padding: 16px; box-shadow: 0 8px 32px #134e4a08; }
+.maze-message { min-height: 1.5rem; text-align: center; font-weight: 700; color: #0f766e; }
+.maze-stage { display: flex; justify-content: center; }
+.maze-svg {
+  width: min(100%, 90vw, 62vh); aspect-ratio: 1; display: block; border-radius: 20px;
+  background: #f7f1e3; box-shadow: inset 0 0 0 2px #e7dcc5; cursor: pointer;
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.maze-svg-solved { background: #ecfccb; }
+.maze-cell-start { fill: #d9f99d; }
+.maze-cell-goal { fill: #fde68a; }
+.maze-wall { fill: none; stroke: #6b4f3a; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+.maze-path { fill: none; stroke: #f59e0b; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: .8; }
+.maze-rabbit { transition: transform .12s ease-out; }
+.maze-rabbit-ring { fill: white; opacity: .85; }
+.maze-rabbit-solved > g { animation: maze-bounce .5s ease-in-out 2; transform-box: fill-box; transform-origin: center; }
+.maze-rabbit-bump { animation: maze-bump .25s ease-out; transform-box: fill-box; transform-origin: center; }
+.maze-actions { display: flex; justify-content: center; }
+.maze-actions button { min-width: 160px; }
+@keyframes maze-bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+@keyframes maze-bump { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-.8px); } 70% { transform: translateX(.8px); } }
+@media (prefers-reduced-motion: reduce) { .maze-rabbit, .maze-rabbit-solved > g, .maze-rabbit-bump { transition: none; animation: none; } }

@@ -1,5 +1,8 @@
 import Picture from '@/components/games/Picture';
-import { PICTURE_WORDS } from '@/data/picture-content';
+import SpeakButton from '@/components/ui/SpeakButton';
+import { hasPicture, pictureName } from '@/data/picture-content';
+import { voiceId } from '@/data/voice-lines';
+import { useAutoSpeak } from '@/hooks/use-voice';
 import { useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -16,7 +19,8 @@ export default function HangulLearnPage() {
     return getHangulByCharacter(id);
   }, [id]);
 
-  const picture = PICTURE_WORDS.find((word) => word.id === item?.wordImage);
+  const picture = item && hasPicture(item.wordImage) ? item.wordImage : null;
+  useAutoSpeak(item ? voiceId.hangul(item.character) : null);
 
   const currentIndex = useMemo(() => {
     if (!item) return -1;
@@ -65,25 +69,43 @@ export default function HangulLearnPage() {
             >
               {item.character}
             </motion.span>
-            {item.type === 'syllable' ? <p className="hangul-equation" aria-label="글자 조합"><span>{item.consonant}</span> + <span>{item.vowel}</span> = <strong>{item.character}</strong></p> : <span className="text-base font-medium text-text-medium">{item.name}</span>}
+            <div className="flex items-center gap-2">
+              {item.type === 'syllable' ? <p className="hangul-equation" aria-label="글자 조합"><span>{item.consonant}</span> + <span>{item.vowel}</span> = <strong>{item.character}</strong></p> : <span className="text-base font-medium text-text-medium">{item.name}</span>}
+              <SpeakButton clip={voiceId.hangul(item.character)} label={`${item.name} 듣기`} size="sm" />
+            </div>
           </div>
         }
         bottomContent={
-          item.type === 'syllable' ? <section className="hangul-composer" aria-label="글자 만들기">
+          item.type === 'syllable' ? <div className="flex flex-col gap-3">
+            {picture && (
+              <div className="flex items-center gap-4 rounded-2xl bg-bg-soft p-4" data-testid="syllable-word">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-hangul/15">
+                  <Picture id={picture} label={pictureName(picture)} className="h-14 w-14" />
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="text-lg font-bold text-text-dark"><strong className="text-hangul">{item.character}</strong>{item.representativeWord.slice(1)}</span>
+                  <span className="text-sm text-text-medium">&ldquo;{item.character}&rdquo;(으)로 시작하는 단어</span>
+                </div>
+                <SpeakButton clip={voiceId.word('ko', picture)} label={`${item.representativeWord} 듣기`} />
+              </div>
+            )}
+            <section className="hangul-composer" aria-label="글자 만들기">
             <h2 className="mb-3 text-center font-bold text-hangul">자음과 모음을 바꿔 보세요</h2>
             <div className="grid grid-cols-7 gap-1" role="group" aria-label="자음 고르기">{HANGUL_CONSONANTS.map((part) => <button key={part.id} className="hangul-part" aria-label={`자음 ${part.character}`} aria-pressed={part.character === item.consonant} onClick={() => { const next = HANGUL_SYLLABLES.find((syllable) => syllable.consonant === part.character && syllable.vowel === item.vowel); if (next) navigate(`/hangul/${next.character}`, { replace: true }); }}>{part.character}</button>)}</div>
             <div className="mt-3 grid grid-cols-5 gap-1" role="group" aria-label="모음 고르기">{HANGUL_VOWELS.map((part) => <button key={part.id} className="hangul-part" aria-label={`모음 ${part.character}`} aria-pressed={part.character === item.vowel} onClick={() => { const next = HANGUL_SYLLABLES.find((syllable) => syllable.vowel === part.character && syllable.consonant === item.consonant); if (next) navigate(`/hangul/${next.character}`, { replace: true }); }}>{part.character}</button>)}</div>
             <Link className="mt-4 block text-center text-sm font-bold text-hangul underline" to="/hangul?tab=syllable">가나다 글자 목록</Link>
-          </section> : <div className="flex items-center gap-4 rounded-2xl bg-bg-soft p-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-hangul/15 text-2xl font-bold text-hangul">
-              {picture ? <Picture id={picture.id} label={picture.name} className="h-16 w-16" /> : item.character}
+            </section>
+          </div> : <div className="flex items-center gap-4 rounded-2xl bg-bg-soft p-4">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-hangul/15 text-2xl font-bold text-hangul">
+              {picture ? <Picture id={picture} label={pictureName(picture)} className="h-14 w-14" /> : item.character}
             </div>
-            <div className="flex flex-col">
+            <div className="flex min-w-0 flex-1 flex-col">
               <span className="text-lg font-bold text-text-dark">{item.representativeWord}</span>
               <span className="text-sm text-text-medium">
                 &ldquo;{item.name}&rdquo;이(가) 들어가는 단어
               </span>
             </div>
+            {picture && <SpeakButton clip={voiceId.word('ko', picture)} label={`${item.representativeWord} 듣기`} />}
           </div>
         }
       />

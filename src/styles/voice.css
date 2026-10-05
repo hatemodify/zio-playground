@@ -1,0 +1,17 @@
+/* voice — speaker buttons that play the pre-recorded lines. */
+.speak-button { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; background: #fff; color: #4a90d9; box-shadow: 0 2px 0 #cfe0f3, 0 1px 4px #0001; border: 2px solid #d9e8f7; touch-action: manipulation; transition: transform .15s, background .15s; }
+.speak-button:active { transform: translateY(2px); box-shadow: 0 0 0 #cfe0f3; }
+.speak-button-playing { background: #4a90d9; color: #fff; border-color: #4a90d9; animation: speak-pulse .7s ease-out; }
+@keyframes speak-pulse { 0% { box-shadow: 0 0 0 0 #4a90d980; } 100% { box-shadow: 0 0 0 14px #4a90d900; } }
+
+/* 듣고 찾기 — one big speaker and a handful of roomy answers. */
+.listen-stage { display: flex; flex-direction: column; gap: 16px; border-radius: 28px; background: white; padding-bottom: 20px; box-shadow: 0 8px 32px #134e4a08; }
+.listen-prompt { display: flex; align-items: center; gap: 16px; margin: 0 16px; border-radius: 24px; background: linear-gradient(135deg, #e8f3ff, #f3f0ff); padding: 16px; }
+.listen-speaker { display: flex; height: 96px; width: 96px; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 999px; background: white; color: #4a90d9; border: 3px solid #d9e8f7; box-shadow: 0 4px 0 #cfe0f3; touch-action: manipulation; }
+.listen-speaker:active { transform: translateY(3px); box-shadow: none; }
+.listen-speaker-playing { background: #4a90d9; color: white; border-color: #4a90d9; animation: speak-pulse .7s ease-out infinite; }
+.listen-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 0 16px; }
+.listen-choices-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.listen-choice { min-height: 120px; }
+.listen-choice-text { font-size: 48px; line-height: 1; }
+@media (min-width: 640px) { .listen-choices { grid-template-columns: repeat(4, minmax(0, 1fr)); } .listen-choices-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } .listen-choice-text { font-size: 64px; } }
