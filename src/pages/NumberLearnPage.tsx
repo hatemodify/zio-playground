@@ -5,7 +5,6 @@ import LearningScreen from '@/components/features/LearningScreen';
 import SpeakButton from '@/components/ui/SpeakButton';
 import { getNumberByValue, NUMBERS_MAX } from '@/data';
 import { voiceId } from '@/data/voice-lines';
-import { useAutoSpeak } from '@/hooks/use-voice';
 import { cn } from '@/lib/cn';
 
 /** A ten-frame holds two rows of five, so "10" becomes a shape the eye can read at a glance. */
@@ -17,7 +16,6 @@ export default function NumberLearnPage() {
 
   const numId = Number(id);
   const item = useMemo(() => getNumberByValue(numId), [numId]);
-  useAutoSpeak(item ? voiceId.number('ko', item.number) : null);
 
   const handleNext = useCallback(() => {
     if (numId < NUMBERS_MAX) {

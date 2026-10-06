@@ -43,20 +43,3 @@ export function useVoice({ always = false }: { always?: boolean } = {}): UseVoic
 
   return { enabled, speak, preload, stop };
 }
-
-/**
- * Speaks `id` when a page opens or moves on to the next item — but only once
- * the AudioContext is already unlocked, so the very first screen stays silent
- * until the child taps something (the speaker buttons cover that case).
- */
-export function useAutoSpeak(id: string | null | undefined): void {
-  const { enabled, speak, stop } = useVoice();
-  useEffect(() => {
-    if (!id || !enabled || !soundManager.ready) return;
-    const timer = window.setTimeout(() => void speak(id), 350);
-    return () => {
-      window.clearTimeout(timer);
-      stop();
-    };
-  }, [id, enabled, speak, stop]);
-}

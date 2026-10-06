@@ -6,7 +6,6 @@ import SpeakButton from '@/components/ui/SpeakButton';
 import { RewardCelebration } from '@/components/features';
 import { useGameLogic } from '@/hooks/use-game-logic';
 import { useSound } from '@/hooks/use-sound';
-import { useVoice } from '@/hooks/use-voice';
 import { getGameConfig } from '@/data/game-configs';
 import { voiceId } from '@/data/voice-lines';
 import { shuffled } from '@/data/picture-content';
@@ -84,7 +83,6 @@ export default function ClockGamePage() {
   const game = useGameLogic({ gameId: 'clock', category: 'numbers' });
   const { finish } = game;
   const { play } = useSound();
-  const { speak, preload } = useVoice();
   const step = STEPS[difficulty];
   const hourOnly = difficulty === 'easy';
   const questionCount = CONFIG.difficulties[difficulty].questionCount ?? 6;
@@ -97,22 +95,12 @@ export default function ClockGamePage() {
 
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
-  // Each new round is spoken a moment after the hands have settled: the time to set, or "몇 시일까요".
-  useEffect(() => {
-    if (freeOpen || game.state !== 'playing' || !round || reveal !== null) return;
-    const ids = mode === 'set' ? timeVoiceIds(round.target) : [voiceId.phrase('clock-read')];
-    preload(ids);
-    const id = window.setTimeout(() => void speak(ids), 500);
-    return () => window.clearTimeout(id);
-  }, [freeOpen, mode, game.state, round, reveal, speak, preload]);
-
   function start() {
     if (timer.current) clearTimeout(timer.current);
     if (mode === 'free') {
       setTime(makeTime(3, 0));
       setMessage('');
       setFreeOpen(true);
-      void speak(voiceId.phrase('clock-free'));
       return;
     }
     const next = buildRounds(questionCount, step, difficulty === 'easy' ? 3 : 4);
@@ -129,7 +117,6 @@ export default function ClockGamePage() {
     setTime(round.target);
     setReveal(round.target);
     setMessage(`딩동! ${timeLabel(round.target)}, ${timeReading(round.target)}이에요.`);
-    void speak(timeVoiceIds(round.target));
     // The answer stays on the dial for a moment, then the next round comes on its own.
     timer.current = setTimeout(() => {
       setReveal(null);
@@ -166,12 +153,10 @@ export default function ClockGamePage() {
     const next = normalizeTime(time + minutes);
     setTime(next);
     play('button_click');
-    if (freeOpen) void speak(timeVoiceIds(next));
   }
 
-  function released(value: number) {
+  function released() {
     play('drag_drop');
-    if (freeOpen || showReadout) void speak(timeVoiceIds(value));
   }
 
   const nudges = <div className="clock-nudges" role="group" aria-label="바늘 돌리기">
@@ -183,7 +168,7 @@ export default function ClockGamePage() {
 
   return <AdventureFrame title="똑딱똑딱 시계 나라" subtitle="바늘을 손으로 돌려 시간을 맞추고 읽어요.">
     {freeOpen ? <section className="clock-room">
-      <p className="clock-prompt">바늘을 돌려 보세요. 어떤 시간이 될까요?</p>
+      <div className="flex items-center justify-center gap-3"><p className="clock-prompt">바늘을 돌려 보세요. 어떤 시간이 될까요?</p><SpeakButton clip={voiceId.phrase('clock-free')} label="안내 듣기" /></div>
       <ClockFace time={time} step={step} interactive hourOnly={hourOnly} minuteRing={step <= 15} onChange={setTime} onRelease={released} />
       <div className="clock-readout-row">
         <TimeReadout time={time} big />
@@ -222,7 +207,7 @@ export default function ClockGamePage() {
         {nudges}
         <button className="adventure-primary clock-check" onClick={check}>확인</button>
       </div> : <div key={shakes} className={shakes ? 'numbers-shake' : undefined}>
-        <p className="clock-prompt">시계가 몇 시를 가리키고 있나요?</p>
+        <div className="flex items-center justify-center gap-3"><p className="clock-prompt">시계가 몇 시를 가리키고 있나요?</p><SpeakButton clip={voiceId.phrase('clock-read')} label="문제 듣기" /></div>
         <ClockFace time={round.target} step={step} minuteRing={step <= 15} />
         <div className="clock-options" role="group" aria-label="답 고르기">
           {round.options.map((option) => <button key={option} className="clock-option" data-correct={option === round.target} onClick={() => answer(option)} aria-label={`답 ${timeLabel(option)}`}>{timeLabel(option)}</button>)}

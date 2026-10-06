@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { AdventureFrame, AdventureIntro, RoundProgress, type Difficulty } from '@/components/games/AdventureFrame';
 import Picture from '@/components/games/Picture';
@@ -135,7 +135,7 @@ export default function ListenFindGamePage() {
   const [speaking, setSpeaking] = useState(false);
   const game = useGameLogic({ gameId: 'listen-find', category: lang === 'ko' ? 'hangul' : 'english' });
   const { play } = useSound();
-  const { speak, preload, stop } = useVoice({ always: true });
+  const { speak, preload } = useVoice({ always: true });
   const round = rounds[index];
   const total = rounds.length;
   const finished = game.state === 'success' || game.state === 'reward';
@@ -143,22 +143,10 @@ export default function ListenFindGamePage() {
   const level = LISTEN_CONFIG.difficulties[difficulty];
   const playingRef = useRef(false);
 
-  // Each round announces itself; replays stay one tap away on the big speaker.
-  useEffect(() => {
-    if (game.state !== 'playing' || !round) return;
-    let cancelled = false;
-    const timer = window.setTimeout(async () => {
-      playingRef.current = true; setSpeaking(true);
-      const heard = await speak(round.clip);
-      if (!cancelled) { setSpeaking(false); playingRef.current = false; if (!heard) setMessage('소리가 안 나면 스피커를 눌러 다시 들어요.'); }
-    }, 400);
-    return () => { cancelled = true; window.clearTimeout(timer); stop(); };
-  }, [game.state, round, speak, stop]);
-
   function start() {
     const next = buildRounds(lang, mode, difficulty);
     setRounds(next); setIndex(0); setHadError(false); setShowHint(false); setShaking(null); setShowReward(true); setLocked(false);
-    setMessage(VOICE_PHRASES[modeInfo.phrase]);
+    setMessage('스피커를 눌러 소리를 들어요.');
     preload(next.map((item) => item.clip));
     game.start(next.length);
   }
@@ -210,7 +198,7 @@ export default function ListenFindGamePage() {
     </section> : round ? <section className="listen-stage" data-answer={round.answer}>
       <div className="px-4 pt-3"><RoundProgress round={index + 1} total={total} /></div>
       <div className="listen-prompt">
-        <motion.button type="button" className={`listen-speaker ${speaking ? 'listen-speaker-playing' : ''}`} onClick={replay} aria-label="다시 듣기" whileTap={{ scale: 0.92 }} data-voice-clip={round.clip}>
+        <motion.button type="button" className={`listen-speaker ${speaking ? 'listen-speaker-playing' : ''}`} onClick={replay} aria-label="듣기" whileTap={{ scale: 0.92 }} data-voice-clip={round.clip}>
           <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 10v4h3l5 4V6L7 10H4z" fill="currentColor" />
             <path d="M15.5 8.5a5 5 0 0 1 0 7" />

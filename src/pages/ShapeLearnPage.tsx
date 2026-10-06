@@ -7,7 +7,6 @@ import Picture from '@/components/games/Picture';
 import ShapeFigure from '@/components/games/ShapeFigure';
 import { SHAPES_DATA, getShapeBySlug } from '@/data';
 import { voiceId } from '@/data/voice-lines';
-import { useAutoSpeak } from '@/hooks/use-voice';
 
 /** 을/를 follows the noun's final consonant: 별을, 타원을, but 세모를. */
 const objectOf = (word: string) => `${word}${(word.charCodeAt(word.length - 1) - 0xac00) % 28 ? '을' : '를'}`;
@@ -20,7 +19,6 @@ export default function ShapeLearnPage() {
   const index = shape ? SHAPES_DATA.indexOf(shape) : -1;
   const next = index >= 0 ? SHAPES_DATA[index + 1] : undefined;
   const prev = index > 0 ? SHAPES_DATA[index - 1] : undefined;
-  useAutoSpeak(shape ? voiceId.shape('ko', shape.slug) : null);
 
   const handleNext = useCallback(() => {
     if (next) navigate(`/shapes/${next.slug}`, { replace: true });

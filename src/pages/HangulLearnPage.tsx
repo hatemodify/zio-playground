@@ -2,7 +2,6 @@ import Picture from '@/components/games/Picture';
 import SpeakButton from '@/components/ui/SpeakButton';
 import { hasPicture, pictureName } from '@/data/picture-content';
 import { voiceId } from '@/data/voice-lines';
-import { useAutoSpeak } from '@/hooks/use-voice';
 import { useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -20,7 +19,6 @@ export default function HangulLearnPage() {
   }, [id]);
 
   const picture = item && hasPicture(item.wordImage) ? item.wordImage : null;
-  useAutoSpeak(item ? voiceId.hangul(item.character) : null);
 
   const currentIndex = useMemo(() => {
     if (!item) return -1;

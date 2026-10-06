@@ -2,7 +2,6 @@ import Picture from '@/components/games/Picture';
 import SpeakButton from '@/components/ui/SpeakButton';
 import { hasPicture, pictureName } from '@/data/picture-content';
 import { voiceId } from '@/data/voice-lines';
-import { useAutoSpeak } from '@/hooks/use-voice';
 import { useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -19,7 +18,6 @@ export default function EnglishLearnPage() {
   }, [id]);
 
   const picture = item && hasPicture(item.wordImage) ? item.wordImage : null;
-  useAutoSpeak(item ? voiceId.letter(item.uppercase) : null);
 
   const currentIndex = useMemo(() => {
     if (!item) return -1;

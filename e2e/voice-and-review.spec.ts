@@ -153,10 +153,12 @@ test.describe('듣고 찾기', () => {
   }
 
   test('letter sounds: three Hangul choices, the clip is requested, the run finishes with a reward', async ({ page }) => {
+    // Starting preloads the round's clips, but nothing plays on its own: the child taps the speaker to hear it.
     const request = page.waitForRequest((req) => /\/assets\/audio\/ko-char-[0-9a-f]+\.mp3$/.test(req.url()));
     await page.getByRole('button', { name: '같이 시작하기' }).click();
     await request;
-    await expect(page.getByRole('button', { name: '다시 듣기' })).toBeVisible();
+    await expect(page.getByText('스피커를 눌러 소리를 들어요.')).toBeVisible();
+    await page.getByRole('button', { name: '듣기' }).click();
     await expect(page.locator('.listen-choice')).toHaveCount(3);
     await playThrough(page, 6);
     await expect(page.getByText('게임 클리어!')).toBeVisible();
