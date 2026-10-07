@@ -138,11 +138,6 @@ export default function ClockFace({ time, step = 5, interactive = false, hourOnl
         const to = point(index * 6, 90);
         return <line key={index} x1={from.x} y1={from.y} x2={to.x} y2={to.y} className={major ? 'clock-tick-hour' : 'clock-tick'} />;
       })}
-      {Array.from({ length: 12 }, (_, index) => {
-        const hour = index + 1;
-        const { x, y } = point(hour * 30, 68);
-        return <text key={hour} x={x} y={y} className="clock-number" textAnchor="middle" dominantBaseline="central">{hour}</text>;
-      })}
       <g className="clock-hand clock-hand-hour" style={{ transform: `rotate(${hourDeg}deg)` }}>
         <line x1={CENTER} y1={CENTER + 12} x2={CENTER} y2={CENTER - HOUR_LENGTH} />
         {interactive && <circle cx={CENTER} cy={CENTER - HOUR_LENGTH} r={12} className="clock-knob" />}
@@ -152,6 +147,12 @@ export default function ClockFace({ time, step = 5, interactive = false, hourOnl
         {interactive && !hourOnly && <circle cx={CENTER} cy={CENTER - MINUTE_LENGTH} r={12} className="clock-knob" />}
       </g>
       <circle cx={CENTER} cy={CENTER} r={7} className="clock-pin" />
+      {/* The numbers sit above the hands, ringed in white, so a hand never hides the number it points at. */}
+      {Array.from({ length: 12 }, (_, index) => {
+        const hour = index + 1;
+        const { x, y } = point(hour * 30, 68);
+        return <text key={hour} x={x} y={y} className="clock-number" textAnchor="middle" dominantBaseline="central">{hour}</text>;
+      })}
     </svg>
   );
 }
