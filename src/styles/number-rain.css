@@ -1,0 +1,26 @@
+/* 숫자 비: numbers fall from the sky and the child taps the matching key. */
+.number-rain { overflow: hidden; border: 2px solid #cfe0f3; border-radius: 28px; background: #f6fbff; box-shadow: 0 6px 0 #bcd3ec; }
+.number-rain-hud { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; font-weight: 800; color: #2f5b8a; }
+.number-rain-hud strong { font-size: 20px; }
+.number-rain-hearts { display: inline-block; font-size: 22px; letter-spacing: 2px; color: #e3584f; }
+.number-rain-pause { min-height: 40px; padding: 6px 14px; font-size: 13px; }
+
+.number-rain-sky { position: relative; height: min(38dvh, 440px); min-height: 240px; overflow: hidden;
+  background: radial-gradient(circle at 18% 18%, #ffffffcc 0 26px, transparent 27px), radial-gradient(circle at 26% 16%, #ffffffcc 0 20px, transparent 21px),
+    radial-gradient(circle at 78% 26%, #ffffffaa 0 22px, transparent 23px), linear-gradient(#9fd0f2, #dff0fb); }
+.number-rain-drop { position: absolute; display: grid; place-items: center; width: 56px; height: 56px; transform: translate(-50%, -50%);
+  border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%; background: var(--drop-color); color: white; font-size: 30px; font-weight: 900;
+  box-shadow: inset 0 -5px 0 #0000001f, 0 3px 6px #2f5b8a33; pointer-events: none; }
+.number-rain-pop { position: absolute; transform: translate(-50%, -50%); font-size: 22px; font-weight: 900; pointer-events: none; }
+.number-rain-ground { position: absolute; inset: auto 0 0; height: 10px; background: #79b77a; box-shadow: 0 -3px 0 #5f9c60; }
+.number-rain-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  background: #ffffffd9; color: #2f5b8a; font-weight: 700; text-align: center; padding: 16px; }
+
+.number-rain-keypad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 12px; background: #e8f2fb; }
+.number-rain-key { min-height: 60px; border: 2px solid #bcd3ec; border-radius: 18px; background: white; box-shadow: 0 4px 0 #bcd3ec;
+  font-size: 30px; font-weight: 900; color: #243b55; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.number-rain-key:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #bcd3ec; }
+.number-rain-key:disabled { opacity: .35; }
+.number-rain-key[data-wrong="true"] { border-color: #e3584f; background: #fdeceb; animation: number-rain-shake .3s; }
+@keyframes number-rain-shake { 25% { translate: -4px 0; } 75% { translate: 4px 0; } }
+@media (prefers-reduced-motion: reduce) { .number-rain-key[data-wrong="true"] { animation: none; } }

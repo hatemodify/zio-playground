@@ -10,6 +10,7 @@
 @import "./styles/numbers-games.css";
 @import "./styles/voice.css";
 @import "./styles/clock.css";
+@import "./styles/number-rain.css";
 
 /* Tablet landscape custom variant */
 @custom-variant landscape-tablet (@media (orientation: landscape) and (min-width: 768px));

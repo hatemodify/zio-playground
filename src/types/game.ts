@@ -35,7 +35,8 @@ export type GameId =
   | 'shape-explorer'
   | 'maze'
   | 'listen-find'
-  | 'clock';
+  | 'clock'
+  | 'number-rain';
 
 export type GameState = 'ready' | 'playing' | 'success' | 'fail' | 'reward';
 

@@ -88,6 +88,7 @@ export const router = createBrowserRouter([
       { path: '/games/number-bonds', element: lazyPage(() => import('./pages/NumberBondsGamePage')) },
       { path: '/games/listen-find', element: lazyPage(() => import('./pages/ListenFindGamePage')) },
       { path: '/games/clock', element: lazyPage(() => import('./pages/ClockGamePage')) },
+      { path: '/games/number-rain', element: lazyPage(() => import('./pages/NumberRainGamePage')) },
       { path: '/games/daruma', element: lazyPage(() => import('./pages/DarumaGamePage')) },
       { path: '/games/juice-math', element: lazyPage(() => import('./pages/JuiceMathGamePage')) },
       { path: '/games/mini-festival', element: lazyPage(() => import('./pages/MiniFestivalGamePage')) },

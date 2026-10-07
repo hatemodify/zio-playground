@@ -35,6 +35,7 @@ const ART: Record<string, { picture: PictureId; friend?: PictureId; text?: strin
   'number-bonds': { picture: 'rabbit', friend: 'rabbit', text: '3 + ?', background: '#e7f3e1' },
   'shape-explorer': { picture: 'kite', friend: 'soccer-ball', text: '○ △ □', background: '#fde8e6' },
   maze: { picture: 'rabbit', friend: 'carrot', text: '⌐ ¬', background: '#e9f0d8' },
+  'number-rain': { picture: 'umbrella', text: '3 7 1', background: '#dcebf7' },
   clock: { picture: 'alarm-clock', text: '3:30', background: '#e3eefb' },
 };
 export default function GameArtwork({ gameId }: { gameId: string }) {
