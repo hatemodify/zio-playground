@@ -96,7 +96,7 @@ export const GAME_CONFIGS: GameConfig[] = [
     id: 'coloring',
     kind: 'play',
     name: '색칠하기',
-    description: '컬러 도안 40종으로 나만의 작품을 만들어요!',
+    description: '컬러 도안 54종으로 나만의 작품을 만들어요!',
     icon: 'palette',
     categories: ['numbers', 'hangul', 'english'],
     difficulties: {
