@@ -7,7 +7,7 @@
 - 카메라: 기존 라이브러리 없음. 브라우저 `getUserMedia`로 전면 카메라를 요청하며 HTTPS 또는 localhost와 카메라 권한이 필요하다.
 - 포즈: `@mediapipe/tasks-vision` 1.1.0, Pose Landmarker Lite 모델(float16). 모델과 SIMD WebAssembly 실행 파일을 프로젝트에 포함해 같은 출처에서 로드한다. CPU delegate와 모듈형 Web Worker에서 추론한다. 모델 SHA-256: `59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a`.
 - WebAssembly와 모델 출처: [MediaPipe Vision npm 패키지](https://www.npmjs.com/package/@mediapipe/tasks-vision), [공식 Pose Landmarker Lite 모델](https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task). MediaPipe의 Apache 2.0 고지는 `docs/third-party/mediapipe-LICENSE.txt`에 포함했다.
-- 실제 시험 환경: Mac, macOS 26.6.2, Playwright Headless Chromium 154.0.0.0, 합성 영상 스트림(30fps)과 MediaPipe 공식 샘플 사람 사진. 스마트폰 기기·모바일 OS·실제 전면 카메라·어린이·TV 미러링은 시험하지 못했다.
+- 실제 시험 환경: Mac, macOS 26.6.2, FaceTime HD 카메라(640×480, 30fps), Google Chrome 154.0.0.0. 합성 영상 스트림(30fps)과 MediaPipe 공식 샘플 사람 사진은 Playwright Headless Chromium 154.0.0.0에서 별도로 시험했다. 스마트폰 기기·모바일 OS·어린이·TV 미러링은 시험하지 못했다.
 
 ## 구현 경로
 
@@ -22,6 +22,10 @@
 
 | 항목 | 관측값 | 해석 |
 |---|---:|---|
+| 실제 Mac 카메라 FPS | 30 | FaceTime HD 카메라 영상 트랙이 `live`, 640×480·30fps로 확인됨 |
+| 실제 Mac 카메라 입력 중 Pose FPS | 15 | 2초 간격 3회 측정 모두 15fps. 화면 판정은 `NO_BODY` |
+| 실제 Mac 카메라 입력 중 Canvas FPS | 75 | 2초 간격 3회 측정 모두 75fps. 화면 판정은 `NO_BODY` |
+| 실제 Mac 카메라 입력 중 1회 추론 | 15~16ms | `NO_BODY` 상태에서 게임 입력 중단 확인. 카메라 앞의 실제 장면은 별도 평가하지 않음 |
 | 합성 카메라 FPS | 30~31 | 브라우저가 표시한 영상 프레임 수. 실제 스마트폰 카메라 FPS 아님 |
 | Pose 추론 FPS | 15~16 | 한 번에 한 프레임만 Worker에 전송; 설정상 최소 65ms 간격 |
 | Canvas 렌더링 FPS | 약 60 | 데스크톱 브라우저의 `requestAnimationFrame` |
@@ -53,7 +57,7 @@
 
 ## 결론
 
-**2. 추가 POC 필요.** 데스크톱 브라우저에서 카메라 형식 영상 → 실제 MediaPipe 추론 → 보정·동작 판정 → 게임 반응까지는 확인했다. 교육 앱 적용 가능 여부는 실제 스마트폰 전면 카메라와 어린이의 점프·앉기·좌우 이동을 각각 반복 측정하고, TV 미러링 지연까지 기록한 뒤 결정한다.
+**2. 추가 POC 필요.** 실제 Mac 카메라 → MediaPipe 추론 → 사람 미검출 시 입력 중단을 확인했다. 합성 사람 영상으로는 보정·동작 판정 → 게임 반응까지 확인했다. 교육 앱 적용 가능 여부는 실제 스마트폰 전면 카메라와 어린이의 점프·앉기·좌우 이동을 각각 반복 측정하고, TV 미러링 지연까지 기록한 뒤 결정한다.
 
 ### 실제 기기 기록 방법
 
