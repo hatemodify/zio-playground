@@ -93,6 +93,7 @@ export const router = createBrowserRouter([
       { path: '/games/juice-math', element: lazyPage(() => import('./pages/JuiceMathGamePage')) },
       { path: '/games/mini-festival', element: lazyPage(() => import('./pages/MiniFestivalGamePage')) },
       { path: '/games/rocket-ride', element: lazyPage(() => import('./pages/RocketRideGamePage')) },
+      { path: '/games/motion-poc', element: lazyPage(() => import('./pages/MotionPocPage')) },
       { path: '/games/animal-playground', element: lazyPage(() => import('./pages/AnimalPlaygroundPage')) },
       {
         path: '/games/matching',

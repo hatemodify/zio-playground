@@ -34,7 +34,17 @@ export default defineConfig({
         ],
       },
       workbox: {
+        globIgnores: ['**/mediapipe/**'],
         runtimeCaching: [
+          {
+            urlPattern: /\/mediapipe\//,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'mediapipe-model-runtime',
+              expiration: { maxEntries: 8, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
             handler: 'CacheFirst',

@@ -23,6 +23,7 @@ export default function GamesListPage() {
       <Picture id="excavator" className="absolute -bottom-3 right-3 h-40 w-32 rotate-6 sm:right-16 sm:h-64 sm:w-48" />
       <Picture id="police-car" className="absolute bottom-5 right-24 hidden h-32 w-32 -rotate-12 lg:right-56 lg:block" />
     </section>
+    <Link to="/games/motion-poc" className="rounded-2xl border-2 border-teal-500 bg-teal-50 p-4 text-slate-800 shadow-sm"><span className="text-xs font-black tracking-wider text-teal-700">개발용 POC · CAMERA MOTION</span><h2 className="mt-1 text-lg font-black">몸으로 달리는 실험실 →</h2><p className="mt-1 text-sm">카메라로 점프, 앉기, 좌우 이동을 시험해 보세요.</p></Link>
     <div className="flex flex-wrap gap-2" role="group" aria-label="게임 종류">{FILTERS.map((item) => <button key={item.id} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}
       className={`min-h-11 rounded-full px-5 py-2.5 text-sm font-bold ${filter === item.id ? 'bg-teal-700 text-white' : 'border border-slate-200 bg-white text-slate-600'}`}>{item.label}</button>)}</div>
     {(['learning', 'play'] as const).map((kind) => {
