@@ -18,6 +18,7 @@ export class Runner {
   private distance = 0;
   private hits = 0;
   private active = false;
+  private remoteMode = false;
   private pendingCapture: number | null = null;
   private latencies: number[] = [];
   private frames = 0;
@@ -31,6 +32,20 @@ export class Runner {
     this.ctx = ctx;
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
+  }
+
+  setRemoteActive(active: boolean) {
+    this.remoteMode = true;
+    this.active = active;
+    this.targetX = WIDTH / 2;
+    this.x = WIDTH / 2;
+    if (!active) this.pendingCapture = null;
+  }
+
+  jumpFromRemote(receivedAt: number) {
+    if (!this.active || this.jumpY !== 0) return;
+    this.velocityY = -550;
+    this.pendingCapture = receivedAt;
   }
 
   setPose(pose: PoseSnapshot, capturedAt: number) {
@@ -72,7 +87,7 @@ export class Runner {
       if (this.jumpY === 0 && this.velocityY > 0) this.velocityY = 0;
       this.distance += 160 * dt;
       if (now >= this.spawnAt) {
-        this.obstacles.push({ x: WIDTH + 35, kind: Math.random() < 0.6 ? 'low' : 'high', passed: false });
+        this.obstacles.push({ x: WIDTH + 35, kind: this.remoteMode || Math.random() < 0.6 ? 'low' : 'high', passed: false });
         this.spawnAt = now + 2200 + Math.random() * 1200;
       }
       for (const obstacle of this.obstacles) {
@@ -115,7 +130,7 @@ export class Runner {
     if (!this.active) {
       ctx.fillStyle = 'rgba(4, 20, 32, .7)'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
       ctx.textAlign = 'center'; ctx.font = 'bold 22px system-ui'; ctx.fillStyle = '#fff';
-      ctx.fillText('전신 인식과 보정이 끝나면 게임이 시작돼요', WIDTH / 2, HEIGHT / 2);
+      ctx.fillText(this.remoteMode ? '컨트롤러가 연결되면 게임이 시작돼요' : '전신 인식과 보정이 끝나면 게임이 시작돼요', WIDTH / 2, HEIGHT / 2);
       ctx.textAlign = 'start';
     }
   }

@@ -38,3 +38,4 @@ dev-dist/
 # Testing
 coverage/
 test-results/
+.playwright-cli/

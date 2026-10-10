@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { PoseClassifier, type Landmark, type PoseSnapshot } from '@/motion/poseClassifier';
 import { Runner } from '@/motion/runner';
 
@@ -166,7 +167,7 @@ export default function MotionPocPage() {
 
   const toggleClass = 'min-h-11 rounded-xl border border-slate-500 px-3 py-2 text-sm font-bold text-white';
   return <div className="mx-auto w-full max-w-5xl space-y-4 px-4 py-5 text-slate-800 sm:px-6">
-    <header><p className="text-xs font-black tracking-[.2em] text-teal-700">CAMERA MOTION · TECH POC</p><h1 className="mt-1 text-2xl font-black">몸으로 달리는 실험실</h1><p className="mt-2 text-sm text-slate-600">스마트폰을 세워 두고 2~3걸음 뒤에서 전신을 비춰 주세요. 점프·앉기·좌우 이동으로 캐릭터를 조작합니다.</p></header>
+    <header><p className="text-xs font-black tracking-[.2em] text-teal-700">CAMERA MOTION · TECH POC</p><h1 className="mt-1 text-2xl font-black">몸으로 달리는 실험실</h1><p className="mt-2 text-sm text-slate-600">스마트폰을 세워 두고 2~3걸음 뒤에서 전신을 비춰 주세요. 점프·앉기·좌우 이동으로 캐릭터를 조작합니다.</p><Link to="/games/motion-poc/remote" className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-teal-700 px-4 font-bold text-white">공기계 점프 전송 실험 →</Link></header>
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,380px)]">
       <section className="overflow-hidden rounded-3xl bg-slate-900 p-3 text-white shadow-lg" aria-label="모션 게임">
         <canvas ref={canvasRef} className="w-full rounded-2xl" style={{ aspectRatio: '640 / 260' }} aria-label="장애물을 피하는 러너 게임" />
