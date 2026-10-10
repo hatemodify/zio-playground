@@ -60,3 +60,23 @@ test('앉은 자세는 기준 자세로 보정하지 않는다', () => {
   assert.equal(result.state, 'CALIBRATING');
   assert.equal(result.calibrationProgress, 0);
 });
+
+test('30fps 입력에서 두 프레임 안에 확실한 동작을 판정하고 한 프레임 잡음은 무시한다', () => {
+  const motions = [
+    [{ hip: -.12, shoulder: -.11, knee: -.08 }, 'JUMP'],
+    [{ hip: .12, shoulder: .06, knee: .02 }, 'CROUCH'],
+    [{ x: -.13 }, 'LEFT'],
+    [{ x: .13 }, 'RIGHT'],
+  ];
+  for (const [shape, action] of motions) {
+    const classifier = calibrated();
+    assert.equal(classifier.update(points(shape), 3733).action, 'NONE');
+    assert.equal(classifier.update(points(shape), 3766).action, action);
+  }
+  const noisy = calibrated();
+  assert.equal(noisy.update(points({ x: -.13 }), 3733).action, 'NONE');
+  assert.equal(noisy.update(points(), 3766).action, 'NONE');
+  for (let time = 3800; time < 4500; time += 33) {
+    assert.equal(noisy.update(points({ x: .012, hip: -.008 }), time).action, 'NONE');
+  }
+});

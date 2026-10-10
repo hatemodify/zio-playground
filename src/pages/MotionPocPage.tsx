@@ -3,6 +3,7 @@ import { PoseClassifier, type Landmark, type PoseSnapshot } from '@/motion/poseC
 import { Runner } from '@/motion/runner';
 
 const BONES = [[0, 1], [0, 2], [1, 3], [2, 3], [2, 4], [3, 5], [4, 6], [5, 7]] as const;
+const MIN_INFERENCE_INTERVAL_MS = 33;
 const EMPTY: PoseSnapshot = { state: 'NO_BODY', action: 'NONE', bodyDetected: false, confidence: 0, hipDeltaY: 0, shoulderDeltaY: 0, centerDeltaX: 0, calibrationProgress: 0, lastActionAt: null, message: '카메라를 시작하고 전신이 보이도록 서 주세요.' };
 type WorkerMessage = { type: 'ready' } | { type: 'error'; message: string } | { type: 'pose'; landmarks: Landmark[]; capturedAt: number; inferenceMs: number };
 
@@ -38,6 +39,7 @@ export default function MotionPocPage() {
   const lastVideoFramesRef = useRef(0);
   const lastCaptureRef = useRef(0);
   const lastUiRef = useRef(0);
+  const lastPublishedPoseRef = useRef<PoseSnapshot>(EMPTY);
 
   function stop() {
     runIdRef.current++;
@@ -54,6 +56,7 @@ export default function MotionPocPage() {
     runnerRef.current = null;
     setStatus('idle');
     setPose(EMPTY);
+    lastPublishedPoseRef.current = EMPTY;
     setPoints([]);
   }
   const stopRef = useRef(stop);
@@ -105,9 +108,10 @@ export default function MotionPocPage() {
         poseCountRef.current++;
         const next = classifierRef.current.update(data.landmarks, lastPoseRef.current);
         runnerRef.current?.setPose(next, data.capturedAt);
-        if (lastPoseRef.current - lastUiRef.current >= 90 || !next.bodyDetected) {
+        if (next.state !== lastPublishedPoseRef.current.state || next.action !== lastPublishedPoseRef.current.action || lastPoseRef.current - lastUiRef.current >= 90 || !next.bodyDetected) {
           setPose(next); setPoints(data.landmarks); setInferenceMs(Math.round(data.inferenceMs));
           lastUiRef.current = lastPoseRef.current;
+          lastPublishedPoseRef.current = next;
         }
       };
       worker.onerror = event => { setError(`Pose 워커 오류: ${event.message}`); stop(); setStatus('error'); };
@@ -123,7 +127,7 @@ export default function MotionPocPage() {
             cameraCountRef.current += Math.max(0, totalFrames - lastVideoFramesRef.current);
             lastVideoFramesRef.current = totalFrames;
           }
-          if (readyRef.current && !inFlightRef.current && now - lastCaptureRef.current >= 65) {
+          if (readyRef.current && !inFlightRef.current && now - lastCaptureRef.current >= MIN_INFERENCE_INTERVAL_MS) {
             inFlightRef.current = true;
             lastCaptureRef.current = now;
             const capturedAt = performance.now();
@@ -137,6 +141,8 @@ export default function MotionPocPage() {
           const missing = classifierRef.current.update([], now);
           runnerRef.current?.setPose(missing, now);
           setPose(missing); setPoints([]);
+          lastPublishedPoseRef.current = missing;
+          lastUiRef.current = now;
           lastPoseRef.current = now;
         }
         if (now - metricStartRef.current >= 1000) {

@@ -1,4 +1,4 @@
-import type { PoseAction, PoseSnapshot } from './poseClassifier';
+import type { PoseSnapshot } from './poseClassifier';
 
 const WIDTH = 640;
 const HEIGHT = 260;
@@ -7,7 +7,8 @@ type Obstacle = { x: number; kind: 'low' | 'high'; passed: boolean };
 
 export class Runner {
   private ctx: CanvasRenderingContext2D;
-  private x = 130;
+  private x = WIDTH / 2;
+  private targetX = WIDTH / 2;
   private jumpY = 0;
   private velocityY = 0;
   private crouchUntil = 0;
@@ -16,7 +17,6 @@ export class Runner {
   private lastTick = 0;
   private distance = 0;
   private hits = 0;
-  private input: PoseAction = 'NONE';
   private active = false;
   private pendingCapture: number | null = null;
   private latencies: number[] = [];
@@ -36,11 +36,13 @@ export class Runner {
   setPose(pose: PoseSnapshot, capturedAt: number) {
     this.active = pose.bodyDetected && pose.calibrationProgress === 1;
     if (!this.active) {
-      this.input = 'NONE';
+      this.targetX = WIDTH / 2;
       this.pendingCapture = null;
       return;
     }
-    this.input = pose.state === 'MOVING_LEFT' ? 'LEFT' : pose.state === 'MOVING_RIGHT' ? 'RIGHT' : 'NONE';
+    this.targetX = pose.state === 'MOVING_LEFT' || pose.state === 'MOVING_RIGHT'
+      ? Math.max(42, Math.min(WIDTH - 42, WIDTH / 2 + pose.centerDeltaX * 520))
+      : WIDTH / 2;
     const now = performance.now();
     if (pose.action === 'JUMP' && this.jumpY === 0) {
       this.velocityY = -550;
@@ -64,8 +66,7 @@ export class Runner {
       this.fpsStart = now;
     }
     if (this.active) {
-      if (this.input === 'LEFT') this.x = Math.max(40, this.x - 180 * dt);
-      if (this.input === 'RIGHT') this.x = Math.min(WIDTH - 40, this.x + 180 * dt);
+      this.x += (this.targetX - this.x) * Math.min(1, dt * 24);
       this.jumpY = Math.min(0, this.jumpY + this.velocityY * dt);
       this.velocityY = this.jumpY === 0 ? 0 : this.velocityY + 1300 * dt;
       if (this.jumpY === 0 && this.velocityY > 0) this.velocityY = 0;
