@@ -20,7 +20,7 @@ test.describe('Coloring (tap-to-fill) Flow', () => {
     await expect(page.locator('svg path[role="button"]').first()).toBeVisible();
   }
 
-  test('shows the five category tabs and page thumbnails', async ({ page }) => {
+  test('shows the coloring categories and page thumbnails', async ({ page }) => {
     await page.goto('/games/coloring');
     await expect(page.getByText('그림을 골라봐!')).toBeVisible();
 
@@ -30,6 +30,7 @@ test.describe('Coloring (tap-to-fill) Flow', () => {
     await expect(page.getByRole('button', { name: /장난감 카테고리/ })).toBeVisible();
 
     await expect(page.getByRole('button', { name: /음식 카테고리/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /특별 카테고리/ })).toBeVisible();
 
     const thumbnails = page.locator('button[aria-label$="색칠하기"]');
     expect(await thumbnails.count()).toBeGreaterThan(0);

@@ -125,6 +125,9 @@ export function hasPicture(id: string | undefined | null): id is PictureId {
 export function pictureName(id: PictureId): string {
   return PICTURE_WORDS.find((w) => w.id === id)?.name ?? (TWEMOJI_PICTURES as Record<string, { name: string }>)[id]?.name ?? id;
 }
+export function pictureEnglishName(id: PictureId): string {
+  return PICTURE_WORDS.find((w) => w.id === id)?.english ?? (TWEMOJI_PICTURES as Record<string, { english: string }>)[id]?.english ?? id;
+}
 export const picturePath = (id: PictureId): string => {
   if (id === 'burger') return '/assets/illustrations/burger.svg';
   if ((COLLECTIBLE_PICTURES as readonly string[]).includes(id)) return `/assets/illustrations/${id}.svg`;

@@ -62,12 +62,12 @@ function DailyRecommendation({
 
             <div className="flex flex-col items-center gap-1.5 p-3">
               {/* Character */}
-              <span className="font-display text-2xl font-bold text-text-dark">
+              <span data-i18n-ignore={item.category === 'hangul' ? true : undefined} className="font-display text-2xl font-bold text-text-dark">
                 {item.character}
               </span>
 
               {/* Label */}
-              <span className="text-xs font-medium text-text-medium">
+              <span data-i18n-ignore={item.category === 'hangul' ? true : undefined} className="text-xs font-medium text-text-medium">
                 {item.label ?? categoryLabel[item.category]}
               </span>
             </div>

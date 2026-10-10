@@ -32,6 +32,10 @@ Original SVG files are unchanged. Coloring data in src/data/coloring-artwork.jso
 - panda-face.svg: 1f43c.svg
 - penguin.svg: 1f427.svg
 - octopus.svg: 1f419.svg
+- pig-face.svg: 1f437.svg
+- giraffe.svg: 1f992.svg
+- cow-face.svg: 1f42e.svg
+- elephant.svg: 1f418.svg
 - airplane.svg: 2708.svg
 - bus.svg: 1f68c.svg
 - fire-engine.svg: 1f692.svg

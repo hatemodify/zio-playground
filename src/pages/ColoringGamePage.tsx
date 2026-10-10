@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import Button from '@/components/ui/Button';
@@ -7,6 +7,10 @@ import ColoringArtwork from '@/components/games/ColoringArtwork';
 import { useSound } from '@/hooks/use-sound';
 import { useGameLogic } from '@/hooks/use-game-logic';
 import { COLORING_CATEGORIES, COLORING_PAGES, pagesByCategory, type ColoringCategory, type ColoringPage } from '@/data';
+import { useSettingsStore } from '@/stores/settings-store';
+import { translateKorean } from '@/i18n/dom-translator';
+
+const RemotePdfColoring = lazy(() => import('./RemotePdfColoring'));
 
 const COLORS = [
   { name: '체리 레드', value: '#E6495B' },
@@ -31,9 +35,12 @@ const COLORS = [
 type Fills = Record<string, string>;
 export default function ColoringGamePage() {
   const navigate = useNavigate();
+  const language = useSettingsStore((state) => state.language);
   const { play } = useSound();
   const game = useGameLogic({ gameId: 'coloring', category: 'play' });
   const [category, setCategory] = useState<ColoringCategory>('animals');
+  const [remoteOpen, setRemoteOpen] = useState(false);
+  const [remoteImage, setRemoteImage] = useState<string | null>(null);
   const [page, setPage] = useState<ColoringPage | null>(null);
   const [color, setColor] = useState(COLORS[0].value);
   const [history, setHistory] = useState<Fills[]>([{}]);
@@ -53,20 +60,37 @@ export default function ColoringGamePage() {
     if (page.regions.every((region) => next[region.id])) game.finish(1);
   }
   function back() { game.reset(); setPage(null); }
+  function backFromRemote() { game.reset(); setRemoteOpen(false); setRemoteImage(null); }
+  function openRemote() { setRemoteImage(null); setRemoteOpen(true); setShowReward(true); game.start(1); }
+
+  if (remoteOpen && remoteImage) return <div className="art-studio flex flex-col items-center gap-4 px-4 py-6">
+    <span className="studio-pill">MY LITTLE GALLERY</span>
+    <h1 className="text-2xl font-extrabold text-slate-800">{language === 'en' ? 'Your Elsa Snowflake is complete!' : '나만의 엘사 눈꽃 완성!'}</h1>
+    <div className="finished-art"><img src={remoteImage} alt={language === 'en' ? 'Your colored Elsa picture' : '완성한 엘사 색칠 그림'} className="w-full" /></div>
+    <div className="flex gap-3"><Button variant="secondary" onClick={backFromRemote}>{language === 'en' ? 'Other Pictures' : '다른 그림'}</Button><Button onClick={() => navigate('/games')}>{language === 'en' ? 'Game List' : '게임 목록'}</Button></div>
+    <RewardCelebration type="game_complete" stars={game.calculateStars(game.score)} newStickers={game.earnedStickers} open={showReward} onDismiss={() => setShowReward(false)} message="멋진 작품이 탄생했어요!" />
+  </div>;
+
+  if (remoteOpen) return <Suspense fallback={<p className="px-4 py-8 text-center text-slate-600">도안을 준비하고 있어요…</p>}>
+    <RemotePdfColoring onBack={backFromRemote} onComplete={(image) => { setRemoteImage(image); game.finish(1); }} />
+  </Suspense>;
 
   if (!page) return <div className="art-studio flex flex-col gap-5 px-4 pb-6 pt-3">
-    <header className="studio-heading"><p className="text-xs font-extrabold tracking-widest text-teal-700">또리의 아트 스튜디오</p><h1 className="mt-1 text-2xl font-extrabold text-slate-800">색칠하기</h1><p className="mt-1 text-sm text-slate-600">그림을 골라봐!</p><span className="studio-badge">{COLORING_PAGES.length}개의 컬러 도안</span></header>
+    <header className="studio-heading"><p className="text-xs font-extrabold tracking-widest text-teal-700">또리의 아트 스튜디오</p><h1 className="mt-1 text-2xl font-extrabold text-slate-800">색칠하기</h1><p className="mt-1 text-sm text-slate-600">그림을 골라봐!</p><span className="studio-badge">{language === 'en' ? `${COLORING_PAGES.length + 1} coloring pages` : `${COLORING_PAGES.length + 1}개의 컬러 도안`}</span></header>
     <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">{COLORING_CATEGORIES.map((item) => <button key={item.key} aria-label={`${item.label} 카테고리`} aria-pressed={category === item.key} onClick={() => setCategory(item.key)} className={`min-h-11 flex-1 rounded-2xl text-sm font-bold ${category === item.key ? 'bg-teal-700 text-white shadow-md' : 'bg-white text-slate-600'}`}>{item.emoji} {item.label}</button>)}</div>
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">{pagesByCategory(category).map((item, index) => <motion.button key={item.id} whileTap={{ scale: 0.96 }} className="art-card" aria-label={`${item.name} 색칠하기`} onClick={() => select(item)}>
       <div className={`art-thumbnail art-tone-${index % 4}`}><img src={item.source} alt="" className="h-28 w-28 p-2 sm:h-36 sm:w-36" /></div>
-      <div className="flex w-full items-center justify-between p-4"><span className="font-extrabold text-slate-700">{item.name}</span><span className="text-xs font-bold text-teal-700">{item.regions.length}칸</span></div>
-    </motion.button>)}</div>
+      <div className="flex w-full items-center justify-between p-4"><span className="font-extrabold text-slate-700">{item.name}</span><span className="text-xs font-bold text-teal-700">{language === 'en' ? `${item.regions.length} areas` : `${item.regions.length}칸`}</span></div>
+    </motion.button>)}{category === 'special' && <motion.button whileTap={{ scale: 0.96 }} className="art-card" aria-label={language === 'en' ? 'Color Elsa Snowflake' : '엘사 눈꽃 색칠하기'} onClick={openRemote}>
+      <div className="art-thumbnail bg-gradient-to-br from-sky-100 via-indigo-50 to-fuchsia-100"><span aria-hidden="true" className="text-7xl drop-shadow-md">❄️</span></div>
+      <div className="flex w-full items-center justify-between p-4"><span className="font-extrabold text-slate-700">{language === 'en' ? 'Elsa Snowflake' : '엘사 눈꽃'}</span><span className="text-xs font-bold text-sky-700">PDF</span></div>
+    </motion.button>}</div>
     <p className="text-center text-sm text-slate-500">좋아하는 색으로 나만의 작품을 만들어요.</p>
     <a className="text-center text-xs text-slate-400 underline" href="/assets/twemoji/CREDITS.md" target="_blank" rel="noreferrer">그림: Twemoji · CC BY 4.0</a>
   </div>;
 
   if (finished) return <div className="art-studio flex flex-col items-center gap-4 px-4 py-6">
-    <span className="studio-pill">MY LITTLE GALLERY</span><h1 className="text-2xl font-extrabold text-slate-800">나만의 {page.name} 완성!</h1>
+    <span className="studio-pill">MY LITTLE GALLERY</span><h1 className="text-2xl font-extrabold text-slate-800">{language === 'en' ? `Your ${translateKorean(page.name)} is complete!` : `나만의 ${page.name} 완성!`}</h1>
     <div className="finished-art"><ColoringArtwork page={page} fills={fills} className="w-full" /><p className="mt-3 text-center text-sm font-bold text-slate-500">세상에 하나뿐인 나의 작품</p></div>
     <div className="flex gap-3"><Button variant="secondary" onClick={back}>다시 하기</Button><Button onClick={() => navigate('/games')}>게임 목록</Button></div>
     <RewardCelebration type="game_complete" stars={game.calculateStars(game.score)} newStickers={game.earnedStickers} open={showReward} onDismiss={() => setShowReward(false)} message="멋진 작품이 탄생했어요!" />
@@ -79,7 +103,7 @@ export default function ColoringGamePage() {
     <div className="paint-toolbox"><p className="mb-3 text-center text-sm font-bold text-slate-600">원하는 색을 골라 그림을 톡!</p><div className="paint-color-grid">{COLORS.map((item) => <button key={item.value} className={`paint-color ${item.value === color ? 'paint-color-selected' : ''}`} style={{ background: item.value }} onClick={() => setColor(item.value)} aria-label={`색상 ${item.name}`} aria-pressed={item.value === color}><span className="sr-only">{item.name}</span></button>)}<label className={`paint-custom-color ${!COLORS.some((item) => item.value === color) ? 'paint-color-selected' : ''}`}>
       <input type="color" value={color} onChange={(event) => setColor(event.target.value)} aria-label="내 색 만들기" />
       <span aria-hidden="true">＋</span><small>내 색</small>
-    </label></div><p className="mt-3 text-center text-xs font-semibold text-slate-400">파스텔부터 진한 색까지 {COLORS.length}가지 + 내 색 만들기</p></div>
+    </label></div><p className="mt-3 text-center text-xs font-semibold text-slate-400">{language === 'en' ? `${COLORS.length} colors, from pastel to bold, plus your own` : `파스텔부터 진한 색까지 ${COLORS.length}가지 + 내 색 만들기`}</p></div>
     <div className="flex flex-wrap justify-center gap-2" role="group" aria-label="작은 영역 칠하기">{page.regions.map((region) => <button key={region.id} onClick={() => paint(region.id)} className="region-chip" aria-label={`${region.label} 색 채우기`}><span style={{ background: fills[region.id] ?? '#E7E5E4' }} />{region.label}{fills[region.id] && ' ✓'}</button>)}</div>
     <Button variant="ghost" size="sm" onClick={() => { setHistory([{}]); setCursor(0); }}>다시 칠하기</Button>
   </div>;

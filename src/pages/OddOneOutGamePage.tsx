@@ -186,7 +186,7 @@ export default function OddOneOutGamePage() {
               }}
               transition={{ delay: i * 0.08, duration: feedback === 'wrong' ? 0.4 : 0.3 }}
             >
-              <span className="font-display text-4xl font-bold text-games">{item.character}</span>
+              <span data-i18n-ignore className="font-display text-4xl font-bold text-games">{item.character}</span>
               <span className="text-xs text-text-light">
                 {CATEGORY_EMOJIS[item.category]}
               </span>

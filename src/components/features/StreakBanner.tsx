@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/cn';
+import { useSettingsStore } from '@/stores/settings-store';
 
 interface StreakBannerProps {
   streak: number;
@@ -8,6 +9,7 @@ interface StreakBannerProps {
 }
 
 function StreakBanner({ streak, className }: StreakBannerProps) {
+  const language = useSettingsStore((s) => s.language);
   if (streak <= 0) return null;
 
   return (
@@ -42,7 +44,7 @@ function StreakBanner({ streak, className }: StreakBannerProps) {
       </motion.div>
 
       <span className="font-display text-base font-bold text-white">
-        연속 {streak}일째 학습 중!
+        {language === 'en' ? `${streak}-day learning streak!` : `연속 ${streak}일째 학습 중!`}
       </span>
 
       {/* Bonus indicator */}

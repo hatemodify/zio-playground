@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
+import { useSettingsStore } from '@/stores/settings-store';
 
 interface ParentGateProps {
   open: boolean;
@@ -19,6 +20,7 @@ function generateQuestion(): { a: number; b: number; answer: number } {
 const NUM_PAD_KEYS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0] as const;
 
 export default function ParentGate({ open, onSuccess, onCancel }: ParentGateProps) {
+  const language = useSettingsStore((state) => state.language);
   const [question, setQuestion] = useState(generateQuestion);
   const [input, setInput] = useState('');
   const [attempts, setAttempts] = useState(0);
@@ -125,7 +127,7 @@ export default function ParentGate({ open, onSuccess, onCancel }: ParentGateProp
 
         {/* Attempts remaining */}
         <p className="text-xs text-text-light">
-          남은 시도: {remainingAttempts}회
+          {language === 'en' ? `Attempts left: ${remainingAttempts}` : `남은 시도: ${remainingAttempts}회`}
         </p>
 
         {/* Number pad */}

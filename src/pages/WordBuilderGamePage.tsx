@@ -214,7 +214,7 @@ export default function WordBuilderGamePage() {
             whileTap={{ scale: 0.95 }}
           >
             {slot && (
-              <span className="font-display text-2xl font-bold text-text-dark">{slot}</span>
+              <span data-i18n-ignore className="font-display text-2xl font-bold text-text-dark">{slot}</span>
             )}
           </motion.button>
         ))}
@@ -234,7 +234,7 @@ export default function WordBuilderGamePage() {
             whileTap={{ scale: 0.9 }}
             layout
           >
-            <span className="font-display text-xl font-bold">{item.letter}</span>
+            <span data-i18n-ignore className="font-display text-xl font-bold">{item.letter}</span>
           </motion.button>
         ))}
       </div>

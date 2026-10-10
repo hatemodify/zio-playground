@@ -1,4 +1,5 @@
 import type { PoseSnapshot } from './poseClassifier';
+import { useSettingsStore } from '@/stores/settings-store';
 
 const WIDTH = 640;
 const HEIGHT = 260;
@@ -126,11 +127,14 @@ export class Runner {
     ctx.fillStyle = '#fef3a4'; ctx.fillRect(this.x - 17, GROUND - height + this.jumpY, 34, height);
     ctx.fillStyle = '#213548'; ctx.fillRect(this.x + 5, GROUND - height + 13 + this.jumpY, 5, 5);
     ctx.fillStyle = '#fff'; ctx.font = 'bold 15px system-ui';
-    ctx.fillText(`거리 ${Math.floor(this.distance / 20)}   충돌 ${this.hits}`, 18, 27);
+    const english = useSettingsStore.getState().language === 'en';
+    ctx.fillText(english ? `Distance ${Math.floor(this.distance / 20)}   Hits ${this.hits}` : `거리 ${Math.floor(this.distance / 20)}   충돌 ${this.hits}`, 18, 27);
     if (!this.active) {
       ctx.fillStyle = 'rgba(4, 20, 32, .7)'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
       ctx.textAlign = 'center'; ctx.font = 'bold 22px system-ui'; ctx.fillStyle = '#fff';
-      ctx.fillText(this.remoteMode ? '컨트롤러가 연결되면 게임이 시작돼요' : '전신 인식과 보정이 끝나면 게임이 시작돼요', WIDTH / 2, HEIGHT / 2);
+      ctx.fillText(english
+        ? (this.remoteMode ? 'The game starts when the controller connects' : 'The game starts after body detection and calibration')
+        : (this.remoteMode ? '컨트롤러가 연결되면 게임이 시작돼요' : '전신 인식과 보정이 끝나면 게임이 시작돼요'), WIDTH / 2, HEIGHT / 2);
       ctx.textAlign = 'start';
     }
   }

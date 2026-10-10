@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import Button from '@/components/ui/Button';
-import { useSettingsStore } from '@/stores/settings-store';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { useSettingsStore, type StickerBookTheme } from '@/stores/settings-store';
 import { useProgressStore } from '@/stores/progress-store';
 import { cn } from '@/lib/cn';
 
@@ -13,10 +14,13 @@ export default function OnboardingPage() {
   const completeOnboarding = useSettingsStore((s) => s.completeOnboarding);
   const setNickname = useProgressStore((s) => s.setNickname);
   const onboarded = useSettingsStore((s) => s.onboarded);
+  const language = useSettingsStore((s) => s.language);
+  const setStickerBookTheme = useSettingsStore((s) => s.setStickerBookTheme);
 
   const [step, setStep] = useState<OnboardingStep>('welcome');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [selectedTheme, setSelectedTheme] = useState<StickerBookTheme | null>(null);
 
   const handleNameSubmit = useCallback(() => {
     const trimmed = name.trim();
@@ -39,12 +43,12 @@ export default function OnboardingPage() {
 
   // If already onboarded, redirect to home
   if (onboarded) {
-    navigate('/', { replace: true });
-    return null;
+    return <Navigate to="/" replace />;
   }
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-bg-cream p-6">
+      <div className="absolute right-4 top-4 z-10"><LanguageSwitcher /></div>
       <AnimatePresence mode="wait">
         {/* Step 1: Welcome */}
         {step === 'welcome' && (
@@ -85,10 +89,26 @@ export default function OnboardingPage() {
               </p>
             </div>
 
+            <div className="w-full max-w-sm">
+              <p className="mb-3 text-base font-bold text-text-dark">{language === 'en' ? 'Choose your sticker book' : '스티커북을 골라줘!'}</p>
+              <div className="grid grid-cols-2 gap-3">
+                {([['boy', '🚗', '남아용', 'Boys', '탈것과 탐험', 'Vehicles and adventures'], ['girl', '🦊', '여아용', 'Girls', '동물과 꽃', 'Animals and flowers']] as const).map(([theme, icon, ko, en, koDetail, enDetail]) => (
+                  <button key={theme} type="button" aria-pressed={selectedTheme === theme} onClick={() => { setSelectedTheme(theme); setStickerBookTheme(theme); }}
+                    className={cn('min-h-32 rounded-3xl border-4 bg-white p-4 text-center shadow-card transition-transform active:scale-95', selectedTheme === theme ? 'border-primary' : 'border-transparent')}>
+                    <span className="block text-4xl" aria-hidden="true">{icon}</span>
+                    <span className="mt-1 block text-lg font-extrabold text-text-dark">{language === 'en' ? en : ko}</span>
+                    <span className="block text-xs text-text-medium">{language === 'en' ? enDetail : koDetail}</span>
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-text-medium">{language === 'en' ? 'You can change this anytime in your sticker book.' : '스티커북에서 언제든 바꿀 수 있어요.'}</p>
+            </div>
+
             <Button
               variant="primary"
               size="xl"
-              onClick={() => setStep('name')}
+              onClick={() => selectedTheme && setStep('name')}
+              disabled={!selectedTheme}
               className="min-w-[200px]"
             >
               시작하기
@@ -246,7 +266,7 @@ export default function OnboardingPage() {
 
             <div className="flex flex-col gap-3">
               <h2 className="font-display text-3xl font-bold text-text-dark">
-                반가워, {name.trim()}!
+                {language === 'en' ? 'Nice to meet you, ' : '반가워, '}<span data-i18n-ignore>{name.trim()}</span>!
               </h2>
               <p className="text-lg text-text-medium">
                 또리와 함께 신나는 학습을 시작하자!

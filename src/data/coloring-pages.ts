@@ -1,6 +1,6 @@
 import artwork from './coloring-artwork.json';
 
-export type ColoringCategory = 'animals' | 'vehicles' | 'nature' | 'food' | 'objects';
+export type ColoringCategory = 'animals' | 'vehicles' | 'nature' | 'food' | 'objects' | 'special';
 export interface ColoringRegion { id: string; label: string; d: string; color: string }
 export interface ColoringPage {
   id: string;
@@ -18,6 +18,7 @@ export const COLORING_CATEGORIES: { key: ColoringCategory; label: string; emoji:
   { key: 'nature', label: '자연', emoji: '🌿' },
   { key: 'food', label: '음식', emoji: '🍓' },
   { key: 'objects', label: '장난감', emoji: '🎈' },
+  { key: 'special', label: '특별', emoji: '❄️' },
 ];
 // Adapted Twemoji graphics. Attribution and changes: public/assets/twemoji/CREDITS.md.
 export const COLORING_PAGES = artwork as ColoringPage[];

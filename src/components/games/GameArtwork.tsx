@@ -47,6 +47,6 @@ export default function GameArtwork({ gameId }: { gameId: string }) {
     <div className="absolute -right-3 -top-6 h-24 w-24 rounded-full bg-white/25" />
     {art.friend && <Picture id={art.friend} className="absolute bottom-4 right-[12%] h-16 w-16 rotate-12 sm:h-20 sm:w-20" />}
     <Picture id={art.picture} className={`relative z-10 h-24 w-24 ${art.friend ? '-translate-x-5 -rotate-6' : art.text ? '-translate-x-5' : ''}`} />
-    {art.text && <span className="absolute right-3 top-4 z-20 rounded-xl border-2 border-white bg-white/90 px-2 py-1 font-display text-lg font-extrabold text-slate-700 shadow-sm">{art.text}</span>}
+    {art.text && <span data-i18n-ignore className="absolute right-3 top-4 z-20 rounded-xl border-2 border-white bg-white/90 px-2 py-1 font-display text-lg font-extrabold text-slate-700 shadow-sm">{art.text}</span>}
   </div>;
 }

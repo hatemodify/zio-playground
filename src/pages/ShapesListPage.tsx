@@ -5,9 +5,11 @@ import ShapeFigure from '@/components/games/ShapeFigure';
 import { useProgressStore } from '@/stores/progress-store';
 import { SHAPES_DATA } from '@/data';
 import { cn } from '@/lib/cn';
+import { useSettingsStore } from '@/stores/settings-store';
 
 export default function ShapesListPage() {
   const navigate = useNavigate();
+  const language = useSettingsStore((state) => state.language);
   const { getCompletionPercentage, isItemCompleted } = useProgressStore();
 
   const progress = getCompletionPercentage('shapes');
@@ -45,7 +47,7 @@ export default function ShapesListPage() {
                 onClick={() => navigate(`/shapes/${shape.slug}`)}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                aria-label={`${shape.name} - ${shape.english}${completed ? ' (완료)' : ''}`}
+                aria-label={language === 'en' ? `${shape.english}${completed ? ' (completed)' : ''}` : `${shape.name} - ${shape.english}${completed ? ' (완료)' : ''}`}
               >
                 {completed && (
                   <div className="absolute -right-1 -top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-success shadow-sm">
@@ -55,8 +57,8 @@ export default function ShapesListPage() {
                   </div>
                 )}
                 <ShapeFigure shape={shape} size={72} />
-                <span className="text-base font-bold text-text-dark">{shape.name}</span>
-                <span className="-mt-2 text-xs font-medium text-text-medium">{shape.english}</span>
+                <span className="text-base font-bold text-text-dark">{language === 'en' ? shape.english : shape.name}</span>
+                {language === 'ko' && <span className="-mt-2 text-xs font-medium text-text-medium">{shape.english}</span>}
               </motion.button>
             </motion.div>
           );

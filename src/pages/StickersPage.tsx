@@ -1,5 +1,5 @@
 import Picture from '@/components/games/Picture';
-import type { PictureId } from '@/data/picture-content';
+import { pictureName, pictureEnglishName, type PictureId } from '@/data/picture-content';
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useGamificationStore } from '@/stores/gamification-store';
@@ -10,6 +10,7 @@ import { HANGUL_DATA } from '@/data/hangul';
 import { ENGLISH_DATA } from '@/data/english';
 import { SHAPES_DATA } from '@/data/shapes';
 import { cn } from '@/lib/cn';
+import { useSettingsStore, type StickerBookTheme } from '@/stores/settings-store';
 import type { LearningCategory } from '@/types/learning';
 
 type StickerTab = 'all' | 'numbers' | 'hangul' | 'english' | 'shapes' | 'special';
@@ -23,13 +24,19 @@ const TAB_LABELS: Record<StickerTab, string> = {
   special: '특별',
 };
 
-const CATEGORY_PICTURES: Record<LearningCategory, PictureId[]> = {
+const BOY_CATEGORY_PICTURES: Record<LearningCategory, PictureId[]> = {
   numbers: ['car', 'suv', 'race-car', 'police-car', 'taxi', 'ambulance', 'fire-truck', 'pickup', 'truck', 'bus'],
   hangul: ['excavator', 'crane', 'dump-truck', 'bulldozer', 'cement-mixer', 'forklift', 'tractor', 'roller'],
   english: ['airplane', 'helicopter', 'light-plane', 'rocket', 'ufo', 'hot-air-balloon', 'hang-glider', 'shuttle'],
   shapes: ['kite', 'gem', 'soccer-ball', 'dice', 'red-heart', 'glowing-star', 'egg', 'tent'],
 };
-const MILESTONE_PICTURES: Record<string, PictureId> = {
+const GIRL_CATEGORY_PICTURES: Record<LearningCategory, PictureId[]> = {
+  numbers: ['rabbit', 'cat', 'dog', 'panda', 'fox', 'koala', 'squirrel', 'unicorn', 'butterfly', 'giraffe'],
+  hangul: ['pig', 'cow', 'elephant', 'duck', 'penguin', 'whale', 'owl', 'horse', 'turtle', 'lion'],
+  english: ['butterfly', 'unicorn', 'fox', 'rabbit', 'cat', 'dog', 'panda', 'koala', 'giraffe', 'elephant'],
+  shapes: ['cherry-blossom', 'tulip', 'sunflower', 'rainbow', 'red-heart', 'heart-ribbon', 'ribbon', 'gem'],
+};
+const BOY_MILESTONE_PICTURES: Record<string, PictureId> = {
   'sticker-num-puppy': 'police-car',
   'sticker-num-kitten': 'fire-truck',
   'sticker-num-bunny': 'ambulance',
@@ -68,6 +75,22 @@ const MILESTONE_PICTURES: Record<string, PictureId> = {
   'sticker-sports-soccer': 'fighter',
   'sticker-sports-medal': 'shuttle',
 };
+const GIRL_MILESTONE_PICTURES: Record<string, PictureId> = {
+  'sticker-num-puppy': 'dog', 'sticker-num-kitten': 'cat', 'sticker-num-bunny': 'rabbit',
+  'sticker-num-panda': 'panda', 'sticker-num-lion': 'lion', 'sticker-num-trophy': 'unicorn',
+  'sticker-han-cake': 'fox', 'sticker-han-cookie': 'squirrel', 'sticker-han-donut': 'koala',
+  'sticker-han-icecream': 'butterfly', 'sticker-han-candy': 'turtle', 'sticker-han-trophy': 'rainbow',
+  'sticker-eng-car': 'giraffe', 'sticker-eng-bus': 'elephant', 'sticker-eng-train': 'pig',
+  'sticker-eng-airplane': 'cow', 'sticker-eng-rocket': 'whale', 'sticker-eng-trophy': 'cherry-blossom',
+  'sticker-special-streak3': 'tulip', 'sticker-special-streak7': 'sunflower',
+  'sticker-special-firstgame': 'duck', 'sticker-special-allgames': 'horse',
+  'sticker-space-rocket': 'owl', 'sticker-space-astronaut': 'penguin', 'sticker-space-ufo': 'ribbon',
+  'sticker-ocean-whale': 'shell', 'sticker-ocean-dolphin': 'jellyfish', 'sticker-ocean-octopus': 'octopus',
+  'sticker-dino-trex': 'tiger', 'sticker-dino-tricera': 'raccoon',
+  'sticker-insect-butterfly': 'butterfly', 'sticker-insect-ladybug': 'cherry-blossom',
+  'sticker-music-guitar': 'red-heart', 'sticker-music-drum': 'heart-ribbon', 'sticker-music-piano': 'gem',
+  'sticker-sports-soccer': 'unicorn', 'sticker-sports-medal': 'glowing-star',
+};
 
 interface CharacterSticker {
   id: string;
@@ -77,8 +100,9 @@ interface CharacterSticker {
   picture: PictureId;
 }
 
-function getCharacterStickers(): CharacterSticker[] {
+function getCharacterStickers(theme: StickerBookTheme): CharacterSticker[] {
   const stickers: CharacterSticker[] = [];
+  const categoryPictures = theme === 'girl' ? GIRL_CATEGORY_PICTURES : BOY_CATEGORY_PICTURES;
 
   NUMBERS_DATA.forEach((n, i) => {
     stickers.push({
@@ -86,7 +110,7 @@ function getCharacterStickers(): CharacterSticker[] {
       name: `숫자 ${n.character}`,
       category: 'numbers',
       character: n.character,
-      picture: CATEGORY_PICTURES.numbers[i % CATEGORY_PICTURES.numbers.length],
+      picture: categoryPictures.numbers[i % categoryPictures.numbers.length],
     });
   });
 
@@ -96,7 +120,7 @@ function getCharacterStickers(): CharacterSticker[] {
       name: h.character,
       category: 'hangul',
       character: h.character,
-      picture: CATEGORY_PICTURES.hangul[i % CATEGORY_PICTURES.hangul.length],
+      picture: categoryPictures.hangul[i % categoryPictures.hangul.length],
     });
   });
 
@@ -106,7 +130,7 @@ function getCharacterStickers(): CharacterSticker[] {
       name: e.uppercase,
       category: 'english',
       character: e.uppercase,
-      picture: CATEGORY_PICTURES.english[i % CATEGORY_PICTURES.english.length],
+      picture: categoryPictures.english[i % categoryPictures.english.length],
     });
   });
 
@@ -116,7 +140,7 @@ function getCharacterStickers(): CharacterSticker[] {
       name: s.name,
       category: 'shapes',
       character: s.character,
-      picture: CATEGORY_PICTURES.shapes[i % CATEGORY_PICTURES.shapes.length],
+      picture: categoryPictures.shapes[i % categoryPictures.shapes.length],
     });
   });
 
@@ -124,12 +148,21 @@ function getCharacterStickers(): CharacterSticker[] {
 }
 
 export default function StickersPage() {
+  const theme = useSettingsStore((s) => s.stickerBookTheme);
+  const setTheme = useSettingsStore((s) => s.setStickerBookTheme);
+  const language = useSettingsStore((s) => s.language);
   const { stickers: ownedStickers } = useGamificationStore();
   const { getItem } = useProgressStore();
   const [tab, setTab] = useState<StickerTab>('all');
   const [selectedSticker, setSelectedSticker] = useState<{ id: string; name: string; picture: PictureId; description: string; owned: boolean } | null>(null);
 
-  const characterStickers = getCharacterStickers();
+  const characterStickers = getCharacterStickers(theme);
+  const milestonePictures = theme === 'girl' ? GIRL_MILESTONE_PICTURES : BOY_MILESTONE_PICTURES;
+  const stickerName = (sticker: StickerInfo) => {
+    if (theme === 'boy') return sticker.name;
+    const picture = milestonePictures[sticker.id] ?? 'star';
+    return language === 'en' ? pictureEnglishName(picture) : pictureName(picture);
+  };
 
   // Filter milestone stickers by tab
   const filteredMilestoneStickers = STICKERS.filter((s) => {
@@ -158,15 +191,15 @@ export default function StickersPage() {
     filteredCharStickers.filter((s) => isCharStickerOwned(s)).length;
   const totalStickers = filteredMilestoneStickers.length + filteredCharStickers.length;
 
-  const handleMilestoneStickerClick = useCallback((sticker: StickerInfo) => {
+  const handleMilestoneStickerClick = (sticker: StickerInfo) => {
     setSelectedSticker({
       id: sticker.id,
-      name: sticker.name,
-      picture: MILESTONE_PICTURES[sticker.id] || 'star',
+      name: stickerName(sticker),
+      picture: milestonePictures[sticker.id] || 'star',
       description: sticker.description,
       owned: ownedStickers.includes(sticker.id),
     });
-  }, [ownedStickers]);
+  };
 
   const handleCharStickerClick = useCallback((sticker: CharacterSticker, owned: boolean) => {
     setSelectedSticker({
@@ -186,6 +219,18 @@ export default function StickersPage() {
         <span className="text-sm font-medium text-text-medium">
           {totalOwned} / {totalStickers} 수집
         </span>
+      </div>
+
+      <div className="flex items-center justify-between gap-3 rounded-2xl bg-white p-2 shadow-card">
+        <span className="pl-2 text-sm font-bold text-text-medium">{language === 'en' ? 'Sticker theme' : '스티커 테마'}</span>
+        <div className="flex gap-1" role="group" aria-label={language === 'en' ? 'Sticker theme' : '스티커 테마'}>
+          {([['boy', '🚗', '남아용', 'Boys'], ['girl', '🦊', '여아용', 'Girls']] as const).map(([value, emoji, ko, en]) => (
+            <button key={value} type="button" aria-pressed={theme === value} onClick={() => { setTheme(value); setSelectedSticker(null); }}
+              className={cn('min-h-11 rounded-xl px-3 text-sm font-bold', theme === value ? 'bg-primary text-white' : 'bg-bg-warm text-text-medium')}>
+              {emoji} {language === 'en' ? en : ko}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Category tabs */}
@@ -222,13 +267,13 @@ export default function StickersPage() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <span className={cn('w-full', !owned && 'grayscale opacity-30')}>
-                    {<Picture id={MILESTONE_PICTURES[sticker.id] || 'star'} className="h-16 w-full" />}
+                    {<Picture id={milestonePictures[sticker.id] || 'star'} className="h-16 w-full" />}
                   </span>
                   <span className={cn(
                     'text-[10px] font-medium leading-tight text-center',
                     owned ? 'text-text-dark' : 'text-text-light',
                   )}>
-                    {sticker.name}
+                    {stickerName(sticker)}
                   </span>
                   {!owned && (
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -263,7 +308,7 @@ export default function StickersPage() {
                   <span className={cn('w-full', !owned && 'grayscale opacity-20')}>
                     {<Picture id={sticker.picture} className="h-10 w-full" />}
                   </span>
-                  <span className={cn(
+                  <span data-i18n-ignore className={cn(
                     'text-[10px] font-bold',
                     owned ? 'text-text-dark' : 'text-text-light',
                   )}>
@@ -298,7 +343,7 @@ export default function StickersPage() {
               <span className={cn('text-6xl', !selectedSticker.owned && 'grayscale opacity-30')}>
                 {<Picture id={selectedSticker.picture} className="h-36 w-48" />}
               </span>
-              <span className="text-xl font-bold text-text-dark">{selectedSticker.name}</span>
+              <span data-i18n-ignore={selectedSticker.id.startsWith('sticker-learn-') ? true : undefined} className="text-xl font-bold text-text-dark">{selectedSticker.name}</span>
               <span className="text-sm text-text-medium">{selectedSticker.description}</span>
               {selectedSticker.owned ? (
                 <span className="rounded-full bg-success/15 px-3 py-1 text-xs font-bold text-success">획득 완료</span>

@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react';
 import { motion } from 'motion/react';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { ParentGate } from '@/components/features';
 import { useSettingsStore } from '@/stores/settings-store';
 import { useProgressStore } from '@/stores/progress-store';
@@ -21,6 +22,7 @@ export default function SettingsPage() {
 
   // Settings store
   const sfxEnabled = useSettingsStore((s) => s.sfxEnabled);
+  const language = useSettingsStore((s) => s.language);
   const toggleSfx = useSettingsStore((s) => s.toggleSfx);
   const voiceEnabled = useSettingsStore((s) => s.voiceEnabled);
   const toggleVoice = useSettingsStore((s) => s.toggleVoice);
@@ -135,7 +137,7 @@ export default function SettingsPage() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-xl font-bold text-text-dark">
+                <span data-i18n-ignore className="text-xl font-bold text-text-dark">
                   {nickname || '이름 없음'}
                 </span>
                 <button
@@ -150,7 +152,7 @@ export default function SettingsPage() {
               </div>
             )}
             <span className="text-sm text-text-medium">
-              Lv.{level} · 별 {totalStars}개 · 연속 {streak}일
+              {language === 'en' ? `Lv.${level} · ${totalStars} stars · ${streak}-day streak` : `Lv.${level} · 별 ${totalStars}개 · 연속 ${streak}일`}
             </span>
           </div>
         </div>
@@ -173,7 +175,7 @@ export default function SettingsPage() {
               전체 진행도
             </span>
             <span className="text-sm text-text-medium">
-              {totalCompleted} / {totalItems} 완료
+              {language === 'en' ? `${totalCompleted} / ${totalItems} complete` : `${totalCompleted} / ${totalItems} 완료`}
             </span>
           </div>
         </div>
@@ -214,6 +216,11 @@ export default function SettingsPage() {
       </section>
 
       {/* Sound Settings */}
+      <section className="rounded-radius-card bg-white p-5 shadow-card">
+        <h2 className="mb-3 text-lg font-bold text-text-dark">언어 / Language</h2>
+        <LanguageSwitcher />
+      </section>
+
       <section className="rounded-radius-card bg-white p-5 shadow-card">
         <h2 className="mb-4 text-lg font-bold text-text-dark">사운드 설정</h2>
 
@@ -284,8 +291,9 @@ export default function SettingsPage() {
       >
         <div className="flex flex-col gap-5">
           <p className="text-sm text-text-medium">
-            모든 학습 기록, 별 {totalStars}개, 스티커 {stickers.length}개와 놀이터 작품이 영구 삭제됩니다.
-            이 작업은 되돌릴 수 없습니다.
+            {language === 'en'
+              ? `All learning records, ${totalStars} stars, ${stickers.length} stickers, and playground creations will be permanently deleted. This cannot be undone.`
+              : `모든 학습 기록, 별 ${totalStars}개, 스티커 ${stickers.length}개와 놀이터 작품이 영구 삭제됩니다. 이 작업은 되돌릴 수 없습니다.`}
           </p>
           <div className="flex gap-3">
             <Button

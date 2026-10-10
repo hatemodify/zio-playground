@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PoseClassifier, type Landmark, type PoseSnapshot } from '@/motion/poseClassifier';
 import { Runner } from '@/motion/runner';
+import { useSettingsStore } from '@/stores/settings-store';
 
 const BONES = [[0, 1], [0, 2], [1, 3], [2, 3], [2, 4], [3, 5], [4, 6], [5, 7]] as const;
 const MIN_INFERENCE_INTERVAL_MS = 33;
@@ -9,6 +10,7 @@ const EMPTY: PoseSnapshot = { state: 'NO_BODY', action: 'NONE', bodyDetected: fa
 type WorkerMessage = { type: 'ready' } | { type: 'error'; message: string } | { type: 'pose'; landmarks: Landmark[]; capturedAt: number; inferenceMs: number };
 
 export default function MotionPocPage() {
+  const language = useSettingsStore((state) => state.language);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const workerRef = useRef<Worker | null>(null);
@@ -192,7 +194,7 @@ export default function MotionPocPage() {
     {debug && <section className="rounded-3xl border border-slate-200 bg-white p-4" aria-label="성능 측정값"><h2 className="font-black">실시간 측정</h2><div className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
       <Metric label="카메라 FPS" value={cameraFps} /><Metric label="Pose FPS" value={poseFps} /><Metric label="렌더링 FPS" value={renderFps} /><Metric label="추론 시간" value={`${inferenceMs} ms`} />
       <Metric label="관절 신뢰도" value={pose.confidence.toFixed(2)} /><Metric label="Hip ΔY" value={pose.hipDeltaY.toFixed(3)} /><Metric label="Shoulder ΔY" value={pose.shoulderDeltaY.toFixed(3)} /><Metric label="Center ΔX" value={pose.centerDeltaX.toFixed(3)} />
-      <Metric label="최근 동작 시각" value={pose.lastActionAt ? new Date(performance.timeOrigin + pose.lastActionAt).toLocaleTimeString('ko-KR') : '—'} /><Metric label="캡처→렌더 평균" value={latencyMs === null ? '—' : `${latencyMs} ms`} />
+      <Metric label="최근 동작 시각" value={pose.lastActionAt ? new Date(performance.timeOrigin + pose.lastActionAt).toLocaleTimeString(language === 'en' ? 'en-US' : 'ko-KR') : '—'} /><Metric label="캡처→렌더 평균" value={latencyMs === null ? '—' : `${latencyMs} ms`} />
     </div><p className="mt-3 text-xs text-slate-500">캡처→렌더는 브라우저 안에서 측정한 근사값입니다. 실제 몸 움직임 시작·TV 미러링 지연은 포함하지 않습니다.</p></section>}
   </div>;
 }

@@ -8,10 +8,12 @@ import { motion } from 'motion/react';
 import LearningScreen from '@/components/features/LearningScreen';
 import { HANGUL_DATA, getHangulByCharacter } from '@/data';
 import { HANGUL_CONSONANTS, HANGUL_VOWELS, HANGUL_SYLLABLES } from '@/data/hangul';
+import { useSettingsStore } from '@/stores/settings-store';
 
 export default function HangulLearnPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const language = useSettingsStore((state) => state.language);
 
   const item = useMemo(() => {
     if (!id) return undefined;
@@ -59,6 +61,7 @@ export default function HangulLearnPage() {
         topContent={
           <div className="flex flex-col items-center gap-3 pt-2">
             <motion.span
+              data-i18n-ignore
               className="text-[100px] font-bold leading-none text-hangul"
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -68,8 +71,8 @@ export default function HangulLearnPage() {
               {item.character}
             </motion.span>
             <div className="flex items-center gap-2">
-              {item.type === 'syllable' ? <p className="hangul-equation" aria-label="글자 조합"><span>{item.consonant}</span> + <span>{item.vowel}</span> = <strong>{item.character}</strong></p> : <span className="text-base font-medium text-text-medium">{item.name}</span>}
-              <SpeakButton clip={voiceId.hangul(item.character)} label={`${item.name} 듣기`} size="sm" />
+              {item.type === 'syllable' ? <p data-i18n-ignore className="hangul-equation" aria-label="글자 조합"><span>{item.consonant}</span> + <span>{item.vowel}</span> = <strong>{item.character}</strong></p> : <span data-i18n-ignore className="text-base font-medium text-text-medium">{item.name}</span>}
+              <SpeakButton clip={voiceId.hangul(item.character)} label={language === 'en' ? `Listen to ${item.name}` : `${item.name} 듣기`} size="sm" />
             </div>
           </div>
         }
@@ -81,10 +84,10 @@ export default function HangulLearnPage() {
                   <Picture id={picture} label={pictureName(picture)} className="h-14 w-14" />
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="text-lg font-bold text-text-dark"><strong className="text-hangul">{item.character}</strong>{item.representativeWord.slice(1)}</span>
-                  <span className="text-sm text-text-medium">&ldquo;{item.character}&rdquo;(으)로 시작하는 단어</span>
+                  <span data-i18n-ignore className="text-lg font-bold text-text-dark"><strong className="text-hangul">{item.character}</strong>{item.representativeWord.slice(1)}</span>
+                  <span className="text-sm text-text-medium">{language === 'en' ? <>A word that starts with “<span data-i18n-ignore>{item.character}</span>”</> : <>“{item.character}”로 시작하는 단어</>}</span>
                 </div>
-                <SpeakButton clip={voiceId.word('ko', picture)} label={`${item.representativeWord} 듣기`} />
+                <SpeakButton clip={voiceId.word('ko', picture)} label={language === 'en' ? `Listen to ${item.representativeWord}` : `${item.representativeWord} 듣기`} />
               </div>
             )}
             <section className="hangul-composer" aria-label="글자 만들기">
@@ -95,15 +98,15 @@ export default function HangulLearnPage() {
             </section>
           </div> : <div className="flex items-center gap-4 rounded-2xl bg-bg-soft p-4">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-hangul/15 text-2xl font-bold text-hangul">
-              {picture ? <Picture id={picture} label={pictureName(picture)} className="h-14 w-14" /> : item.character}
+              {picture ? <Picture id={picture} label={pictureName(picture)} className="h-14 w-14" /> : <span data-i18n-ignore>{item.character}</span>}
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-lg font-bold text-text-dark">{item.representativeWord}</span>
+              <span data-i18n-ignore className="text-lg font-bold text-text-dark">{item.representativeWord}</span>
               <span className="text-sm text-text-medium">
-                &ldquo;{item.name}&rdquo;이(가) 들어가는 단어
+                {language === 'en' ? <>A word containing “<span data-i18n-ignore>{item.name}</span>”</> : <>“{item.name}”이(가) 들어가는 단어</>}
               </span>
             </div>
-            {picture && <SpeakButton clip={voiceId.word('ko', picture)} label={`${item.representativeWord} 듣기`} />}
+            {picture && <SpeakButton clip={voiceId.word('ko', picture)} label={language === 'en' ? `Listen to ${item.representativeWord}` : `${item.representativeWord} 듣기`} />}
           </div>
         }
       />

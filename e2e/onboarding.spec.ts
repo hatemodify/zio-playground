@@ -3,7 +3,9 @@ import { test, expect } from '@playwright/test';
 test.describe('Onboarding Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
+      if (sessionStorage.getItem('onboarding-test-initialized')) return;
       localStorage.clear();
+      sessionStorage.setItem('onboarding-test-initialized', '1');
     });
   });
 
@@ -11,12 +13,15 @@ test.describe('Onboarding Flow', () => {
     await page.goto('/onboarding');
     await expect(page.getByText('안녕! 나는 또리야!')).toBeVisible();
     await expect(page.getByRole('button', { name: '시작하기' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '시작하기' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /여아용/ })).toBeVisible();
   });
 
   test('should complete onboarding with name input', async ({ page }) => {
     await page.goto('/onboarding');
 
     // Step 1: Welcome
+    await page.getByRole('button', { name: /여아용/ }).click();
     await page.getByRole('button', { name: '시작하기' }).click();
 
     // Step 2: Name input
@@ -30,10 +35,13 @@ test.describe('Onboarding Flow', () => {
 
     // Should navigate to home
     await expect(page).toHaveURL('/');
+    await page.goto('/stickers');
+    await expect(page.getByRole('button', { name: /여아용/ })).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('should show error for empty name', async ({ page }) => {
     await page.goto('/onboarding');
+    await page.getByRole('button', { name: /남아용/ }).click();
     await page.getByRole('button', { name: '시작하기' }).click();
 
     // Button should be disabled when empty
@@ -42,6 +50,7 @@ test.describe('Onboarding Flow', () => {
 
   test('should enforce max 10 character name limit', async ({ page }) => {
     await page.goto('/onboarding');
+    await page.getByRole('button', { name: /남아용/ }).click();
     await page.getByRole('button', { name: '시작하기' }).click();
 
     const input = page.getByPlaceholder('이름을 입력해줘');

@@ -7,6 +7,7 @@ import { useProgressStore } from '@/stores/progress-store';
 import { useGamificationStore } from '@/stores/gamification-store';
 import { NUMBERS_DATA, HANGUL_DATA, ENGLISH_DATA, SHAPES_DATA } from '@/data';
 import type { LearningCategory } from '@/types/learning';
+import { useSettingsStore } from '@/stores/settings-store';
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -21,6 +22,9 @@ export default function HomePage() {
   const { streak } = useGamificationStore();
   const gameRecords = useGamificationStore((s) => s.gameRecords);
   const nickname = useProgressStore((s) => s.nickname);
+  const language = useSettingsStore((s) => s.language);
+  const stickerThemeChosen = useSettingsStore((s) => s.stickerThemeChosen);
+  const setStickerBookTheme = useSettingsStore((s) => s.setStickerBookTheme);
   const review = useMemo(() => buildReviewPlan(progressItems, gameRecords), [progressItems, gameRecords]);
 
   const numbersProgress = Object.values(progressItems).filter((item) => item.category === 'numbers' && item.completed).length;
@@ -85,10 +89,19 @@ export default function HomePage() {
         <div className="flex flex-col">
           <span className="text-2xl font-bold text-text-dark">{getGreeting()}</span>
           <span className="text-base text-text-medium">
-            {nickname ? `${nickname}아, ` : ''}오늘도 같이 놀자!
+            {nickname && <><span data-i18n-ignore>{nickname}</span>{language === 'en' ? ', ' : '아, '}</>}{language === 'en' ? "Let's play together today!" : '오늘도 같이 놀자!'}
           </span>
         </div>
       </motion.div>
+
+      {!stickerThemeChosen && <section className="rounded-3xl bg-white p-4 shadow-card" aria-label={language === 'en' ? 'Choose a sticker book' : '스티커북 선택'}>
+        <p className="text-base font-bold text-text-dark">{language === 'en' ? 'Choose a sticker book!' : '어떤 스티커북을 모을까?'}</p>
+        <p className="mt-1 text-xs text-text-medium">{language === 'en' ? 'You can switch later in your sticker book.' : '나중에 스티커북에서 바꿀 수 있어요.'}</p>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button type="button" onClick={() => setStickerBookTheme('boy')} className="min-h-14 rounded-2xl bg-sky-100 px-3 text-sm font-bold text-sky-900">🚗 {language === 'en' ? 'Boys · vehicles' : '남아용 · 탈것'}</button>
+          <button type="button" onClick={() => setStickerBookTheme('girl')} className="min-h-14 rounded-2xl bg-pink-100 px-3 text-sm font-bold text-pink-900">🦊 {language === 'en' ? 'Girls · animals' : '여아용 · 동물'}</button>
+        </div>
+      </section>}
 
       {/* Streak Banner */}
       <StreakBanner streak={streak} />

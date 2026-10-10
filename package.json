@@ -16,6 +16,7 @@
     "@mediapipe/tasks-vision": "1.1.0",
     "clsx": "^2.1.0",
     "motion": "^12.36.0",
+    "pdfjs-dist": "6.4.299",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.0",

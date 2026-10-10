@@ -2,6 +2,8 @@ import { memo } from 'react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/cn';
 import type { LearningCategory } from '@/types/learning';
+import { useSettingsStore } from '@/stores/settings-store';
+import { translateKorean } from '@/i18n/dom-translator';
 
 interface LearningCardProps {
   character: string;
@@ -53,6 +55,8 @@ function LearningCard({
   className,
 }: LearningCardProps) {
   const colors = categoryColorConfig[category];
+  const language = useSettingsStore((state) => state.language);
+  const accessibleLabel = `${character}${label ? ` - ${category === 'hangul' ? label : language === 'en' ? translateKorean(label) : label}` : ''}${completed ? language === 'en' ? ' (completed)' : ' (완료)' : ''}`;
 
   return (
     <motion.button
@@ -67,7 +71,7 @@ function LearningCard({
       onClick={onClick}
       whileTap={{ scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-      aria-label={`${character}${label ? ` - ${label}` : ''}${completed ? ' (완료)' : ''}`}
+      aria-label={accessibleLabel}
     >
       {/* Completed badge */}
       {completed && (
@@ -84,7 +88,7 @@ function LearningCard({
       )}
 
       {/* Character */}
-      <span className={cn(categoryFontConfig[category], colors.text)}>
+      <span data-i18n-ignore={category === 'hangul' ? true : undefined} className={cn(categoryFontConfig[category], colors.text)}>
         {character}
       </span>
 
@@ -97,7 +101,7 @@ function LearningCard({
 
       {/* Label */}
       {label && (
-        <span className="text-sm font-medium text-text-medium line-clamp-1">
+        <span data-i18n-ignore={category === 'hangul' ? true : undefined} className="text-sm font-medium text-text-medium line-clamp-1">
           {label}
         </span>
       )}

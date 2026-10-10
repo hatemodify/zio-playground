@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/cn';
 import { useGamificationStore } from '@/stores/gamification-store';
 import Badge from './Badge';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useSettingsStore } from '@/stores/settings-store';
 
 interface TopBarProps {
   className?: string;
@@ -35,6 +37,7 @@ function TopBar({
   const totalStars = useGamificationStore((s) => s.totalStars);
   const level = useGamificationStore((s) => s.level);
   const streak = useGamificationStore((s) => s.streak);
+  const language = useSettingsStore((s) => s.language);
 
   // Opened straight from a link or the installed shell, there is nothing to pop
   // — going "back" then has to mean the section this page belongs to.
@@ -106,6 +109,7 @@ function TopBar({
       {/* Right section */}
       <div className="flex items-center gap-2">
         {rightSlot}
+        <LanguageSwitcher compact />
 
         {showStats && (
           <>
@@ -118,7 +122,7 @@ function TopBar({
                     fill="currentColor"
                   />
                 </svg>
-                <span className="font-display font-bold">{streak}일</span>
+                <span className="font-display font-bold">{language === 'en' ? `${streak}d` : `${streak}일`}</span>
               </Badge>
             )}
 
