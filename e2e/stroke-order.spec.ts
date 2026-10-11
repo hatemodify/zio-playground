@@ -63,3 +63,47 @@ test('moving to the next letter resets the reveal', async ({ page }) => {
   await page.getByRole('button', { name: '다음', exact: true }).click();
   await expect(page.getByRole('button', { name: '획순 보기' })).toBeVisible();
 });
+
+for (const [theme, picture] of [['boy', 'light-plane'], ['girl', 'fox']] as const) {
+  test(`English C completion shows the earned ${theme} sticker artwork`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.addInitScript((stickerTheme) => localStorage.setItem('kidsedu-settings', JSON.stringify({
+      state: { onboarded: true, sfxEnabled: false, stickerBookTheme: stickerTheme }, version: 1,
+    })), theme);
+    await page.goto('/english/C');
+    const canvas = page.locator('canvas').last();
+    const box = (await canvas.boundingBox())!;
+    await page.mouse.move(box.x + 50, box.y + 50);
+    await page.mouse.down();
+    await page.mouse.move(box.x + 200, box.y + 200, { steps: 8 });
+    await page.mouse.up();
+    await page.getByRole('button', { name: '확인', exact: true }).click();
+
+    const earned = page.getByTestId('earned-stickers');
+    await expect(earned).toBeVisible();
+    const image = earned.getByRole('img', { name: 'C' });
+    await expect(image).toHaveAttribute('src', new RegExp(`${picture}\\.svg$`));
+    await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBeGreaterThan(0);
+  });
+}
+
+test('repeating an already completed letter does not announce a new sticker', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('kidsedu-progress', JSON.stringify({ state: {
+      items: { 'english-C': { id: 'english-C', category: 'english', character: 'C', tracingStage: 3, completed: true, attempts: 1, bestScore: 100, lastPracticedAt: null } },
+    }, version: 1 }));
+    localStorage.setItem('kidsedu-gamification', JSON.stringify({ state: {
+      totalStars: 3, level: 1, streak: 0, lastLoginDate: '', stickers: ['sticker-learn-english-C'], unlockedGames: [], characterOutfits: [], gameRecords: [],
+    }, version: 1 }));
+  });
+  await page.goto('/english/C');
+  const box = (await page.locator('canvas').last().boundingBox())!;
+  await page.mouse.move(box.x + 50, box.y + 50);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 200, box.y + 200, { steps: 8 });
+  await page.mouse.up();
+  await page.getByRole('button', { name: '확인', exact: true }).click();
+
+  await expect(page.getByText('한 번 더 멋지게 연습했어요!')).toBeVisible();
+  await expect(page.getByTestId('earned-stickers')).toHaveCount(0);
+});

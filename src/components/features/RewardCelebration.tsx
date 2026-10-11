@@ -1,7 +1,9 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence, MotionConfig, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/cn';
-import { getStickerById } from '@/data/stickers';
+import { getStickerDisplay } from '@/data/sticker-display';
+import { useSettingsStore } from '@/stores/settings-store';
+import Picture from '@/components/games/Picture';
 import CharacterDdori from './CharacterDdori';
 import ConfettiShower from './ConfettiShower';
 
@@ -61,6 +63,8 @@ export default function RewardCelebration({
   newStickers,
 }: RewardCelebrationProps) {
   const reducedMotion = useReducedMotion();
+  const stickerTheme = useSettingsStore((s) => s.stickerBookTheme);
+  const language = useSettingsStore((s) => s.language);
   const continueRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -175,7 +179,7 @@ export default function RewardCelebration({
                 </span>
                 <div className="flex flex-wrap justify-center gap-2">
                   {newStickers.map((id, i) => {
-                    const info = getStickerById(id);
+                    const info = getStickerDisplay(id, stickerTheme, language);
                     return (
                       <motion.div
                         key={id}
@@ -189,8 +193,8 @@ export default function RewardCelebration({
                           damping: 12,
                         }}
                       >
-                        <span className="text-2xl">🏆</span>
-                        <span className="max-w-[80px] truncate text-xs font-semibold text-white">
+                        <Picture id={info?.picture ?? 'star'} label={info?.name ?? '스티커'} className="h-20 w-20" />
+                        <span className="max-w-[96px] text-center text-xs font-semibold text-white">
                           {info?.name ?? '스티커'}
                         </span>
                       </motion.div>

@@ -24,6 +24,9 @@ test.describe('Game Reward & Sticker System', () => {
 
     // RewardCelebration should show "게임 클리어!" title
     await expect(page.getByText('게임 클리어!')).toBeVisible({ timeout: 5000 });
+    const earnedSticker = page.getByRole('dialog', { name: '게임 클리어!' }).getByRole('img', { name: '요트' });
+    await expect(earnedSticker).toHaveAttribute('src', /boat\.svg$/);
+    await expect.poll(() => earnedSticker.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBeGreaterThan(0);
 
     // Should show stars
     const stars = page.locator('svg path[fill="#FFD93D"]');

@@ -10,6 +10,9 @@ import { useSound } from '@/hooks/use-sound';
 import { useLandscapeTablet } from '@/hooks/use-media-query';
 import { useElementSize } from '@/hooks/use-element-size';
 import ConfettiShower from './ConfettiShower';
+import Picture from '@/components/games/Picture';
+import { getStickerDisplay } from '@/data/sticker-display';
+import { useSettingsStore } from '@/stores/settings-store';
 import type { LearningCategory } from '@/types/learning';
 
 /** Padding of the white card the canvas sits in (p-3 on both sides). */
@@ -66,6 +69,8 @@ export default function LearningScreen({
   const { addStars, addSticker, checkAndGrantStickers } = useGamificationStore();
   const { play } = useSound();
   const isLandscape = useLandscapeTablet();
+  const stickerTheme = useSettingsStore((s) => s.stickerBookTheme);
+  const language = useSettingsStore((s) => s.language);
 
   // The tracing sheet fills its half of the split exactly, so the writing side
   // matches the content side; only the viewport height holds the square back.
@@ -90,6 +95,11 @@ export default function LearningScreen({
   const [showCelebration, setShowCelebration] = useState(false);
   const [writingDone, setWritingDone] = useState(false);
   const [rewardStars, setRewardStars] = useState(0);
+  const [rewardStickerIds, setRewardStickerIds] = useState<string[]>([]);
+  const rewardStickers = rewardStickerIds.flatMap((stickerId) => {
+    const sticker = getStickerDisplay(stickerId, stickerTheme, language);
+    return sticker ? [sticker] : [];
+  });
 
   // Single-step writing completion
   const handleWritingComplete = useCallback(() => {
@@ -107,13 +117,14 @@ export default function LearningScreen({
     setRewardStars(firstCompletion ? 3 : 0);
     if (firstCompletion) addStars(3);
     const stickerId = `sticker-learn-${id}`;
-    addSticker(stickerId);
-    checkAndGrantStickers();
+    if (firstCompletion) addSticker(stickerId);
+    const milestoneStickers = checkAndGrantStickers();
+    setRewardStickerIds(firstCompletion ? [stickerId, ...milestoneStickers] : milestoneStickers);
     play('confetti');
 
     setShowCelebration(true);
     if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
-    celebrationTimer.current = setTimeout(() => { setShowCelebration(false); onNextRef.current?.(); }, 3000);
+    celebrationTimer.current = setTimeout(() => { setShowCelebration(false); onNextRef.current?.(); }, 4500);
   }, [id, getItem, completeTracingStage, addStars, addSticker, checkAndGrantStickers, play]);
 
   // Closing the praise carries on to the next character, so 확인 reads as
@@ -200,7 +211,7 @@ export default function LearningScreen({
           >
             <ConfettiShower />
             <motion.div
-              className="relative z-10 flex flex-col items-center gap-4 rounded-3xl bg-white p-8 shadow-modal"
+              className="relative z-10 flex max-h-[90dvh] w-[min(90vw,360px)] flex-col items-center gap-3 overflow-y-auto rounded-3xl bg-white p-6 shadow-modal"
               initial={{ scale: 0.5, y: 50 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0 }}
@@ -208,7 +219,17 @@ export default function LearningScreen({
             >
               <Ddori expression="excited" size={100} />
               <p className="text-2xl font-bold text-text-dark">잘했어!</p>
-              <p className="text-sm text-text-medium">{rewardStars ? '스티커를 받았어요!' : '한 번 더 멋지게 연습했어요!'}</p>
+              <p className="text-sm text-text-medium">{rewardStickers.length ? '새 스티커 획득!' : '한 번 더 멋지게 연습했어요!'}</p>
+              {rewardStickers.length > 0 && (
+                <div className="flex max-w-full flex-wrap justify-center gap-2" data-testid="earned-stickers">
+                  {rewardStickers.map((sticker) => (
+                    <div key={sticker.id} className="flex min-w-28 flex-col items-center gap-1 rounded-2xl bg-amber-50 p-2 shadow-card">
+                      <Picture id={sticker.picture} label={sticker.name} className="h-24 w-24" />
+                      <span data-i18n-ignore={sticker.id.startsWith('sticker-learn-') ? true : undefined} className="max-w-32 text-center text-sm font-bold text-text-dark">{sticker.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="flex gap-1">
                 {Array.from({ length: rewardStars }, (_, i) => i + 1).map((i) => (
                   <motion.svg
