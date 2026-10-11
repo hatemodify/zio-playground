@@ -112,6 +112,10 @@ function translateDynamic(value: string): string | null {
   if (match) return `${translateKorean(match[1])} picture`;
   match = value.match(/^(.+) 색 채우기$/);
   if (match) return `Fill ${translateKorean(match[1])} with color`;
+  match = value.match(/^(.+) 색 지우기$/);
+  if (match) return `Erase color from ${translateKorean(match[1])}`;
+  match = value.match(/^(.+) 지우기$/);
+  if (match) return `Erase ${translateKorean(match[1])}`;
   match = value.match(/^(.+) 칠하기$/);
   if (match) return `Color ${translateKorean(match[1])}`;
   match = value.match(/^(.+) 카테고리$/);

@@ -44,6 +44,7 @@ export default function ColoringGamePage() {
   const [remoteImage, setRemoteImage] = useState<string | null>(null);
   const [page, setPage] = useState<ColoringPage | null>(null);
   const [color, setColor] = useState(COLORS[0].value);
+  const [eraserSelected, setEraserSelected] = useState(false);
   const [history, setHistory] = useState<Fills[]>([{}]);
   const [cursor, setCursor] = useState(0);
   const [showReward, setShowReward] = useState(true);
@@ -52,14 +53,17 @@ export default function ColoringGamePage() {
   const filled = page?.regions.filter((region) => fills[region.id]).length ?? 0;
 
   function select(next: ColoringPage) {
-    setPage(next); setHistory([{}]); setCursor(0); setShowReward(true); game.start(1); play('card_flip');
+    setPage(next); setHistory([{}]); setCursor(0); setEraserSelected(false); setShowReward(true); game.start(1); play('card_flip');
   }
   function paint(id: string) {
-    if (!page || game.state !== 'playing' || fills[id] === color) return;
-    const next = { ...fills, [id]: color };
+    if (!page || game.state !== 'playing' || (eraserSelected ? !fills[id] : fills[id] === color)) return;
+    const next = { ...fills };
+    if (eraserSelected) delete next[id];
+    else next[id] = color;
     setHistory([...history.slice(0, cursor + 1), next]); setCursor(cursor + 1); play('drag_drop');
-    if (page.regions.every((region) => next[region.id])) game.finish(1);
+    if (!eraserSelected && page.regions.every((region) => next[region.id])) game.finish(1);
   }
+  function editFinished() { setEraserSelected(true); setShowReward(false); game.start(1); }
   function back() { game.reset(); setPage(null); }
   function backFromRemote() { game.reset(); setSpecialPage(null); setRemoteImage(null); }
   function openRemote(next: SpecialColoringPage) { setRemoteImage(null); setSpecialPage(next); setShowReward(true); game.start(1); }
@@ -96,19 +100,19 @@ export default function ColoringGamePage() {
   if (finished) return <div className="art-studio flex flex-col items-center gap-4 px-4 py-6">
     <span className="studio-pill">MY LITTLE GALLERY</span><h1 className="text-2xl font-extrabold text-slate-800">{language === 'en' ? `Your ${translateKorean(page.name)} is complete!` : `나만의 ${page.name} 완성!`}</h1>
     <div className="finished-art"><ColoringArtwork page={page} fills={fills} className="w-full" /><p className="mt-3 text-center text-sm font-bold text-slate-500">세상에 하나뿐인 나의 작품</p></div>
-    <div className="flex gap-3"><Button variant="secondary" onClick={back}>다시 하기</Button><Button onClick={() => navigate('/games')}>게임 목록</Button></div>
+    <div className="flex flex-wrap justify-center gap-3"><Button variant="secondary" onClick={editFinished}>{language === 'en' ? 'Edit Picture' : '그림 수정'}</Button><Button variant="secondary" onClick={back}>다시 하기</Button><Button onClick={() => navigate('/games')}>게임 목록</Button></div>
     <RewardCelebration type="game_complete" stars={game.calculateStars(game.score)} newStickers={game.earnedStickers} open={showReward} onDismiss={() => setShowReward(false)} message="멋진 작품이 탄생했어요!" />
   </div>;
 
   return <div className="art-studio flex flex-col gap-4 px-4 pb-6 pt-3">
     <div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-2"><button className="rounded-xl bg-white px-3 py-2 text-sm font-bold text-teal-700" aria-label="다른 그림 선택" onClick={back}>← 다른 그림</button><h1 className="text-xl font-extrabold text-slate-800">{page.name}</h1></div><UndoRedoControls canUndo={cursor > 0} canRedo={cursor < history.length - 1} onUndo={() => setCursor(cursor - 1)} onRedo={() => setCursor(cursor + 1)} /></div>
     <div className="flex items-center gap-3"><progress aria-label="색칠 진행" value={filled} max={page.regions.length} className="h-2 flex-1 accent-teal-600" /><span className="text-sm font-bold text-teal-700">{filled}/{page.regions.length}</span></div>
-    <div className="painting-stage"><div className="art-reference"><img src={page.source} alt={`${page.name} 완성 예시`} /><span>이렇게 칠해도 좋아요</span></div><ColoringArtwork page={page} fills={fills} onFill={paint} className="coloring-canvas" /></div>
-    <div className="paint-toolbox"><p className="mb-3 text-center text-sm font-bold text-slate-600">원하는 색을 골라 그림을 톡!</p><div className="paint-color-grid">{COLORS.map((item) => <button key={item.value} className={`paint-color ${item.value === color ? 'paint-color-selected' : ''}`} style={{ background: item.value }} onClick={() => setColor(item.value)} aria-label={`색상 ${item.name}`} aria-pressed={item.value === color}><span className="sr-only">{item.name}</span></button>)}<label className={`paint-custom-color ${!COLORS.some((item) => item.value === color) ? 'paint-color-selected' : ''}`}>
-      <input type="color" value={color} onChange={(event) => setColor(event.target.value)} aria-label="내 색 만들기" />
+    <div className="painting-stage"><div className="art-reference"><img src={page.source} alt={`${page.name} 완성 예시`} /><span>이렇게 칠해도 좋아요</span></div><ColoringArtwork page={page} fills={fills} onFill={paint} eraseMode={eraserSelected} className="coloring-canvas" /></div>
+    <div className="paint-toolbox"><p className="mb-3 text-center text-sm font-bold text-slate-600">{eraserSelected ? language === 'en' ? 'Tap a colored area to erase it.' : '색칠한 영역을 눌러 지워 보세요.' : '원하는 색을 골라 그림을 톡!'}</p><div className="paint-color-grid">{COLORS.map((item) => <button key={item.value} className={`paint-color ${!eraserSelected && item.value === color ? 'paint-color-selected' : ''}`} style={{ background: item.value }} onClick={() => { setColor(item.value); setEraserSelected(false); }} aria-label={`색상 ${item.name}`} aria-pressed={!eraserSelected && item.value === color}><span className="sr-only">{item.name}</span></button>)}<label className={`paint-custom-color ${!eraserSelected && !COLORS.some((item) => item.value === color) ? 'paint-color-selected' : ''}`}>
+      <input type="color" value={color} onChange={(event) => { setColor(event.target.value); setEraserSelected(false); }} aria-label="내 색 만들기" />
       <span aria-hidden="true">＋</span><small>내 색</small>
-    </label></div><p className="mt-3 text-center text-xs font-semibold text-slate-400">{language === 'en' ? `${COLORS.length} colors, from pastel to bold, plus your own` : `파스텔부터 진한 색까지 ${COLORS.length}가지 + 내 색 만들기`}</p></div>
-    <div className="flex flex-wrap justify-center gap-2" role="group" aria-label="작은 영역 칠하기">{page.regions.map((region) => <button key={region.id} onClick={() => paint(region.id)} className="region-chip" aria-label={`${region.label} 색 채우기`}><span style={{ background: fills[region.id] ?? '#E7E5E4' }} />{region.label}{fills[region.id] && ' ✓'}</button>)}</div>
+    </label><button type="button" className={`paint-eraser ${eraserSelected ? 'paint-eraser-selected' : ''}`} onClick={() => setEraserSelected(true)} aria-label={language === 'en' ? 'Eraser' : '지우개'} aria-pressed={eraserSelected}><span aria-hidden="true">⌫</span><small>{language === 'en' ? 'Erase' : '지우개'}</small></button></div><p className="mt-3 text-center text-xs font-semibold text-slate-400">{language === 'en' ? `${COLORS.length} colors, from pastel to bold, plus your own` : `파스텔부터 진한 색까지 ${COLORS.length}가지 + 내 색 만들기`}</p></div>
+    <div className="flex flex-wrap justify-center gap-2" role="group" aria-label={eraserSelected ? '작은 영역 지우기' : '작은 영역 칠하기'}>{page.regions.map((region) => <button key={region.id} onClick={() => paint(region.id)} className="region-chip" aria-label={`${region.label} ${eraserSelected ? '색 지우기' : '색 채우기'}`}><span style={{ background: fills[region.id] ?? '#E7E5E4' }} />{region.label}{fills[region.id] && ' ✓'}</button>)}</div>
     <Button variant="ghost" size="sm" onClick={() => { setHistory([{}]); setCursor(0); }}>다시 칠하기</Button>
   </div>;
 }

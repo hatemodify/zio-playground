@@ -36,10 +36,19 @@ const COLORS = [
   { ko: '흰색', en: 'White', value: '#FFFFFF' },
 ];
 
-type FillAction = { regionId: number; color: string };
+type FillAction = { regionId: number; color: string | null };
 type FillState = { baseColors: Map<number, string>; history: FillAction[]; cursor: number };
 const MAX_UNDO = 40;
 const emptyFillState = (): FillState => ({ baseColors: new Map(), history: [], cursor: 0 });
+
+function colorsAtCursor(state: FillState): Map<number, string> {
+  const colors = new Map(state.baseColors);
+  for (const action of state.history.slice(0, state.cursor)) {
+    if (action.color === null) colors.delete(action.regionId);
+    else colors.set(action.regionId, action.color);
+  }
+  return colors;
+}
 
 /** Find one light area bounded by the PDF's dark outline. */
 function findFillRegion(source: Uint8ClampedArray, width: number, height: number, startX: number, startY: number): Uint32Array {
@@ -89,7 +98,9 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
   const [size, setSize] = useState<{ width: number; height: number } | null>(null);
   const [error, setError] = useState(false);
   const [color, setColor] = useState('#4A90D9');
+  const [eraserSelected, setEraserSelected] = useState(false);
   const [fillState, setFillState] = useState<FillState>(emptyFillState);
+  const hasPaint = colorsAtCursor(fillState).size > 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -139,8 +150,7 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
     if (!ctx) return;
     const pixels = ctx.createImageData(size.width, size.height);
     pixels.data.fill(255);
-    const colors = new Map(fillState.baseColors);
-    for (const action of fillState.history.slice(0, fillState.cursor)) colors.set(action.regionId, action.color);
+    const colors = colorsAtCursor(fillState);
     for (const [regionId, selectedColor] of colors) {
       const region = regionsRef.current.get(regionId);
       if (!region) continue;
@@ -170,6 +180,7 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
     const start = y * size.width + x;
     let regionId = labels[start];
     if (regionId < 0) {
+      if (eraserSelected) return;
       const pixels = findFillRegion(source, size.width, size.height, x, y);
       if (pixels.length === 0) return;
       regionId = regionsRef.current.size;
@@ -177,16 +188,19 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
       for (const index of pixels) labels[index] = regionId;
     }
     setFillState((current) => {
-      const history = [...current.history.slice(0, current.cursor), { regionId, color }];
+      const selectedColor = eraserSelected ? null : color;
+      if ((colorsAtCursor(current).get(regionId) ?? null) === selectedColor) return current;
+      const history = [...current.history.slice(0, current.cursor), { regionId, color: selectedColor }];
       const baseColors = new Map(current.baseColors);
       if (history.length > MAX_UNDO) {
         // Keep older paint on the canvas when its undo step expires.
         const oldest = history.shift();
-        if (oldest) baseColors.set(oldest.regionId, oldest.color);
+        if (oldest?.color === null) baseColors.delete(oldest.regionId);
+        else if (oldest) baseColors.set(oldest.regionId, oldest.color);
       }
       return { baseColors, history, cursor: history.length };
     });
-  }, [size, color]);
+  }, [size, color, eraserSelected]);
 
   const saveImage = useCallback(() => {
     const canvas = canvasRef.current;
@@ -202,7 +216,7 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
       <div>
         <button type="button" onClick={onBack} className="mb-2 rounded-xl bg-white px-3 py-2 text-sm font-bold text-teal-700">{language === 'en' ? '← Other pictures' : '← 다른 그림'}</button>
         <h1 className="text-2xl font-extrabold text-slate-800">{page.icon} {language === 'en' ? page.nameEn : page.nameKo}</h1>
-        <p className="text-sm text-slate-600">{language === 'en' ? 'Choose a color and tap an area to fill it.' : '색을 고르고 원하는 영역을 톡 눌러 채워 보세요.'}</p>
+        <p className="text-sm text-slate-600">{eraserSelected ? language === 'en' ? 'Tap a colored area to erase it.' : '색칠한 영역을 눌러 지워 보세요.' : language === 'en' ? 'Choose a color and tap an area to fill it.' : '색을 고르고 원하는 영역을 톡 눌러 채워 보세요.'}</p>
       </div>
       <UndoRedoControls canUndo={fillState.cursor > 0} canRedo={fillState.cursor < fillState.history.length}
         onUndo={() => setFillState((current) => ({ ...current, cursor: Math.max(0, current.cursor - 1) }))}
@@ -215,17 +229,21 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
     {!size && !error && <div role="status" className="rounded-2xl bg-white p-8 text-center text-slate-600">{language === 'en' ? 'Loading the coloring page…' : '도안을 불러오는 중이에요…'}</div>}
     {size && <div className="mx-auto flex w-full max-w-[720px] flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm">
       <div role="group" aria-label={language === 'en' ? 'Choose a color' : '색 고르기'} className="flex flex-wrap justify-center gap-3">
-        {COLORS.map((option) => <button key={option.value} type="button" aria-label={language === 'en' ? option.en : option.ko} aria-pressed={color === option.value} onClick={() => setColor(option.value)}
-          className={`h-11 w-11 rounded-full border-4 shadow-sm ${color === option.value ? 'scale-110 border-slate-700' : 'border-slate-200'}`} style={{ backgroundColor: option.value }} />)}
-        <label className={`relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-4 bg-white text-2xl font-bold text-slate-700 shadow-sm ${!COLORS.some((option) => option.value === color) ? 'border-slate-700' : 'border-slate-200'}`}>
-          <input type="color" value={color} onChange={(event) => setColor(event.target.value)} aria-label={language === 'en' ? 'Custom color' : '내 색 만들기'} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+        {COLORS.map((option) => <button key={option.value} type="button" aria-label={language === 'en' ? option.en : option.ko} aria-pressed={!eraserSelected && color === option.value} onClick={() => { setColor(option.value); setEraserSelected(false); }}
+          className={`h-11 w-11 rounded-full border-4 shadow-sm ${!eraserSelected && color === option.value ? 'scale-110 border-slate-700' : 'border-slate-200'}`} style={{ backgroundColor: option.value }} />)}
+        <label className={`relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-4 bg-white text-2xl font-bold text-slate-700 shadow-sm ${!eraserSelected && !COLORS.some((option) => option.value === color) ? 'border-slate-700' : 'border-slate-200'}`}>
+          <input type="color" value={color} onChange={(event) => { setColor(event.target.value); setEraserSelected(false); }} aria-label={language === 'en' ? 'Custom color' : '내 색 만들기'} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
           <span aria-hidden="true">＋</span>
         </label>
+        <button type="button" aria-label={language === 'en' ? 'Eraser' : '지우개'} aria-pressed={eraserSelected} onClick={() => setEraserSelected(true)}
+          className={`flex h-11 min-w-20 items-center justify-center gap-1 rounded-full border-4 bg-slate-100 px-2 text-sm font-extrabold text-slate-700 shadow-sm ${eraserSelected ? 'border-slate-700' : 'border-slate-200'}`}>
+          <span aria-hidden="true">⌫</span>{language === 'en' ? 'Erase' : '지우개'}
+        </button>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Button variant="secondary" size="sm" onClick={() => setFillState(emptyFillState())}>{language === 'en' ? 'Start Over' : '처음부터'}</Button>
         <Button size="sm" onClick={saveImage}>{language === 'en' ? 'Save Picture' : '그림 저장'}</Button>
-        <Button variant="accent" size="sm" disabled={fillState.cursor === 0 && fillState.baseColors.size === 0} onClick={() => { if (canvasRef.current) onComplete(canvasRef.current.toDataURL('image/png')); }}>{language === 'en' ? "I'm Done!" : '완성했어요!'}</Button>
+        <Button variant="accent" size="sm" disabled={!hasPaint} onClick={() => { if (canvasRef.current) onComplete(canvasRef.current.toDataURL('image/png')); }}>{language === 'en' ? "I'm Done!" : '완성했어요!'}</Button>
       </div>
     </div>}
     <div className={size ? 'mx-auto w-full max-w-[720px] overflow-hidden rounded-2xl bg-white shadow-card' : 'hidden'}>
