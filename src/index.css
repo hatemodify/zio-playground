@@ -318,10 +318,11 @@ body {
 .daruma-intro-art > img:first-child { width: 108px; height: 108px; }
 .daruma-mini-block { width: 90px; height: 18px; border-radius: 8px; background: #71b6db; box-shadow: inset 0 -4px 0 #0001; }
 .daruma-mini-block + .daruma-mini-block { background: #ef9d54; }.daruma-mini-block + .daruma-mini-block + .daruma-mini-block { background: #79b77a; }
+.daruma-intro-art .daruma-mini-block-number { background: #f3e6cc; color: #493519; text-align: center; font-size: 14px; line-height: 18px; font-weight: 900; }
 .daruma-workshop { overflow: hidden; border: 2px solid #e7d3b7; border-radius: 28px; background: #fffaf0; box-shadow: 0 6px 0 #dcc4a3; }
 .daruma-scoreboard { display: flex; min-height: 48px; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px; background: #f2e3cd; color: #6c5035; font-size: 12px; font-weight: 800; }
 .daruma-scoreboard [aria-label] { color: #d65059; font-size: 21px; letter-spacing: 2px; }
-.daruma-stage { position: relative; height: 330px; overflow: hidden; background: radial-gradient(ellipse at 20% 100%, #cedfc4 0 25%, transparent 26%), radial-gradient(ellipse at 95% 110%, #b7d3bc 0 32%, transparent 33%), linear-gradient(#eaf3ee, #f8efd9); }
+.daruma-stage { position: relative; height: 420px; overflow: hidden; background: radial-gradient(ellipse at 20% 100%, #cedfc4 0 25%, transparent 26%), radial-gradient(ellipse at 95% 110%, #b7d3bc 0 32%, transparent 33%), linear-gradient(#eaf3ee, #f8efd9); }
 .daruma-sun { position: absolute; top: 30px; right: 12%; width: 65px; height: 65px; border-radius: 50%; background: #f8d992; box-shadow: 0 0 0 12px #f8d99225; }
 .daruma-cloud { position: absolute; left: 10%; top: 48px; width: 78px; height: 23px; border-radius: 30px; background: #fff9; }.daruma-cloud::after { content: ''; position: absolute; bottom: 6px; left: 16px; width: 38px; height: 34px; border-radius: 50%; background: #fff9; }
 .daruma-platform { position: absolute; bottom: 16px; left: 12%; width: 76%; height: 22px; border: 2px solid #c5a072; border-radius: 50%; background: #e9c99a; box-shadow: 0 7px 0 #ba925f; }
@@ -330,6 +331,8 @@ body {
 .daruma-block { position: relative; width: 96px; height: 21px; border: 1px solid #71492b33; border-radius: 8px / 7px; box-shadow: inset 0 3px 0 #fff4, inset 0 -4px 0 #0001, 0 1px 0 #76503344; }
 .daruma-block::after { position: absolute; content: ''; left: 12%; right: 12%; top: 5px; border-top: 1px solid #fff3; }
 .daruma-block span { display: block; text-align: center; font-size: 11px; line-height: 19px; font-weight: 900; color: #302817; }
+.daruma-block-number { border-color: #9d7646; }
+.daruma-block-number span { font-size: 16px; color: #493519; }
 .daruma-block-target { outline: 2px solid #fffbdd; outline-offset: 2px; }
 .daruma-block-target::before { content: '◀'; position: absolute; left: -22px; top: 1px; color: #1b7c69; font-size: 16px; }
 .daruma-ejected { position: absolute; bottom: 35px; left: calc(50% - 48px); z-index: 3; }
@@ -346,9 +349,10 @@ body {
 .daruma-color-button:disabled { opacity: .45; box-shadow: none; }
 .daruma-color-button:active:not(:disabled) { transform: translateY(3px); box-shadow: none; }
 .daruma-color-button small { position: absolute; top: 5px; right: 8px; color: #ab8b68; font-size: 10px; }
+.daruma-number-button { background: #fff2d9; border-color: #ba8b54; font-size: 28px; color: #493519; }
 .daruma-color-swatch { width: 25px; height: 25px; border: 3px solid white; border-radius: 50%; background: var(--daruma-color); box-shadow: 0 1px 3px #0003, inset 0 -3px 0 #0002; }
 .daruma-meter { position: relative; height: 30px; border: 3px solid #e0c5a3; border-radius: 12px; background: #f4dcae; }
 .daruma-sweet-spot { position: absolute; inset-block: 0; display: grid; place-items: center; background: #5eab8c; color: white; font-weight: 900; }
 .daruma-needle { position: absolute; top: -7px; bottom: -7px; width: 5px; border: 1px solid white; border-radius: 5px; background: #633b39; transform: translateX(-50%); box-shadow: 0 2px 3px #0002; }
 .daruma-hit-button { min-height: 52px; border: 2px solid #b88149; border-radius: 16px; background: linear-gradient(#f8d69b, #e8b777); box-shadow: 0 4px 0 #ac7843; color: #603b24; font-size: 13px; font-weight: 900; touch-action: manipulation; }.daruma-hit-button:disabled { opacity: .45; box-shadow: none; }.daruma-hit-button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #ac7843; }
-@media (min-width: 640px) { .daruma-stage { height: 410px; }.daruma-tower { left: calc(50% - 62px); width: 124px; }.daruma-doll { width: 132px; height: 132px; }.daruma-block { width: 124px; height: 26px; }.daruma-block span { line-height: 24px; }.daruma-ejected { left: calc(50% - 62px); }.daruma-controls { max-width: 620px; margin: auto; padding-bottom: 22px; } }
+@media (min-width: 640px) { .daruma-stage { height: 530px; }.daruma-tower { left: calc(50% - 62px); width: 124px; }.daruma-doll { width: 132px; height: 132px; }.daruma-block { width: 124px; height: 26px; }.daruma-block span { line-height: 24px; }.daruma-block-number span { font-size: 19px; }.daruma-ejected { left: calc(50% - 62px); }.daruma-controls { max-width: 620px; margin: auto; padding-bottom: 22px; } }
