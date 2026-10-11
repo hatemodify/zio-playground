@@ -36,7 +36,10 @@ const COLORS = [
   { ko: '흰색', en: 'White', value: '#FFFFFF' },
 ];
 
-type FillAction = { pixels: Uint32Array; color: string };
+type FillAction = { regionId: number; color: string };
+type FillState = { baseColors: Map<number, string>; history: FillAction[]; cursor: number };
+const MAX_UNDO = 40;
+const emptyFillState = (): FillState => ({ baseColors: new Map(), history: [], cursor: 0 });
 
 /** Find one light area bounded by the PDF's dark outline. */
 function findFillRegion(source: Uint8ClampedArray, width: number, height: number, startX: number, startY: number): Uint32Array {
@@ -81,11 +84,12 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sourceRef = useRef<HTMLCanvasElement | null>(null);
   const sourcePixelsRef = useRef<Uint8ClampedArray | null>(null);
+  const regionLabelsRef = useRef<Int32Array | null>(null);
+  const regionsRef = useRef<Map<number, Uint32Array>>(new Map());
   const [size, setSize] = useState<{ width: number; height: number } | null>(null);
   const [error, setError] = useState(false);
   const [color, setColor] = useState('#4A90D9');
-  const [history, setHistory] = useState<FillAction[]>([]);
-  const [cursor, setCursor] = useState(0);
+  const [fillState, setFillState] = useState<FillState>(emptyFillState);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,6 +97,13 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
     let renderTask: import('pdfjs-dist').RenderTask | undefined;
     async function loadPdf() {
       try {
+        setSize(null);
+        setError(false);
+        setFillState(emptyFillState());
+        sourceRef.current = null;
+        sourcePixelsRef.current = null;
+        regionLabelsRef.current = null;
+        regionsRef.current.clear();
         const pdfjs = await import('pdfjs-dist');
         if (cancelled) return;
         pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
@@ -108,6 +119,7 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
         if (cancelled) return;
         sourceRef.current = source;
         sourcePixelsRef.current = source.getContext('2d', { willReadFrequently: true })?.getImageData(0, 0, source.width, source.height).data ?? null;
+        regionLabelsRef.current = new Int32Array(source.width * source.height).fill(-1);
         setSize({ width: source.width, height: source.height });
       } catch {
         if (!cancelled) setError(true);
@@ -127,9 +139,13 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
     if (!ctx) return;
     const pixels = ctx.createImageData(size.width, size.height);
     pixels.data.fill(255);
-    for (const action of history.slice(0, cursor)) {
-      const [red, green, blue] = colorChannels(action.color);
-      for (const index of action.pixels) {
+    const colors = new Map(fillState.baseColors);
+    for (const action of fillState.history.slice(0, fillState.cursor)) colors.set(action.regionId, action.color);
+    for (const [regionId, selectedColor] of colors) {
+      const region = regionsRef.current.get(regionId);
+      if (!region) continue;
+      const [red, green, blue] = colorChannels(selectedColor);
+      for (const index of region) {
         const offset = index * 4;
         pixels.data[offset] = red;
         pixels.data[offset + 1] = green;
@@ -140,21 +156,37 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
     ctx.globalCompositeOperation = 'multiply';
     ctx.drawImage(source, 0, 0);
     ctx.globalCompositeOperation = 'source-over';
-  }, [size, history, cursor]);
+  }, [size, fillState]);
 
   const fillAt = useCallback((event: PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     const source = sourcePixelsRef.current;
-    if (!canvas || !source || !size) return;
+    const labels = regionLabelsRef.current;
+    if (!canvas || !source || !labels || !size) return;
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
     const x = Math.max(0, Math.min(size.width - 1, Math.floor((event.clientX - rect.left) * size.width / rect.width)));
     const y = Math.max(0, Math.min(size.height - 1, Math.floor((event.clientY - rect.top) * size.height / rect.height)));
-    const pixels = findFillRegion(source, size.width, size.height, x, y);
-    if (pixels.length === 0) return;
-    setHistory((current) => [...current.slice(0, cursor), { pixels, color }].slice(-40));
-    setCursor((current) => Math.min(current + 1, 40));
-  }, [size, cursor, color]);
+    const start = y * size.width + x;
+    let regionId = labels[start];
+    if (regionId < 0) {
+      const pixels = findFillRegion(source, size.width, size.height, x, y);
+      if (pixels.length === 0) return;
+      regionId = regionsRef.current.size;
+      regionsRef.current.set(regionId, pixels);
+      for (const index of pixels) labels[index] = regionId;
+    }
+    setFillState((current) => {
+      const history = [...current.history.slice(0, current.cursor), { regionId, color }];
+      const baseColors = new Map(current.baseColors);
+      if (history.length > MAX_UNDO) {
+        // Keep older paint on the canvas when its undo step expires.
+        const oldest = history.shift();
+        if (oldest) baseColors.set(oldest.regionId, oldest.color);
+      }
+      return { baseColors, history, cursor: history.length };
+    });
+  }, [size, color]);
 
   const saveImage = useCallback(() => {
     const canvas = canvasRef.current;
@@ -172,7 +204,9 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
         <h1 className="text-2xl font-extrabold text-slate-800">{page.icon} {language === 'en' ? page.nameEn : page.nameKo}</h1>
         <p className="text-sm text-slate-600">{language === 'en' ? 'Choose a color and tap an area to fill it.' : '색을 고르고 원하는 영역을 톡 눌러 채워 보세요.'}</p>
       </div>
-      <UndoRedoControls canUndo={cursor > 0} canRedo={cursor < history.length} onUndo={() => setCursor((value) => value - 1)} onRedo={() => setCursor((value) => value + 1)} />
+      <UndoRedoControls canUndo={fillState.cursor > 0} canRedo={fillState.cursor < fillState.history.length}
+        onUndo={() => setFillState((current) => ({ ...current, cursor: Math.max(0, current.cursor - 1) }))}
+        onRedo={() => setFillState((current) => ({ ...current, cursor: Math.min(current.history.length, current.cursor + 1) }))} />
     </div>
     {error && <div role="alert" className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
       {language === 'en' ? 'The source PDF could not be loaded. Check your internet connection or ' : '원본 PDF를 불러오지 못했어요. 인터넷 연결을 확인하거나 '}
@@ -189,9 +223,9 @@ export default function RemotePdfColoring({ page, onBack, onComplete }: { page: 
         </label>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <Button variant="secondary" size="sm" onClick={() => { setHistory([]); setCursor(0); }}>{language === 'en' ? 'Start Over' : '처음부터'}</Button>
+        <Button variant="secondary" size="sm" onClick={() => setFillState(emptyFillState())}>{language === 'en' ? 'Start Over' : '처음부터'}</Button>
         <Button size="sm" onClick={saveImage}>{language === 'en' ? 'Save Picture' : '그림 저장'}</Button>
-        <Button variant="accent" size="sm" disabled={cursor === 0} onClick={() => { if (canvasRef.current) onComplete(canvasRef.current.toDataURL('image/png')); }}>{language === 'en' ? "I'm Done!" : '완성했어요!'}</Button>
+        <Button variant="accent" size="sm" disabled={fillState.cursor === 0 && fillState.baseColors.size === 0} onClick={() => { if (canvasRef.current) onComplete(canvasRef.current.toDataURL('image/png')); }}>{language === 'en' ? "I'm Done!" : '완성했어요!'}</Button>
       </div>
     </div>}
     <div className={size ? 'mx-auto w-full max-w-[720px] overflow-hidden rounded-2xl bg-white shadow-card' : 'hidden'}>
