@@ -7,11 +7,12 @@ async function records(page: Page) {
   return page.evaluate(() => JSON.parse(localStorage.getItem('kidsedu-gamification')!).state.gameRecords);
 }
 
-for (const [category, count] of [['동물', 10], ['탈것', 8], ['자연', 8], ['음식', 7], ['장난감', 7]] as const) {
+for (const [category, count] of [['동물', 14], ['탈것', 8], ['자연', 8], ['음식', 7], ['장난감', 7]] as const) {
   test(`${category}: every illustrated page completes and preserves its artwork`, async ({ page }) => {
-    test.setTimeout(60000);
+    test.setTimeout(180000);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/games/coloring');
-    await expect(page.getByText('40개의 컬러 도안')).toBeVisible();
+    await expect(page.getByText(/\d+개의 컬러 도안/)).toBeVisible();
     for (let index = 0; index < count; index++) {
       await page.getByRole('button', { name: `${category} 카테고리` }).click();
       const cards = page.locator('button[aria-label$="색칠하기"]');

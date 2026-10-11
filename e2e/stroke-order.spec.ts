@@ -51,6 +51,7 @@ test('the stroke guide sits under the writing and never blocks completing a lett
   await page.mouse.up();
   await page.getByRole('button', { name: '확인', exact: true }).click();
   await expect(page.getByText('잘했어!', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('confetti-shower')).toBeVisible();
   const items = await page.evaluate(() => JSON.parse(localStorage.getItem('kidsedu-progress')!).state.items);
   expect(items['hangul-ㄴ'].completed).toBe(true);
 });

@@ -67,7 +67,7 @@ export function useGameLogic({ gameId, category = 'numbers' }: UseGameLogicOptio
       completedAt: new Date().toISOString() }));
     setState('success');
     play('level_up');
-    rewardTimer.current = setTimeout(() => setState('reward'), 1500);
+    rewardTimer.current = setTimeout(() => setState('reward'), 350);
   }, [gameId, category, calculateStars, completeGame, play]);
 
   const reset = useCallback(() => {

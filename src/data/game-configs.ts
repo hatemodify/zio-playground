@@ -277,19 +277,19 @@ export const GAME_CONFIGS: GameConfig[] = [
   {
     id: 'whack-a-mole',
     name: '두더지 잡기',
-    description: '튀어나오는 탈것을 빠르게 터치하세요!',
+    description: '넓어진 게임판에서 탈것을 잡고 폭탄을 피하며 3단계에 도전해요!',
     icon: 'target',
     categories: [],
     difficulties: {
-      easy: { label: '쉬움', questionCount: 15 },
-      normal: { label: '보통', questionCount: 25 },
-      hard: { label: '어려움', questionCount: 35 },
+      easy: { label: '1단계', questionCount: 4 },
+      normal: { label: '2단계', questionCount: 6 },
+      hard: { label: '3단계', questionCount: 8 },
     },
     unlockThreshold: 0,
     rules: [
       '구멍에서 탈것이 튀어나와요',
-      '빠르게 터치하면 점수를 받아요',
-      '폭탄은 피하세요!',
+      '단계마다 목표만큼 탈것을 잡으면 다음 단계로 올라가요',
+      '폭탄을 누르면 하트가 하나 줄어요!',
     ],
   },
 {

@@ -3,6 +3,7 @@ import { motion, AnimatePresence, MotionConfig, useReducedMotion } from 'motion/
 import { cn } from '@/lib/cn';
 import { getStickerById } from '@/data/stickers';
 import CharacterDdori from './CharacterDdori';
+import ConfettiShower from './ConfettiShower';
 
 type CelebrationType = 'stage_complete' | 'tracing_complete' | 'game_complete' | 'level_up';
 
@@ -48,14 +49,6 @@ const celebrationConfig: Record<CelebrationType, {
     starCount: 0,
   },
 };
-
-function ConfettiParticle({ index }: { index: number }) {
-  const colors = ['#FFD93D', '#FF6B81', '#4A90D9', '#2ED573', '#A29BFE', '#FF9FF3'];
-  return <motion.div className="absolute rounded-sm" style={{ width: 8 + index % 7, height: 8 + index % 4, backgroundColor: colors[index % colors.length], left: `${(index * 37) % 100}%`, top: '-5%', borderRadius: index % 3 === 0 ? '50%' : 2 }}
-    initial={{ y: '-5vh', rotate: 0, opacity: 0 }}
-    animate={{ x: [0, (index % 2 ? 1 : -1) * 60, 0], y: '110vh', rotate: index * 43, opacity: [0, 1, 1, 0] }}
-    transition={{ duration: 2.8 + (index % 4) * 0.3, delay: (index % 12) * 0.06, ease: 'easeOut' }} />;
-}
 
 export default function RewardCelebration({
   type,
@@ -109,13 +102,7 @@ export default function RewardCelebration({
           <div className="absolute inset-0 bg-slate-950/65 backdrop-blur-md" />
 
           {/* Confetti */}
-          {!reducedMotion && (
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-              {Array.from({ length: 72 }, (_, i) => i).map((i) => (
-                <ConfettiParticle key={i} index={i} />
-              ))}
-            </div>
-          )}
+          <ConfettiShower />
 
           {!reducedMotion && <div className="celebration-rays" aria-hidden="true" />}
           {/* Content */}

@@ -9,6 +9,7 @@ import { useGamificationStore } from '@/stores/gamification-store';
 import { useSound } from '@/hooks/use-sound';
 import { useLandscapeTablet } from '@/hooks/use-media-query';
 import { useElementSize } from '@/hooks/use-element-size';
+import ConfettiShower from './ConfettiShower';
 import type { LearningCategory } from '@/types/learning';
 
 /** Padding of the white card the canvas sits in (p-3 on both sides). */
@@ -197,8 +198,9 @@ export default function LearningScreen({
             exit={{ opacity: 0 }}
             onClick={dismissCelebration}
           >
+            <ConfettiShower />
             <motion.div
-              className="flex flex-col items-center gap-4 rounded-3xl bg-white p-8 shadow-modal"
+              className="relative z-10 flex flex-col items-center gap-4 rounded-3xl bg-white p-8 shadow-modal"
               initial={{ scale: 0.5, y: 50 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0 }}

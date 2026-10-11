@@ -1,86 +1,71 @@
 import { test, expect } from '@playwright/test';
+import { clearMoleStages } from './helpers/mole-stages';
 
-test.describe('Whack-a-Mole Gameplay', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.clock.install();
-    await page.addInitScript(() => {
-      localStorage.setItem(
-        'kidsedu-settings',
-        JSON.stringify({
-          state: { sfxEnabled: true, volume: 0.8, onboarded: true },
-          version: 1,
-        })
-      );
-    });
+test.beforeEach(async ({ page }) => {
+  await page.clock.install();
+  await page.addInitScript(() => {
+    Math.random = () => 0.5;
+    localStorage.setItem('kidsedu-settings', JSON.stringify({ state: { sfxEnabled: false, onboarded: true }, version: 1 }));
   });
+});
 
-  test('should auto-start game and show timer counting down', async ({ page }) => {
-    await page.goto('/games/whack-a-mole');
-    await expect(page.getByText('두더지 잡기')).toBeVisible();
+test('큰 게임판에 단계 목표·타이머·라이프가 표시된다', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/games/whack-a-mole');
+  await expect(page.getByRole('heading', { name: '두더지 잡기' })).toBeVisible();
+  await expect(page.getByText('1단계 · 연습 마당')).toBeVisible();
+  await expect(page.getByLabel('라이프 3개')).toBeVisible();
+  await expect(page.getByRole('progressbar', { name: '단계 목표' })).toHaveAttribute('aria-valuemax', '4');
+  await expect(page.getByText('20초')).toBeVisible();
+  const board = page.getByLabel('두더지 잡기 게임판');
+  expect((await board.boundingBox())!.width).toBeGreaterThan(350);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  for (let index = 1; index <= 9; index++) await expect(page.getByRole('button', { name: `구멍 ${index}` })).toBeVisible();
+  await page.clock.runFor(1500);
+  await expect(page.getByText('19초')).toBeVisible();
+  await expect(page.locator('button[data-kind="vehicle"]')).toHaveCount(1);
+});
 
-    // Score should start at 0
-    await expect(page.getByText('0점')).toBeVisible();
+test('목표를 채우면 다음 단계로 올라가고 마지막에 완료 축하가 나타난다', async ({ page }) => {
+  await page.goto('/games/whack-a-mole');
+  await clearMoleStages(page);
+  await expect(page.getByRole('dialog', { name: '게임 클리어!' })).toBeVisible();
+  await expect(page.getByTestId('confetti-shower')).toBeVisible();
+  await expect(page.getByText('18마리 잡았어요!')).toBeVisible();
+  const records = await page.evaluate(() => JSON.parse(localStorage.getItem('kidsedu-gamification') ?? '{"state":{"gameRecords":[]}}').state.gameRecords);
+  expect(records).toHaveLength(1);
+  expect(records[0]).toMatchObject({ gameId: 'whack-a-mole', score: 18 });
+});
 
-    // Timer should be counting down (starts at 60)
-    await expect(page.getByText(/\d+초/)).toBeVisible();
+test('폭탄을 누르면 하트가 줄고 폭발 효과가 나타나며 세 번 맞으면 종료된다', async ({ page }) => {
+  await page.goto('/games/whack-a-mole');
+  await page.evaluate(() => { Math.random = () => 0; });
+  for (const lives of [2, 1, 0]) {
+    await page.clock.runFor(1100);
+    await page.locator('button[data-kind="bomb"]').first().click();
+    await expect(page.getByLabel(`라이프 ${lives}개`)).toBeVisible();
+    await expect(page.locator('button[data-feedback="bomb"]')).toContainText('-1 ♥');
+  }
+  await page.clock.runFor(850);
+  await expect(page.getByRole('heading', { name: '한 번 더 도전해요!' })).toBeVisible();
+  await expect(page.getByText('폭탄에 하트를 모두 잃었어요.')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: '게임 클리어!' })).toHaveCount(0);
+  await page.getByRole('button', { name: '다시 하기' }).click();
+  await expect(page.getByLabel('라이프 3개')).toBeVisible();
+});
 
-    // Wait a moment and verify timer changes
-    await page.clock.runFor(1500);
-    const timerText = await page.getByText(/\d+초/).textContent();
-    expect(timerText).toBeTruthy();
-    const seconds = parseInt(timerText!.replace('초', ''));
-    expect(seconds).toBeLessThan(60);
-  });
+test('시간 안에 목표를 못 채우면 재도전 화면을 보여준다', async ({ page }) => {
+  await page.goto('/games/whack-a-mole');
+  await page.clock.runFor(20500);
+  await expect(page.getByRole('heading', { name: '한 번 더 도전해요!' })).toBeVisible();
+  await expect(page.getByText(/시간이 끝났어요/)).toBeVisible();
+});
 
-  test('should display 3x3 hole grid with interactive buttons', async ({ page }) => {
-    await page.goto('/games/whack-a-mole');
-    await expect(page.getByText('두더지 잡기')).toBeVisible();
-
-    // All 9 holes should be visible
-    for (let i = 1; i <= 9; i++) {
-      await expect(page.getByRole('button', { name: `구멍 ${i}` })).toBeVisible();
-    }
-  });
-
-  test('should show moles appearing in holes after game starts', async ({ page }) => {
-    await page.goto('/games/whack-a-mole');
-    await expect(page.getByText('두더지 잡기')).toBeVisible();
-
-    // Wait for moles to start spawning (500ms delay + spawn time)
-    await page.clock.runFor(2000);
-
-    // At least one hole should have content (emoji text) visible
-    // Moles display vehicle emojis or bomb
-    const gridButtons = page.locator('button[aria-label^="구멍"]');
-    const allContent = await gridButtons.allTextContents();
-    const hasEmoji = allContent.some(text => text.length > 0);
-    // Moles may have already hidden, so we just verify the grid is interactive
-    expect(await gridButtons.count()).toBe(9);
-  });
-
-  test('should show mascot message during gameplay', async ({ page }) => {
-    await page.goto('/games/whack-a-mole');
-    await expect(page.getByText('빨리 잡아!')).toBeVisible();
-  });
-
-  test('should show reward screen after game ends', async ({ page }) => {
-    test.setTimeout(45000);
-    await page.goto('/games/whack-a-mole');
-    await expect(page.getByText('두더지 잡기')).toBeVisible();
-
-    // Wait for the 30-second game to end + 1.5s transition to reward
-    await expect(page.getByText('두더지 잡기', { exact: true })).toBeVisible();
-    const now = await page.evaluate(() => Date.now());
-    await page.clock.setSystemTime(new Date(now + 62000));
-    await page.clock.runFor(300);
-    await page.clock.runFor(1800);
-    await page.clock.resume();
-
-    // Should show reward celebration or score result
-    await expect(page.getByText(/마리 잡았어요/)).toBeVisible({ timeout: 5000 });
-
-    // Should show restart and game list buttons
-    await expect(page.getByText('다시 하기')).toBeVisible();
-    await expect(page.getByText('게임 목록')).toBeVisible();
-  });
+test('영어로 바꿔도 단계·라이프·게임판 안내가 읽힌다', async ({ page }) => {
+  await page.goto('/games/whack-a-mole');
+  await page.getByRole('button', { name: 'Switch to English' }).click();
+  await expect(page.getByRole('heading', { name: 'Whack-a-Mole' })).toBeVisible();
+  await expect(page.getByText('Stage 1 · Practice Yard')).toBeVisible();
+  await expect(page.getByLabel('3 lives')).toBeVisible();
+  await expect(page.getByLabel('Whack-a-Mole board')).toBeVisible();
 });

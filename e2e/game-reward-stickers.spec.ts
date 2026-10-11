@@ -1,9 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { clearMoleStages } from './helpers/mole-stages';
 
 test.describe('Game Reward & Sticker System', () => {
   test.beforeEach(async ({ page }) => {
     await page.clock.install();
     await page.addInitScript(() => {
+      Math.random = () => 0.5;
       localStorage.setItem(
         'kidsedu-settings',
         JSON.stringify({
@@ -18,13 +20,7 @@ test.describe('Game Reward & Sticker System', () => {
     test.setTimeout(45000);
     await page.goto('/games/whack-a-mole');
 
-    // Wait for game to complete (60s + buffer)
-    await expect(page.getByText('두더지 잡기', { exact: true })).toBeVisible();
-    const now = await page.evaluate(() => Date.now());
-    await page.clock.setSystemTime(new Date(now + 62000));
-    await page.clock.runFor(300);
-    await page.clock.runFor(1800);
-    await page.clock.resume();
+    await clearMoleStages(page);
 
     // RewardCelebration should show "게임 클리어!" title
     await expect(page.getByText('게임 클리어!')).toBeVisible({ timeout: 5000 });
@@ -42,13 +38,7 @@ test.describe('Game Reward & Sticker System', () => {
     test.setTimeout(45000);
     await page.goto('/games/whack-a-mole');
 
-    // Wait for game to complete
-    await expect(page.getByText('두더지 잡기', { exact: true })).toBeVisible();
-    const now = await page.evaluate(() => Date.now());
-    await page.clock.setSystemTime(new Date(now + 62000));
-    await page.clock.runFor(300);
-    await page.clock.runFor(1800);
-    await page.clock.resume();
+    await clearMoleStages(page);
 
     // Reward should be visible
     await expect(page.getByText('게임 클리어!')).toBeVisible({ timeout: 5000 });
@@ -65,13 +55,7 @@ test.describe('Game Reward & Sticker System', () => {
     test.setTimeout(45000);
     await page.goto('/games/whack-a-mole');
 
-    // Wait for game to end (60s game + 1.5s transition)
-    await expect(page.getByText('두더지 잡기', { exact: true })).toBeVisible();
-    const now = await page.evaluate(() => Date.now());
-    await page.clock.setSystemTime(new Date(now + 62000));
-    await page.clock.runFor(300);
-    await page.clock.runFor(1800);
-    await page.clock.resume();
+    await clearMoleStages(page);
 
     // Should show reward screen with default game complete message
     await expect(page.getByText('게임 클리어!')).toBeVisible({ timeout: 5000 });
@@ -93,12 +77,7 @@ test.describe('Game Reward & Sticker System', () => {
   test('should navigate from game completion back to games list', async ({ page }) => {
     test.setTimeout(45000);
     await page.goto('/games/whack-a-mole');
-    await expect(page.getByText('두더지 잡기', { exact: true })).toBeVisible();
-    const now = await page.evaluate(() => Date.now());
-    await page.clock.setSystemTime(new Date(now + 62000));
-    await page.clock.runFor(300);
-    await page.clock.runFor(1800);
-    await page.clock.resume();
+    await clearMoleStages(page);
 
     // Dismiss reward
     await expect(page.getByText('게임 클리어!')).toBeVisible({ timeout: 5000 });
