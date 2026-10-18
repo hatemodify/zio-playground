@@ -95,6 +95,7 @@ export const router = createBrowserRouter([
       { path: '/games/rocket-ride', element: lazyPage(() => import('./pages/RocketRideGamePage')) },
       { path: '/games/motion-poc', element: lazyPage(() => import('./pages/MotionPocPage')) },
       { path: '/games/motion-poc/remote', element: lazyPage(() => import('./pages/RemoteJumpPoc')) },
+      { path: '/games/tilt-race', element: lazyPage(() => import('./pages/TiltRacePage')) },
       { path: '/games/animal-playground', element: lazyPage(() => import('./pages/AnimalPlaygroundPage')) },
       {
         path: '/games/matching',

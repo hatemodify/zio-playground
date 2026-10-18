@@ -18,8 +18,8 @@ function waitForIce(peer: RTCPeerConnection, timeoutMs = 15000): Promise<void> {
   });
 }
 
-export async function createOffer(peer: RTCPeerConnection): Promise<{ offer: string; channel: RTCDataChannel }> {
-  const channel = peer.createDataChannel('jump', { ordered: false, maxRetransmits: 0 });
+export async function createOffer(peer: RTCPeerConnection, label = 'jump'): Promise<{ offer: string; channel: RTCDataChannel }> {
+  const channel = peer.createDataChannel(label, { ordered: false, maxRetransmits: 0 });
   await peer.setLocalDescription(await peer.createOffer());
   await waitForIce(peer);
   return { offer: JSON.stringify(peer.localDescription), channel };

@@ -9,6 +9,7 @@ const ART: Record<string, { picture: PictureId; friend?: PictureId; text?: strin
   'pattern-garden': { picture: 'dump-truck', friend: 'crane', text: '?', background: '#e7efd6' },
   'mini-festival': { picture: 'star', friend: 'rocket', text: '● ▲ ■', background: '#dedcf6' },
   'rocket-ride': { picture: 'rocket', friend: 'star', background: '#233654' },
+  'tilt-race': { picture: 'race-car', friend: 'trophy', background: '#d5eaf1' },
   'animal-playground': { picture: 'excavator', friend: 'bus', background: '#e3f1d6' },
   matching: { picture: 'rabbit', text: '토끼', background: '#e3edf6' },
   sorting: { picture: 'car', text: '1 2 3', background: '#fae8d8' },
