@@ -1,23 +1,39 @@
-export type RacePacket =
-  | { type: 'drive'; sequence: number; steer: number }
-  | { type: 'ping'; sequence: number }
-  | { type: 'pong'; sequence: number };
+export type LaneDirection = -1 | 0 | 1;
 
-export function steeringFromTilt(angle: number, neutral: number): number {
-  if (!Number.isFinite(angle) || !Number.isFinite(neutral)) return 0;
-  const delta = Math.max(-90, Math.min(90, angle - neutral));
-  const deadZone = 3;
-  if (Math.abs(delta) <= deadZone) return 0;
-  return Math.sign(delta) * Math.min(1, (Math.abs(delta) - deadZone) / 23);
-}
+/** A sidestep changes one lane; returning to the center only rearms the next step. */
+export class RaceSidestepDetector {
+  private armed = true;
+  private centerFrames = 0;
+  private candidate: LaneDirection = 0;
+  private candidateFrames = 0;
+  private lastStepAt = -Infinity;
 
-export function parseRacePacket(data: unknown): RacePacket | null {
-  if (typeof data !== 'string' || data.length > 120) return null;
-  try {
-    const packet: unknown = JSON.parse(data);
-    if (!packet || typeof packet !== 'object' || !('type' in packet) || !('sequence' in packet) || typeof packet.sequence !== 'number' || !Number.isSafeInteger(packet.sequence) || packet.sequence < 0) return null;
-    if (packet.type === 'drive' && 'steer' in packet && typeof packet.steer === 'number' && Number.isFinite(packet.steer) && Math.abs(packet.steer) <= 1) return packet as RacePacket;
-    if (packet.type === 'ping' || packet.type === 'pong') return packet as RacePacket;
-    return null;
-  } catch { return null; }
+  reset(armed = true) {
+    this.armed = armed;
+    this.centerFrames = 0;
+    this.candidate = 0;
+    this.candidateFrames = 0;
+    this.lastStepAt = -Infinity;
+  }
+
+  update(centerDeltaX: number, now: number): LaneDirection {
+    if (!Number.isFinite(centerDeltaX) || !Number.isFinite(now)) return 0;
+    if (Math.abs(centerDeltaX) < 0.055) {
+      this.centerFrames++;
+      if (this.centerFrames >= 2) this.armed = true;
+      this.candidate = 0;
+      this.candidateFrames = 0;
+      return 0;
+    }
+    this.centerFrames = 0;
+    const direction: LaneDirection = centerDeltaX <= -0.11 ? -1 : centerDeltaX >= 0.11 ? 1 : 0;
+    if (direction !== this.candidate) {
+      this.candidate = direction;
+      this.candidateFrames = direction === 0 ? 0 : 1;
+    } else if (direction !== 0) this.candidateFrames++;
+    if (!this.armed || direction === 0 || this.candidateFrames < 2 || now - this.lastStepAt < 420) return 0;
+    this.armed = false;
+    this.lastStepAt = now;
+    return direction;
+  }
 }

@@ -53,9 +53,9 @@ export const GAME_CONFIGS: GameConfig[] = [
   { id: 'mini-festival', name: '팡팡! 미니게임 축제', description: '세 버튼으로 색깔 풍선·로켓 충전·무지개 암호에 도전!', icon: 'star', kind: 'play', focus: '순발력 · 순서 · 반응', isNew: true, categories: [], difficulties: { easy: { label: '느긋하게' }, normal: { label: '신나게' }, hard: { label: '빠르게' } }, unlockThreshold: 0, rules: ['세 버튼이나 A·S·D 키로 놀아요.', '세 가지 짧은 미션에 도전해요.'] },
   { id: 'rocket-ride', name: '반짝 우주 비행', description: '우주선을 움직여 별을 모으는 짜릿한 여행', icon: 'rocket', kind: 'play', focus: '반응 · 놀이', isNew: true, categories: [],
     difficulties: { easy: { label: '느긋하게' }, normal: { label: '신나게' }, hard: { label: '빠르게' } }, unlockThreshold: 0, rules: ['좌우 버튼이나 방향키로 이동해요.', '별을 모으고 운석을 피해요.'] },
-  { id: 'tilt-race', name: '또리의 드라이브 챌린지', description: '공기계를 좌우로 기울여 교통 차량을 피하고 결승선까지 달려요.', icon: 'race-car', kind: 'play', focus: '조향 · 집중 · 반응', isNew: true, categories: [],
+  { id: 'tilt-race', name: '또리의 드라이브 챌린지', description: '카메라 앞에서 옆으로 움직여 차선을 바꾸고 결승선까지 달려요.', icon: 'race-car', kind: 'play', focus: '몸 움직임 · 집중 · 반응', isNew: true, categories: [],
     difficulties: { easy: { label: '3단계 코스' }, normal: { label: '3단계 코스' }, hard: { label: '3단계 코스' } }, unlockThreshold: 0,
-    rules: ['공기계를 같은 Wi-Fi로 연결해 컨트롤러로 사용해요.', '휴대폰을 좌우로 살짝 기울여 조향해요.', '차량을 피하고 별을 모아 1,800m 결승선까지 달려요.'] },
+    rules: ['카메라가 전신을 볼 수 있도록 기기를 세워 두세요.', '옆으로 한 번 움직이면 한 차선 바뀌고, 중앙으로 돌아와도 자동차는 그대로 있어요.', '차량을 피하고 별을 모아 1,800m 결승선까지 달려요.'] },
   { id: 'animal-playground', name: '상상 마을 놀이터', description: '탈것과 동물로 도로와 공사장을 꾸며요', icon: 'excavator', kind: 'play', focus: '꾸미기 · 자유 놀이', isNew: true, categories: [],
     difficulties: { easy: { label: '자유 놀이' }, normal: { label: '자유 놀이' }, hard: { label: '자유 놀이' } }, unlockThreshold: 0, rules: ['동물을 고르고 빈자리를 눌러요.', '배경을 바꾸고 함께 춤춰요.'] },
 
