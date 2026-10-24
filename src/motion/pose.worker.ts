@@ -4,18 +4,20 @@ import type { Landmark } from './poseClassifier';
 const TRACKED = [11, 12, 23, 24, 25, 26, 27, 28] as const;
 let detector: PoseLandmarker | null = null;
 
-self.onmessage = async (event: MessageEvent<{ type: 'init'; baseUrl: string } | { type: 'frame'; bitmap: ImageBitmap; capturedAt: number }>) => {
+type Crop = { x: number; y: number; width: number; height: number; sourceWidth: number; sourceHeight: number };
+
+self.onmessage = async (event: MessageEvent<{ type: 'init'; baseUrl: string; childMode?: boolean } | { type: 'frame'; bitmap: ImageBitmap; capturedAt: number; crop?: Crop }>) => {
   if (event.data.type === 'init') {
     try {
-      const { baseUrl } = event.data;
+      const { baseUrl, childMode } = event.data;
       const files = await FilesetResolver.forVisionTasks(`${baseUrl}mediapipe/wasm`, true);
       detector = await PoseLandmarker.createFromOptions(files, {
         baseOptions: { modelAssetPath: `${baseUrl}mediapipe/pose_landmarker_lite.task`, delegate: 'CPU' },
         runningMode: 'VIDEO',
         numPoses: 1,
-        minPoseDetectionConfidence: 0.55,
-        minPosePresenceConfidence: 0.55,
-        minTrackingConfidence: 0.55,
+        minPoseDetectionConfidence: childMode ? 0.45 : 0.55,
+        minPosePresenceConfidence: childMode ? 0.45 : 0.55,
+        minTrackingConfidence: childMode ? 0.5 : 0.55,
         outputSegmentationMasks: false,
       });
       self.postMessage({ type: 'ready' });
@@ -24,7 +26,7 @@ self.onmessage = async (event: MessageEvent<{ type: 'init'; baseUrl: string } | 
     }
     return;
   }
-  const { bitmap, capturedAt } = event.data;
+  const { bitmap, capturedAt, crop } = event.data;
   try {
     if (!detector) throw new Error('Pose Landmarker가 준비되지 않았습니다.');
     const startedAt = performance.now();
@@ -32,8 +34,8 @@ self.onmessage = async (event: MessageEvent<{ type: 'init'; baseUrl: string } | 
     const points = result.landmarks[0];
     const landmarks: Landmark[] = points ? TRACKED.map(index => ({
       // The preview is mirrored, so control directions match the child's view.
-      x: 1 - points[index].x,
-      y: points[index].y,
+      x: 1 - (crop ? (crop.x + points[index].x * crop.width) / crop.sourceWidth : points[index].x),
+      y: crop ? (crop.y + points[index].y * crop.height) / crop.sourceHeight : points[index].y,
       visibility: points[index].visibility ?? 0,
     })) : [];
     self.postMessage({ type: 'pose', landmarks, capturedAt, inferenceMs: performance.now() - startedAt });

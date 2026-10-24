@@ -11,6 +11,7 @@
 @import "./styles/voice.css";
 @import "./styles/clock.css";
 @import "./styles/number-rain.css";
+@import "./styles/game-library.css";
 
 /* Tablet landscape custom variant */
 @custom-variant landscape-tablet (@media (orientation: landscape) and (min-width: 768px));
@@ -160,13 +161,14 @@ body {
 /* Illustrated discovery games: roomy touch targets and pictures that teach. */
 .adventure-page { width: 100%; max-width: 1040px; margin: 0 auto; padding: 16px 20px 32px; display: flex; flex-direction: column; gap: 20px; }
 .adventure-intro { border-radius: 28px; background: white; padding: 20px; box-shadow: 0 8px 32px #134e4a08; }
-.scene-meadow { background: radial-gradient(ellipse at 10% 115%, #91c979 0 29%, transparent 30%), radial-gradient(ellipse at 90% 125%, #b6dc94 0 35%, transparent 36%), linear-gradient(#dcf2ef, #f2f7d9); }
+.scene-meadow { background: radial-gradient(ellipse at 10% 115%, #79d59e 0 29%, transparent 30%), radial-gradient(ellipse at 90% 125%, #b2e69b 0 35%, transparent 36%), linear-gradient(#abe7f3, #fff1c9); }
 .scene-night { background: radial-gradient(circle at 80% 20%, #44598e, transparent 40%), #14263e; }
-.adventure-primary { min-height: 56px; border-radius: 18px; padding: 14px 24px; font-weight: 800; background: #177d70; color: white; box-shadow: 0 4px 0 #0e5c51; touch-action: manipulation; }
+.adventure-primary { min-height: 56px; border-radius: 18px; padding: 14px 24px; font-weight: 800; background: linear-gradient(135deg, #ffdb78, #ffbd70); color: #563858; box-shadow: 0 4px 0 #d48a69; touch-action: manipulation; }
 .adventure-primary:disabled { opacity: .5; box-shadow: none; }
-.adventure-secondary { min-height: 52px; border: 2px solid #dce6e3; border-radius: 16px; padding: 10px 20px; font-weight: 700; background: white; touch-action: manipulation; }
+.adventure-secondary { min-height: 52px; border: 2px solid #decce1; border-radius: 16px; padding: 10px 20px; font-weight: 700; background: #fffafd; color: #68446d; box-shadow: 0 3px 0 #e4d7e3; touch-action: manipulation; }
+.adventure-secondary[aria-pressed="true"] { border-color: #a85995; background: #fff0f7; color: #763c70; }
 .adventure-page button:focus-visible, .game-library button:focus-visible { outline: 3px solid #f1a545; outline-offset: 4px; }
-.picture-choice { min-height: 100px; border: 2px solid #e3ebe8; border-radius: 22px; background: white; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-weight: 800; touch-action: manipulation; }
+.picture-choice { min-height: 100px; border: 2px solid #eadde6; border-radius: 22px; background: #fffdfa; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-weight: 800; box-shadow: 0 4px 0 #e9dce6; touch-action: manipulation; }
 .picture-choice:active { transform: scale(.97); }
 .picture-choice:disabled { opacity: .5; }
 .feedback-card { border-radius: 20px; padding: 16px 20px; background: #f0f8ef; border: 1px solid #d5e9d0; color: #285d39; }
@@ -174,8 +176,8 @@ body {
 
 .adventure-page progress { appearance: none; border: 0; border-radius: 999px; overflow: hidden; background: #dce9e3; }
 .adventure-page progress::-webkit-progress-bar { background: #dce9e3; border-radius: 999px; }
-.adventure-page progress::-webkit-progress-value { background: #177d70; border-radius: 999px; }
-.adventure-page progress::-moz-progress-bar { background: #177d70; border-radius: 999px; }
+.adventure-page progress::-webkit-progress-value { background: linear-gradient(90deg, #ffb46c, #dc68a0); border-radius: 999px; }
+.adventure-page progress::-moz-progress-bar { background: #dc68a0; border-radius: 999px; }
 
 /* Original illustrated burger counter. DOM order is the assembly order. */
 .burger-awning { height: 23px; background: repeating-linear-gradient(90deg, #db775d 0 26px, #fff2d8 26px 52px); border-bottom: 5px solid #e9b894; }

@@ -51,6 +51,24 @@ test('불완전한 전신에서는 보정을 시작하지 않는다', () => {
   assert.equal(classifier.update(points({ visibility: .2 }), 1100).bodyDetected, false);
 });
 
+test('레이싱에서는 작게 보이는 아이 자세도 보정하지만 기본 판정은 유지한다', () => {
+  const small = [
+    [.465, .35], [.535, .35],
+    [.47, .43], [.53, .43],
+    [.475, .51], [.525, .51],
+    [.48, .59], [.52, .59],
+  ].map(([x, y]) => ({ x, y, visibility: .48 }));
+  assert.equal(new PoseClassifier().update(small, 1000).bodyDetected, false);
+  const classifier = new PoseClassifier({ minBodyHeight: .20, minVisibility: .45, lostGraceMs: 900 });
+  let result;
+  for (let time = 1000; time <= 3700; time += 100) result = classifier.update(small, time);
+  assert.equal(result.state, 'STANDING');
+  assert.equal(classifier.update(small.map(point => ({ ...point, visibility: .2 })), 3800).bodyDetected, false);
+  assert.equal(classifier.update(small, 4200).state, 'STANDING');
+  classifier.update([], 5300);
+  assert.equal(classifier.update(small, 5400).state, 'CALIBRATING');
+});
+
 test('앉은 자세는 기준 자세로 보정하지 않는다', () => {
   const classifier = new PoseClassifier();
   let result;

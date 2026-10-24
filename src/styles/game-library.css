@@ -1,0 +1,93 @@
+.game-library-hero {
+  min-height: 250px;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 78% 112%, #68cba7 0 28%, transparent 28.5%),
+    radial-gradient(ellipse at 16% 121%, #a9dd86 0 34%, transparent 34.5%),
+    linear-gradient(125deg, #ffe2ad 0%, #ffd1d8 46%, #b8e7fb 100%);
+  box-shadow: inset 0 0 0 3px #fff9, 0 11px 0 #e6d6d0;
+}
+.game-library-hero::before {
+  content: '';
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  right: -80px;
+  top: -145px;
+  border-radius: 50%;
+  border: 19px solid #fff9c8a3;
+  box-shadow: 0 0 0 20px #f6a9c783, 0 0 0 39px #9dd8f388;
+}
+.game-library-hero::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 27px;
+  background: repeating-linear-gradient(90deg, #49bb87 0 11px, #72d29a 11px 21px);
+  border-radius: 0 0 32px 32px;
+}
+.game-library-hero-sun { position: absolute; top: 28px; right: 22%; width: 59px; height: 59px; border-radius: 50%; background: #fff7b8; box-shadow: 0 0 0 10px #fff7b859; }
+.game-library-hero-cloud { position: absolute; top: 52px; right: 7%; width: 86px; height: 27px; border-radius: 30px; background: #fffdf5; box-shadow: -15px -12px 0 -3px #fffdf5, 19px -17px 0 1px #fffdf5; }
+.game-library-hero-ddori { position: absolute; z-index: 2; width: clamp(145px, 26vw, 232px); height: auto; right: 7%; bottom: 10px; filter: drop-shadow(0 8px 0 #33755024); }
+.game-library-hero-friend { position: absolute; z-index: 2; right: 31%; bottom: 22px; width: clamp(56px, 10vw, 98px); height: auto; transform: rotate(-11deg); filter: drop-shadow(0 7px 2px #33755025); }
+.game-library-count { color: #764269; background: #ffe5ec; box-shadow: inset 0 0 0 2px #fff; }
+.game-library-lab { border: 3px solid #fff; background: radial-gradient(circle at 89% 18%, #fff0ad 0 38px, transparent 39px), linear-gradient(110deg, #d8f3ed, #e9dcf8); box-shadow: 0 5px 0 #dcd3e5, 0 8px 20px #54446912; }
+.game-library-filter { border: 2px solid #e5d8e7; background: #fff; color: #675668; box-shadow: 0 3px 0 #e8dee8; transition: transform .15s, box-shadow .15s; }
+.game-library-filter.is-selected { border-color: #a85995; background: #a85995; color: #fff; box-shadow: 0 4px 0 #76416d; }
+.game-library-filter:active { transform: translateY(2px); box-shadow: none; }
+.game-library-card { border: 2px solid #fff; border-radius: 26px; background: #fffdfa; box-shadow: 0 6px 0 #e9dfe4, 0 8px 22px #3b37510d; transition: transform .2s, box-shadow .2s; }
+.game-library-card:hover { transform: translateY(-4px); box-shadow: 0 10px 0 #e9dfe4, 0 15px 26px #3b37511c; }
+.game-library-card:focus-visible { outline: 4px solid #bd689a; outline-offset: 3px; }
+.game-library-new { border: 2px solid #fff; color: #6c3c79; background: #fff2a7; box-shadow: 0 3px 0 #dca8ac; }
+.game-library-focus { color: #a34783; }
+.game-library-arrow { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 50%; color: #fff; background: #ae5b91; font-size: 19px; line-height: 1; transition: transform .2s; }
+.game-library-card:hover .game-library-arrow { transform: translateX(3px); }
+.game-artwork { position: relative; display: grid; place-items: center; width: 100%; height: 156px; overflow: hidden; background: linear-gradient(145deg, var(--art-sky), #fff2d7 110%); }
+.game-artwork-sun { position: absolute; top: 15px; right: 18%; width: 38px; height: 38px; border-radius: 50%; background: var(--art-glow); box-shadow: 0 0 0 9px #fff7d45e; }
+.game-artwork-cloud { position: absolute; z-index: 1; width: 53px; height: 14px; border-radius: 20px; background: #fffdf9b8; box-shadow: -10px -8px 0 -2px #fffdf9b8, 12px -9px 0 #fffdf9b8; }
+.game-artwork-cloud-left { top: 29px; left: 9%; }
+.game-artwork-cloud-right { top: 60px; right: 5%; transform: scale(.7); }
+.game-artwork-hill { position: absolute; width: 120%; height: 78px; bottom: -49px; border-radius: 50% 50% 0 0; }
+.game-artwork-hill-back { left: -38%; bottom: -39px; background: #fff9d58f; transform: rotate(8deg); }
+.game-artwork-hill-front { right: -31%; background: var(--art-hill); transform: rotate(-7deg); }
+.game-artwork-spark { position: absolute; z-index: 2; color: #fffef3; font-size: 22px; text-shadow: 0 2px 2px #7b698745; }
+.game-artwork-spark-one { top: 49px; left: 15%; }
+.game-artwork-spark-two { right: 15%; bottom: 30px; font-size: 15px; }
+.game-artwork-stage { position: relative; z-index: 2; display: block; width: 122px; height: 122px; border: 5px solid #ffffffd9; border-radius: 50%; background: radial-gradient(circle at 45% 35%, #fffefa, var(--art-detail)); box-shadow: 0 8px 0 #68506029, 0 7px 19px #47385122; transition: transform .25s; }
+.game-library-card:hover .game-artwork-stage { transform: rotate(-4deg) scale(1.05); }
+.game-artwork-main { position: absolute; z-index: 2; width: 88px; height: 88px; left: 11px; top: 9px; object-fit: contain; filter: drop-shadow(0 4px 2px #624b5833); }
+.game-artwork-friend { position: absolute; z-index: 3; width: 55px; height: 55px; right: -20px; bottom: -4px; object-fit: contain; transform: rotate(12deg); filter: drop-shadow(0 4px 2px #624b5833); }
+.game-artwork-note { position: absolute; z-index: 3; top: 13px; right: 8px; max-width: 51%; border: 2px solid #fff; border-radius: 13px; background: #fff8e9; padding: 3px 6px; color: #624264; font-size: 13px; font-weight: 900; text-align: center; box-shadow: 0 3px 0 #866e704d; }
+.adventure-heading { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; overflow: hidden; border-radius: 25px; padding: 18px 20px; background: linear-gradient(105deg, #fff4d6, #ffe2e8 55%, #e8dfff); box-shadow: 0 5px 0 #eadde5; }
+.adventure-heading::after { content: '✦  ✦  ✦'; position: absolute; right: 16%; top: -13px; color: #ffffffb8; font-size: 74px; letter-spacing: 10px; pointer-events: none; }
+.adventure-eyebrow { color: #965077; font-size: 12px; font-weight: 900; letter-spacing: .08em; }
+.adventure-back { min-height: 44px; border: 2px solid #fff; border-radius: 15px; background: #fffdfa; padding: 10px 13px; color: #653e62; font-size: 13px; font-weight: 900; box-shadow: 0 3px 0 #dbc9d6; }
+.adventure-page .adventure-intro { border: 2px solid #fff1e8; background: #fffcf6; box-shadow: 0 7px 0 #ebdfe4, 0 10px 28px #483b5d10; }
+.adventure-intro .adventure-intro-scene { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(ellipse at 25% 115%, #78d29e 0 28%, transparent 29%), radial-gradient(ellipse at 85% 125%, #aedf99 0 32%, transparent 33%), linear-gradient(145deg, #aee8f7, #fff4d2); }
+.adventure-intro-scene::before { content: ''; position: absolute; top: 23px; left: 17%; width: 48px; height: 48px; border-radius: 50%; background: #fff5aa; box-shadow: 0 0 0 9px #fff5aa5e; }
+.adventure-intro-friends { position: relative; z-index: 1; width: 210px; height: 177px; flex: none; }
+.adventure-intro-ddori { position: absolute; width: 145px; height: 175px; left: 10px; bottom: -7px; object-fit: contain; }
+.adventure-intro-friend { position: absolute; width: 86px; height: 86px; right: 0; bottom: 2px; transform: rotate(10deg); filter: drop-shadow(0 6px 3px #275c6a29); }
+.adventure-instructions { position: relative; z-index: 1; border: 3px solid #fff; background: #fffdf9ef; box-shadow: 0 6px 0 #53858232; }
+.adventure-difficulty { border-color: #eadfe4; background: #fff; color: #6d536c; box-shadow: 0 3px 0 #e8dce4; }
+.adventure-difficulty.is-selected { border-color: #a75d95; background: #fff0f7; color: #723c70; box-shadow: 0 4px 0 #a75d95; }
+.adventure-difficulty:active { transform: translateY(2px); box-shadow: none; }
+@media (max-width: 639px) {
+  .game-library-hero { min-height: 282px; }
+  .game-library-hero-ddori { right: -4px; bottom: 11px; width: 146px; }
+  .game-library-hero-friend { display: none; }
+  .game-library-hero-sun { right: 18%; }
+  .game-library-hero-cloud { display: none; }
+  .game-library-card { border-radius: 21px; }
+  .game-artwork { height: 144px; }
+  .game-artwork-stage { width: 106px; height: 106px; }
+  .game-artwork-main { width: 80px; height: 80px; left: 8px; top: 6px; }
+  .game-artwork-friend { width: 47px; height: 47px; right: -14px; }
+  .adventure-heading { display: block; min-height: 150px; padding: 15px; }
+  .adventure-heading > div { padding-top: 42px; }
+  .adventure-heading .adventure-eyebrow { position: absolute; top: 20px; left: 15px; }
+  .adventure-heading .adventure-back { position: absolute; top: 12px; right: 15px; }
+  .adventure-intro-friends { width: 185px; height: 122px; }
+  .adventure-intro-ddori { left: 22px; width: 120px; height: 140px; }
+  .adventure-intro-friend { width: 64px; height: 64px; right: 0; }
+}

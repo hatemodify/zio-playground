@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import Picture from './Picture';
 import type { PictureId } from '@/data/picture-content';
 
@@ -10,6 +11,7 @@ const ART: Record<string, { picture: PictureId; friend?: PictureId; text?: strin
   'mini-festival': { picture: 'star', friend: 'rocket', text: '● ▲ ■', background: '#dedcf6' },
   'rocket-ride': { picture: 'rocket', friend: 'star', background: '#233654' },
   'tilt-race': { picture: 'race-car', friend: 'trophy', background: '#d5eaf1' },
+  'cookie-runner': { picture: 'cookie', friend: 'star', background: '#e4d1ec' },
   'animal-playground': { picture: 'excavator', friend: 'bus', background: '#e3f1d6' },
   matching: { picture: 'rabbit', text: '토끼', background: '#e3edf6' },
   sorting: { picture: 'car', text: '1 2 3', background: '#fae8d8' },
@@ -39,15 +41,32 @@ const ART: Record<string, { picture: PictureId; friend?: PictureId; text?: strin
   'number-rain': { picture: 'umbrella', text: '3 7 1', background: '#dcebf7' },
   clock: { picture: 'alarm-clock', text: '3:30', background: '#e3eefb' },
 };
+const PALETTES = [
+  { sky: '#79D8F4', hill: '#57C99B', glow: '#FFF1A6' },
+  { sky: '#FFC3D0', hill: '#F69F83', glow: '#FFF4B4' },
+  { sky: '#CBB8FF', hill: '#8A9FE8', glow: '#FFF2B1' },
+  { sky: '#FFE39D', hill: '#EFAD76', glow: '#FFF9CC' },
+  { sky: '#A5EBD9', hill: '#64C9C1', glow: '#FFF0A6' },
+  { sky: '#FFCCA9', hill: '#F39DBA', glow: '#FFF5BF' },
+] as const;
+
 export default function GameArtwork({ gameId }: { gameId: string }) {
-  if (gameId === 'daruma') return <div aria-hidden="true" className="relative flex h-36 flex-col items-center justify-center bg-[#f4e5cc] sm:h-40"><img src="/assets/illustrations/daruma.svg" alt="" className="h-24 w-24" /><div className="h-3 w-20 rounded-full bg-[#71b6db]" /><div className="h-3 w-20 rounded-full bg-[#ef9d54]" /><img src="/assets/illustrations/daruma-mallet.svg" alt="" className="absolute bottom-4 right-[12%] h-16 w-16 -rotate-45" /></div>;
-  if (gameId === 'food-stack') return <div aria-hidden="true" className="relative flex h-36 w-full items-center justify-center gap-1 overflow-hidden bg-[#fff0ce] sm:h-40"><img src="/assets/twemoji/pizza.svg" alt="" className="h-20 w-20 -rotate-12" /><img src="/assets/twemoji/pancakes.svg" alt="" className="h-24 w-24 rotate-6" /><img src="/assets/twemoji/sandwich.svg" alt="" className="absolute bottom-3 right-4 h-14 w-14" /></div>;
   const art = ART[gameId] ?? ART.matching;
-  return <div aria-hidden="true" className="relative flex h-36 w-full items-center justify-center overflow-hidden sm:h-40" style={{ background: art.background }}>
-    <div className="absolute -bottom-14 -left-8 h-28 w-52 rotate-12 rounded-[50%] bg-white/25" />
-    <div className="absolute -right-3 -top-6 h-24 w-24 rounded-full bg-white/25" />
-    {art.friend && <Picture id={art.friend} className="absolute bottom-4 right-[12%] h-16 w-16 rotate-12 sm:h-20 sm:w-20" />}
-    <Picture id={art.picture} className={`relative z-10 h-24 w-24 ${art.friend ? '-translate-x-5 -rotate-6' : art.text ? '-translate-x-5' : ''}`} />
-    {art.text && <span data-i18n-ignore className="absolute right-3 top-4 z-20 rounded-xl border-2 border-white bg-white/90 px-2 py-1 font-display text-lg font-extrabold text-slate-700 shadow-sm">{art.text}</span>}
+  const palette = PALETTES[[...gameId].reduce((value, letter) => value + letter.charCodeAt(0), 0) % PALETTES.length];
+  const style = { '--art-sky': palette.sky, '--art-hill': palette.hill, '--art-glow': palette.glow, '--art-detail': art.background } as CSSProperties;
+  return <div aria-hidden="true" className="game-artwork" style={style}>
+    <span className="game-artwork-sun" />
+    <span className="game-artwork-cloud game-artwork-cloud-left" />
+    <span className="game-artwork-cloud game-artwork-cloud-right" />
+    <span className="game-artwork-hill game-artwork-hill-back" />
+    <span className="game-artwork-hill game-artwork-hill-front" />
+    <span className="game-artwork-spark game-artwork-spark-one">✦</span>
+    <span className="game-artwork-spark game-artwork-spark-two">✦</span>
+    <span className="game-artwork-stage">
+      {gameId === 'daruma' ? <><img src="/assets/illustrations/daruma.svg" alt="" className="game-artwork-main" /><img src="/assets/illustrations/daruma-mallet.svg" alt="" className="game-artwork-friend" /></>
+        : gameId === 'food-stack' ? <><img src="/assets/twemoji/pancakes.svg" alt="" className="game-artwork-main" /><img src="/assets/twemoji/pizza.svg" alt="" className="game-artwork-friend" /></>
+          : <><Picture id={art.picture} className="game-artwork-main" />{art.friend && <Picture id={art.friend} className="game-artwork-friend" />}</>}
+    </span>
+    {art.text && <span data-i18n-ignore className="game-artwork-note">{art.text}</span>}
   </div>;
 }

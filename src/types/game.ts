@@ -26,6 +26,7 @@ export type GameId =
   | 'pattern-garden'
   | 'rocket-ride'
   | 'tilt-race'
+  | 'cookie-runner'
   | 'animal-playground'
   | 'word-pictures'
   | 'first-sound'

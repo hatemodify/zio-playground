@@ -1,6 +1,7 @@
 export type JumpPacket = { type: 'jump'; sequence: number; sentAt: number };
+export type ReadyPacket = { type: 'ready'; sequence: number; sentAt: number };
 export type EchoPacket = { type: 'echo'; sequence: number; sentAt: number };
-export type LinkPacket = JumpPacket | EchoPacket;
+export type LinkPacket = JumpPacket | ReadyPacket | EchoPacket;
 
 export function createPeer() {
   // Host candidates are sufficient for the intended same-Wi-Fi POC.
@@ -51,7 +52,7 @@ export function parsePacket(data: unknown): LinkPacket | null {
   try {
     const packet: unknown = JSON.parse(data);
     if (!packet || typeof packet !== 'object' || !('type' in packet) || !('sequence' in packet) || !('sentAt' in packet)) return null;
-    if ((packet.type !== 'jump' && packet.type !== 'echo') || !Number.isSafeInteger(packet.sequence) || typeof packet.sentAt !== 'number' || !Number.isFinite(packet.sentAt)) return null;
+    if ((packet.type !== 'jump' && packet.type !== 'ready' && packet.type !== 'echo') || !Number.isSafeInteger(packet.sequence) || typeof packet.sentAt !== 'number' || !Number.isFinite(packet.sentAt)) return null;
     return packet as LinkPacket;
   } catch { return null; }
 }

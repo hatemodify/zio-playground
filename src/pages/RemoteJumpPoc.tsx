@@ -2,13 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { acceptAnswer, createAnswer, createOffer, createPeer, parsePacket } from '@/motion/directLink';
 import { JumpDetector, type JumpReading } from '@/motion/jumpDetector';
 import { Runner } from '@/motion/runner';
+import { useSettingsStore } from '@/stores/settings-store';
 
 type Role = 'display' | 'controller';
 type MotionPermission = typeof DeviceMotionEvent & { requestPermission?: () => Promise<'granted' | 'denied'> };
 const EMPTY_READING: JumpReading = { phase: 'STILL', progress: 0, magnitude: 0, threshold: 17, jump: false };
 
 export default function RemoteJumpPoc() {
-  const [role, setRole] = useState<Role>('display');
+  const en = useSettingsStore(state => state.language) === 'en';
+  const cookieController = new URLSearchParams(location.search).get('game') === 'cookie-runner';
+  const [role, setRole] = useState<Role>(cookieController ? 'controller' : 'display');
   const [status, setStatus] = useState('연결을 시작해 주세요.');
   const [error, setError] = useState('');
   const [offer, setOffer] = useState('');
@@ -36,7 +39,7 @@ export default function RemoteJumpPoc() {
   const motionHandlerRef = useRef<((event: DeviceMotionEvent) => void) | null>(null);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const connectedRef = useRef(false);
-  const roleRef = useRef<Role>('display');
+  const roleRef = useRef<Role>(cookieController ? 'controller' : 'display');
 
   function stop() {
     if (motionHandlerRef.current) window.removeEventListener('devicemotion', motionHandlerRef.current);
@@ -153,9 +156,16 @@ export default function RemoteJumpPoc() {
   function sendJump() {
     const channel = channelRef.current;
     if (!connectedRef.current || channel?.readyState !== 'open') return;
+    if (cookieController && !sensorOn) sendReady();
     channel.send(JSON.stringify({ type: 'jump', sequence: ++sequenceRef.current, sentAt: performance.now() }));
     setSentCount(count => count + 1);
     setLastJumpAt(new Date().toLocaleTimeString('ko-KR'));
+  }
+
+  function sendReady() {
+    const channel = channelRef.current;
+    if (!connectedRef.current || channel?.readyState !== 'open') return;
+    channel.send(JSON.stringify({ type: 'ready', sequence: ++sequenceRef.current, sentAt: performance.now() }));
   }
 
   function onMotion(event: DeviceMotionEvent) {
@@ -168,6 +178,7 @@ export default function RemoteJumpPoc() {
     const phaseChanged = next.phase !== lastPhaseRef.current;
     if (phaseChanged) {
       setStatus(next.phase === 'RUN' ? '제자리에서 2초간 달려 보정해 주세요.' : '보정 완료 · 제자리 달리기 중 점프해 보세요.');
+      if (next.phase === 'READY') sendReady();
       lastPhaseRef.current = next.phase;
     }
     if (now - lastUiRef.current >= 100 || next.jump || phaseChanged) {
@@ -251,8 +262,8 @@ export default function RemoteJumpPoc() {
   const button = 'min-h-11 rounded-xl bg-teal-300 px-4 py-2 font-black text-slate-900 disabled:opacity-50';
   const secondary = 'min-h-11 rounded-xl border border-slate-400 px-4 py-2 font-bold text-white disabled:opacity-50';
   return <div className="mx-auto w-full max-w-5xl space-y-4 px-4 py-5 text-slate-800 sm:px-6">
-    <header><p className="text-xs font-black tracking-[.2em] text-teal-700">REMOTE JUMP · TECH POC</p><h1 className="mt-1 text-2xl font-black">몸에 고정한 휴대폰으로 점프</h1><p className="mt-2 text-sm text-slate-600">게임 화면과 공기계를 같은 Wi-Fi에 연결하세요. 처음 연결 정보 교환은 보호자가 진행합니다.</p></header>
-    <div className="flex flex-wrap gap-2"><button className={role === 'display' ? button : 'min-h-11 rounded-xl border px-4 py-2 font-bold'} onClick={() => setRoleAndReset('display')} aria-pressed={role === 'display'}>게임 화면</button><button className={role === 'controller' ? button : 'min-h-11 rounded-xl border px-4 py-2 font-bold'} onClick={() => setRoleAndReset('controller')} aria-pressed={role === 'controller'}>공기계 컨트롤러</button></div>
+    <header><p className="text-xs font-black tracking-[.2em] text-teal-700">{cookieController ? 'SWEET FOREST · PHONE CONTROLLER' : 'REMOTE JUMP · TECH POC'}</p><h1 className="mt-1 text-2xl font-black">{cookieController ? (en ? 'Sweet Forest Jump Controller' : '달콤한 숲 점프 컨트롤러') : '몸에 고정한 휴대폰으로 점프'}</h1><p className="mt-2 text-sm text-slate-600">{cookieController && en ? 'Connect this spare phone and the game display to the same Wi-Fi. A parent exchanges the connection text once.' : '게임 화면과 공기계를 같은 Wi-Fi에 연결하세요. 처음 연결 정보 교환은 보호자가 진행합니다.'}</p></header>
+    {!cookieController && <div className="flex flex-wrap gap-2"><button className={role === 'display' ? button : 'min-h-11 rounded-xl border px-4 py-2 font-bold'} onClick={() => setRoleAndReset('display')} aria-pressed={role === 'display'}>게임 화면</button><button className={role === 'controller' ? button : 'min-h-11 rounded-xl border px-4 py-2 font-bold'} onClick={() => setRoleAndReset('controller')} aria-pressed={role === 'controller'}>공기계 컨트롤러</button></div>}
     <section className="rounded-3xl bg-slate-900 p-4 text-white shadow-lg">
       {role === 'display' && <canvas ref={canvasRef} className="w-full rounded-2xl" style={{ aspectRatio: '640 / 260' }} aria-label="점프 러너 게임" />}
       <p className="mt-3 text-sm text-teal-200" role="status">{status}</p>

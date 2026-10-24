@@ -56,6 +56,9 @@ export const GAME_CONFIGS: GameConfig[] = [
   { id: 'tilt-race', name: '또리의 드라이브 챌린지', description: '카메라 앞에서 옆으로 움직여 차선을 바꾸고 결승선까지 달려요.', icon: 'race-car', kind: 'play', focus: '몸 움직임 · 집중 · 반응', isNew: true, categories: [],
     difficulties: { easy: { label: '3단계 코스' }, normal: { label: '3단계 코스' }, hard: { label: '3단계 코스' } }, unlockThreshold: 0,
     rules: ['카메라가 전신을 볼 수 있도록 기기를 세워 두세요.', '옆으로 한 번 움직이면 한 차선 바뀌고, 중앙으로 돌아와도 자동차는 그대로 있어요.', '차량을 피하고 별을 모아 1,800m 결승선까지 달려요.'] },
+  { id: 'cookie-runner', name: '달콤한 숲 달리기', description: '몸으로 점프하고 앉으며 쿠키 친구와 사탕 숲을 완주해요.', icon: 'cookie', kind: 'play', focus: '몸 움직임 · 순발력 · 집중', isNew: true, categories: [],
+    difficulties: { easy: { label: '3단계 코스' }, normal: { label: '3단계 코스' }, hard: { label: '3단계 코스' } }, unlockThreshold: 0,
+    rules: ['카메라가 전신을 볼 수 있도록 기기를 고정해 주세요. 보정되면 자동으로 시작해요.', '점프해서 통나무를 넘고 앉아서 사탕 가지를 피해요.', '별을 모으며 1,200m 결승선까지 달려요. 키보드와 화면 버튼으로도 놀 수 있어요.'] },
   { id: 'animal-playground', name: '상상 마을 놀이터', description: '탈것과 동물로 도로와 공사장을 꾸며요', icon: 'excavator', kind: 'play', focus: '꾸미기 · 자유 놀이', isNew: true, categories: [],
     difficulties: { easy: { label: '자유 놀이' }, normal: { label: '자유 놀이' }, hard: { label: '자유 놀이' } }, unlockThreshold: 0, rules: ['동물을 고르고 빈자리를 눌러요.', '배경을 바꾸고 함께 춤춰요.'] },
 

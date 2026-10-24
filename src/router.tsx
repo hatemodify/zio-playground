@@ -96,6 +96,7 @@ export const router = createBrowserRouter([
       { path: '/games/motion-poc', element: lazyPage(() => import('./pages/MotionPocPage')) },
       { path: '/games/motion-poc/remote', element: lazyPage(() => import('./pages/RemoteJumpPoc')) },
       { path: '/games/tilt-race', element: lazyPage(() => import('./pages/TiltRacePage')) },
+      { path: '/games/cookie-runner', element: lazyPage(() => import('./pages/CookieRunnerPage')) },
       { path: '/games/animal-playground', element: lazyPage(() => import('./pages/AnimalPlaygroundPage')) },
       {
         path: '/games/matching',

@@ -12,11 +12,11 @@ const DIFFICULTIES = [
 
 export function AdventureFrame({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return <div className="adventure-page">
-    <div className="flex items-start justify-between gap-3">
-      <div><p className="text-xs font-bold tracking-widest text-teal-700">또리의 발견 놀이터</p>
+    <div className="adventure-heading">
+      <div className="relative z-10"><p className="adventure-eyebrow"><span aria-hidden="true">✦ </span><span>또리의 발견 놀이터</span></p>
         <h1 className="mt-1 text-2xl font-extrabold text-slate-800">{title}</h1>
         <p className="mt-1 text-sm text-slate-600">{subtitle}</p></div>
-      <Link className="shrink-0 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold" to="/games">게임 목록</Link>
+      <Link className="adventure-back relative z-10 shrink-0" to="/games"><span aria-hidden="true">← </span><span>게임 목록</span></Link>
     </div>
     {children}
   </div>;
@@ -25,8 +25,9 @@ export function AdventureFrame({ title, subtitle, children }: { title: string; s
 export function AdventureIntro({ picture, title, instructions, difficulty, onDifficulty, onStart, children, showDifficulty = true }:
   { picture: PictureId; title: string; instructions: string[]; difficulty: Difficulty; onDifficulty: (value: Difficulty) => void; onStart: () => void; children?: ReactNode; showDifficulty?: boolean }) {
   return <section className="adventure-intro">
-    <div className="scene-meadow flex min-h-52 flex-col items-center justify-center gap-4 rounded-3xl p-4 sm:flex-row sm:gap-6 sm:p-6">
-      <Picture id={picture} className="h-24 w-24 shrink-0 animate-float sm:h-36 sm:w-36" /><div className="w-full max-w-md rounded-3xl bg-white/95 p-5 shadow-sm">
+    <div className="scene-meadow adventure-intro-scene flex min-h-52 flex-col items-center justify-center gap-4 rounded-3xl p-4 sm:flex-row sm:gap-6 sm:p-6">
+      <div className="adventure-intro-friends" aria-hidden="true"><img src="/assets/illustrations/ddori-adventure.svg" alt="" className="adventure-intro-ddori" /><Picture id={picture} className="adventure-intro-friend" /></div>
+      <div className="adventure-instructions w-full max-w-md rounded-3xl p-5">
         <h2 className="text-xl font-extrabold">{title}</h2>
         <ol className="mt-3 space-y-2 text-sm text-slate-600">{instructions.map((text, i) => <li key={text}>{i + 1}. {text}</li>)}</ol>
       </div>
@@ -35,7 +36,7 @@ export function AdventureIntro({ picture, title, instructions, difficulty, onDif
     {showDifficulty && <fieldset className="mt-5"><legend className="mb-3 text-sm font-bold text-slate-600">오늘은 어떻게 놀까요?</legend>
       <div className="grid grid-cols-3 gap-2">{DIFFICULTIES.map((item) => <button type="button" key={item.id}
         aria-pressed={difficulty === item.id} onClick={() => onDifficulty(item.id)}
-        className={`rounded-2xl border-2 p-4 text-left ${difficulty === item.id ? 'border-teal-600 bg-teal-50' : 'border-slate-100 bg-white'}`}>
+        className={`adventure-difficulty rounded-2xl border-2 p-4 text-left ${difficulty === item.id ? 'is-selected' : ''}`}>
         <span className="block break-keep text-sm font-bold sm:text-base">{item.label}</span><span className="hidden text-xs text-slate-500 sm:inline">{item.description}</span>
       </button>)}</div>
     </fieldset>}

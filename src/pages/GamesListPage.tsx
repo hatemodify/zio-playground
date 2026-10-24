@@ -16,18 +16,19 @@ export default function GamesListPage() {
   const isLearning = (game: typeof GAME_CONFIGS[number]) => game.kind ? game.kind === 'learning' : game.categories.length > 0;
   const visible = GAME_CONFIGS.filter((game) => filter === 'all' || (filter === 'new' ? game.isNew : filter === 'learning' ? isLearning(game) : !isLearning(game)));
   return <div className="game-library mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 pb-8 pt-3 sm:px-6">
-    <div className="flex items-center justify-between"><h1 className="text-2xl font-extrabold text-slate-800">미니 게임</h1><span className="rounded-full bg-white px-3 py-1 text-sm font-bold text-teal-700">{language === 'en' ? `${GAME_CONFIGS.length} Games` : `${GAME_CONFIGS.length}개 게임`}</span></div>
-    <section className="scene-meadow relative overflow-hidden rounded-[32px] p-6 sm:p-8">
-      <div className="relative z-10 max-w-[65%]"><p className="text-xs font-extrabold tracking-wider text-teal-700">PLAY · DISCOVER · GROW</p>
+    <div className="flex items-center justify-between"><h1 className="text-2xl font-extrabold text-slate-800">미니 게임</h1><span className="game-library-count rounded-full px-3 py-1 text-sm font-bold">{language === 'en' ? `${GAME_CONFIGS.length} Games` : `${GAME_CONFIGS.length}개 게임`}</span></div>
+    <section className="game-library-hero relative overflow-hidden rounded-[32px] p-6 sm:p-8">
+      <span className="game-library-hero-sun" aria-hidden="true" /><span className="game-library-hero-cloud" aria-hidden="true" />
+      <div className="relative z-10 max-w-[61%]"><p className="text-xs font-extrabold tracking-wider text-[#7c447e]">PLAY · DISCOVER · GROW</p>
         <h2 className="mt-3 text-2xl font-extrabold leading-snug text-slate-800 sm:text-3xl">놀다 보면,<br />새로운 발견!</h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">그림을 보고, 직접 만지고,<br />스스로 알아가는 또리의 놀이터</p>
         <Link className="adventure-primary mt-5 inline-block text-sm" to="/games/vehicle-missions">오늘의 탐험 시작 →</Link></div>
-      <Picture id="excavator" className="absolute -bottom-3 right-3 h-40 w-32 rotate-6 sm:right-16 sm:h-64 sm:w-48" />
-      <Picture id="police-car" className="absolute bottom-5 right-24 hidden h-32 w-32 -rotate-12 lg:right-56 lg:block" />
+      <img src="/assets/illustrations/ddori-adventure.svg" alt="" className="game-library-hero-ddori" aria-hidden="true" />
+      <Picture id="rabbit" className="game-library-hero-friend" />
     </section>
-    <Link to="/games/motion-poc" className="rounded-2xl border-2 border-teal-500 bg-teal-50 p-4 text-slate-800 shadow-sm"><span className="text-xs font-black tracking-wider text-teal-700">개발용 POC · CAMERA MOTION</span><h2 className="mt-1 text-lg font-black">몸으로 달리는 실험실 →</h2><p className="mt-1 text-sm">카메라로 점프, 앉기, 좌우 이동을 시험해 보세요.</p></Link>
+    <Link to="/games/motion-poc" className="game-library-lab relative overflow-hidden rounded-2xl p-4 text-slate-800"><div className="relative z-10 max-w-[70%]"><span className="text-xs font-black tracking-wider text-[#7d4e86]">개발용 POC · CAMERA MOTION</span><h2 className="mt-1 text-lg font-black">몸으로 달리는 실험실 →</h2><p className="mt-1 text-sm">카메라로 점프, 앉기, 좌우 이동을 시험해 보세요.</p></div><Picture id="camera" className="absolute -bottom-4 right-1 h-20 w-20 rotate-12 sm:right-6 sm:h-24 sm:w-24" /></Link>
     <div className="flex flex-wrap gap-2" role="group" aria-label="게임 종류">{FILTERS.map((item) => <button key={item.id} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}
-      className={`min-h-11 rounded-full px-5 py-2.5 text-sm font-bold ${filter === item.id ? 'bg-teal-700 text-white' : 'border border-slate-200 bg-white text-slate-600'}`}>{item.label}</button>)}</div>
+      className={`game-library-filter min-h-11 rounded-full px-5 py-2.5 text-sm font-bold ${filter === item.id ? 'is-selected' : ''}`}>{item.label}</button>)}</div>
     {(['learning', 'play'] as const).map((kind) => {
       const games = visible.filter((game) => isLearning(game) === (kind === 'learning'));
       if (!games.length) return null;

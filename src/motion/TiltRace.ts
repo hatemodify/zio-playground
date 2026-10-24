@@ -91,6 +91,12 @@ export class TiltRace {
     this.phase = 'running';
   }
 
+  reset() {
+    this.start();
+    this.phase = 'ready';
+    this.speed = 0;
+  }
+
   pause() { if (this.phase === 'running') this.phase = 'paused'; }
   resume() { if (this.phase === 'paused') { this.lastTick = 0; this.phase = 'running'; } }
   moveLane(direction: -1 | 1, capturedAt?: number) {
@@ -190,18 +196,18 @@ export class TiltRace {
     const english = useSettingsStore.getState().language === 'en';
     const impact = clamp((this.impactUntil - now) / 430, 0, 1);
     ctx.save();
-    ctx.fillStyle = '#17244d'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.fillStyle = '#73c6eb'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
     if (impact > 0) ctx.translate(Math.sin(now * 0.18) * impact * 8, Math.cos(now * 0.21) * impact * 5);
     const sky = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-    sky.addColorStop(0, '#17244d'); sky.addColorStop(0.34, '#493c77'); sky.addColorStop(0.66, '#f39a76'); sky.addColorStop(1, '#eecf9b');
+    sky.addColorStop(0, '#70c9ef'); sky.addColorStop(0.42, '#b4e9f6'); sky.addColorStop(1, '#fff0be');
     ctx.fillStyle = sky; ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    ctx.fillStyle = '#ffc68f'; ctx.beginPath(); ctx.arc(630, 105, 54, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#7b6992';
+    ctx.fillStyle = '#fff3a3'; ctx.beginPath(); ctx.arc(630, 105, 54, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#a9c7c9';
     for (let x = -100; x < WIDTH + 100; x += 135) {
       ctx.beginPath(); ctx.moveTo(x, HORIZON + 22); ctx.lineTo(x + 70, 66 + (x % 3) * 8); ctx.lineTo(x + 150, HORIZON + 22); ctx.fill();
     }
-    ctx.fillStyle = '#324e66'; ctx.fillRect(0, HORIZON + 17, WIDTH, HEIGHT);
-    ctx.fillStyle = '#375c65';
+    ctx.fillStyle = '#8bd2a0'; ctx.fillRect(0, HORIZON + 17, WIDTH, HEIGHT);
+    ctx.fillStyle = '#70c997';
     for (let index = 0; index < 7; index++) {
       const depth = (index / 7 + this.distance / 120) % 1;
       const y = HORIZON + Math.pow(depth, 1.7) * (HEIGHT - HORIZON);
@@ -210,15 +216,15 @@ export class TiltRace {
       const center = roadCenter(y, this.distance);
       for (const side of [-1, 1]) {
         const x = center + side * (half + 18 + depth * 25);
-        ctx.fillStyle = '#244b54'; ctx.fillRect(x - size * .08, y - size * .2, size * .16, size * .65);
-        ctx.fillStyle = index % 3 === 0 ? '#ffbb99' : '#54c4a8';
+        ctx.fillStyle = '#617f65'; ctx.fillRect(x - size * .08, y - size * .2, size * .16, size * .65);
+        ctx.fillStyle = index % 3 === 0 ? '#f692ab' : '#38b995';
         ctx.beginPath(); ctx.arc(x, y - size * .55, size * .38, 0, Math.PI * 2); ctx.fill();
       }
     }
     for (let y = HORIZON; y < HEIGHT; y += 3) {
       const half = roadHalf(y);
       const center = roadCenter(y, this.distance);
-      ctx.fillStyle = '#292f48'; ctx.fillRect(center - half, y, half * 2, 3);
+      ctx.fillStyle = '#5f697b'; ctx.fillRect(center - half, y, half * 2, 3);
       const stripe = Math.floor((y + this.distance * 2.8) / 24) % 2 === 0;
       ctx.fillStyle = stripe ? '#f4e2c4' : '#ec7a87';
       ctx.fillRect(center - half, y, 7 + (y - HORIZON) * .035, 3);
@@ -273,10 +279,10 @@ export class TiltRace {
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
     }
     const shade = ctx.createLinearGradient(0, 0, 0, 190);
-    shade.addColorStop(0, 'rgba(14, 21, 48, .55)'); shade.addColorStop(1, 'rgba(14, 21, 48, 0)');
+    shade.addColorStop(0, 'rgba(31, 66, 95, .18)'); shade.addColorStop(1, 'rgba(31, 66, 95, 0)');
     ctx.fillStyle = shade; ctx.fillRect(0, 0, WIDTH, 190);
     if (this.phase !== 'running') {
-      ctx.fillStyle = 'rgba(15, 21, 45, .66)'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      ctx.fillStyle = 'rgba(25, 45, 83, .46)'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
       ctx.textAlign = 'center'; ctx.fillStyle = '#fff9ec'; ctx.font = '900 48px system-ui';
       ctx.fillText(this.phase === 'won' ? 'FINISH!' : this.phase === 'lost' ? 'GAME OVER' : this.phase === 'paused' ? 'PAUSED' : 'BODY RACE', WIDTH / 2, 210);
       ctx.font = '700 21px system-ui'; ctx.fillStyle = '#c9f5e7';

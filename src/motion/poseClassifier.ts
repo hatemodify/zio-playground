@@ -15,24 +15,27 @@ export type PoseSnapshot = {
 };
 
 type Sample = { shoulderY: number; hipY: number; kneeY: number; ankleY: number; centerX: number; bodyHeight: number; kneeGap: number };
+export type PoseClassifierOptions = { minBodyHeight?: number; minVisibility?: number; lostGraceMs?: number };
 const average = (a: number, b: number) => (a + b) / 2;
 const initial: PoseSnapshot = { state: 'NO_BODY', action: 'NONE', bodyDetected: false, confidence: 0, hipDeltaY: 0, shoulderDeltaY: 0, centerDeltaX: 0, calibrationProgress: 0, lastActionAt: null, message: '전신이 보이도록 뒤로 이동해 주세요.' };
 
-function sample(points: Landmark[]): { value: Sample; confidence: number } | null {
+function sample(points: Landmark[], options: PoseClassifierOptions): { value: Sample; confidence: number } | null {
   if (points.length !== 8) return null;
   const confidence = Math.min(...points.map(point => point.visibility));
-  if (confidence < 0.55 || points.some(point => !Number.isFinite(point.x) || !Number.isFinite(point.y))) return null;
+  if (confidence < (options.minVisibility ?? 0.55) || points.some(point => !Number.isFinite(point.x) || !Number.isFinite(point.y))) return null;
   const shoulderY = average(points[0].y, points[1].y);
   const hipY = average(points[2].y, points[3].y);
   const kneeY = average(points[4].y, points[5].y);
   const ankleY = average(points[6].y, points[7].y);
   const centerX = (points[0].x + points[1].x + points[2].x + points[3].x) / 4;
   const bodyHeight = ankleY - shoulderY;
-  if (bodyHeight < 0.34 || shoulderY < 0.035 || ankleY > 0.965 || Math.min(...points.map(point => point.x)) < 0.025 || Math.max(...points.map(point => point.x)) > 0.975) return null;
+  if (bodyHeight < (options.minBodyHeight ?? 0.34) || shoulderY < 0.035 || ankleY > 0.965 || Math.min(...points.map(point => point.x)) < 0.025 || Math.max(...points.map(point => point.x)) > 0.975) return null;
   return { value: { shoulderY, hipY, kneeY, ankleY, centerX, bodyHeight, kneeGap: kneeY - hipY }, confidence };
 }
 
 export class PoseClassifier {
+  private readonly options: PoseClassifierOptions;
+  constructor(options: PoseClassifierOptions = {}) { this.options = options; }
   private baseline: Sample | null = null;
   private calibration: Sample[] = [];
   private calibrationStart = 0;
@@ -59,9 +62,9 @@ export class PoseClassifier {
   }
 
   update(points: Landmark[], now: number): PoseSnapshot {
-    const found = sample(points);
+    const found = sample(points, this.options);
     if (!found) {
-      if (this.lastSeen && now - this.lastSeen > 350) this.reset();
+      if (this.lastSeen && now - this.lastSeen > (this.options.lostGraceMs ?? 350)) this.reset();
       this.candidate = 'NONE';
       this.candidateFrames = 0;
       this.lastOutput = { ...initial, lastActionAt: this.lastActionAt };
